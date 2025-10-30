@@ -1,0 +1,274 @@
+[package]
+name = "hermes-can"
+version = "0.3.2"
+edition = "2024"
+authors = ["Louis Schell <louis.schell1@gmx.de>"]
+publish = false
+
+[lib]
+doctest = false
+
+[dependencies]
+embedded-can = { version = "0.4.1" }
+serde = { version = "1.0.218", features = [
+    "derive",
+], default-features = false, optional = true }
+bincode = { version = "2.0.0-rc.3", features = [
+    "derive",
+    "serde",
+], default-features = false }
+thiserror = { version = "2.0.11", default-features = false }
+defmt = { version = "0.3.10", optional = true }
+arbitrary = { version = "1.4.1", features = ["derive"], optional = true }
+hermes-can-derive = { path = "hermes-can-derive" }
+const_panic = { version = "0.2.12", features = ["rust_1_82"] }
+
+[lints.clippy]
+unwrap_used = "deny"
+pedantic = { level = "warn", priority = -1 }
+doc_markdown = "allow"  # Too many false positives for acronymes I can't bother to whitelist
+
+[[example]]
+name = "usage"
+required-features = ["std", "all"]
+
+[package.metadata.cargo-all-features]
+# This package metadata is used by `cargo build-all-features` to build with all subsets of features
+# enabled. This would be intractable since we define a feature for each message, so we only allow
+# the following features to be enabled.
+allowlist = ["all", "std", "serde", "arbitrary", "defmt"]
+
+[dev-dependencies]
+# bincode std dependency is needed in tests.
+hermes-can = { path = ".", features = ["std"] }
+
+[features]
+std = ["bincode/std"]
+serde = ["dep:serde"]
+arbitrary = ["dep:arbitrary", "std"]
+defmt = ["dep:defmt"]
+
+
+# --- Messages ---
+# Enables all messages
+all = [
+
+    # --- Event Messages ---
+    "message-separation-trigger",
+    "message-deployment-trigger",
+    "message-separation-occurred",
+    "message-deployment-occurred",
+    "message-steering-target-positions",
+    "message-steering-actual-positions",
+    "message-recovery-power-config",
+    "message-camera-power-control",
+
+    "message-fuel-pressurization",
+    "message-fuel-pressurization-gain",
+    "message-fuel-pressurization-abort",
+    "message-fuel-pressurization-completed",
+    "message-oxidizer-pressurization",
+    "message-oxidizer-pressurization-gain",
+    "message-oxidizer-pressurization-abort",
+    "message-oxidizer-pressurization-completed",
+
+    "message-gox-igniter-valve-control",
+    "message-h2-igniter-valve-control",
+    "message-igniter-spark-plug-control",
+    "message-igniter-purge-control",
+
+    "message-fuel-dpr-config-fc",
+    "message-oxidizer-dpr-config-fc",
+    "message-pressure-vent-control-fc",
+    "message-fuel-vent-control-fc",
+    "message-oxidizer-vent-control-fc",
+    "message-fuel-main-control-fc",
+    "message-oxidizer-main-control-fc",
+
+    "message-fuel-dpr-config-ecu",
+    "message-oxidizer-dpr-config-ecu",
+    "message-pressure-vent-control-ecu",
+    "message-fuel-vent-control-ecu",
+    "message-oxidizer-vent-control-ecu",
+
+    "message-fuel-dpr-config-rfs",
+    "message-oxidizer-dpr-config-rfs",
+    "message-pressure-vent-control-rfs",
+    "message-fuel-vent-control-rfs",
+    "message-oxidizer-vent-control-rfs",
+    "message-fuel-main-control-rfs",
+    "message-oxidizer-main-control-rfs",
+
+    "message-engine-firing-initiation",
+    "message-engine-thrust-config",
+    "message-engine-firing-aborted",
+    "message-engine-firing-abort-initiation",
+    "message-engine-firing-completed",
+    "message-engine-firing-initiated",
+    "message-engine-ignition-detected",
+    "message-engine-combustion-detected",
+
+    # --- Board Status Messages ---
+    "message-flight-computer-status",
+    "message-rfs-computer-status",
+    "message-sensor-carrier-status",
+    "message-communication-board-status",
+    "message-engine-control-board-status",
+    "message-power-board-status",
+    "message-recovery-board-status",
+    "message-fuel-control-board-status",
+    "message-oxidizer-control-board-status",
+
+    "message-fuel-control-board-valve-states",
+    "message-oxidizer-control-board-valve-states",
+    "message-engine-control-board-valve-states",
+    "message-rfs-computer-valve-states",
+    "message-camera-power-status",
+
+    # --- Sensor Data ---
+    "message-position-data",
+    "message-imu-data",
+    "message-velocity-data",
+    "message-orientation-data",
+    "message-rail-status-5v",
+    "message-rail-status-24v",
+    "message-environmental-data",
+    "message-pressure-data",
+    "message-magnetometer-data",
+    "message-engine-temperature-data",
+    "message-engine-pressure-data",
+
+    "message-igniter-pressure",
+    "message-igniter-temperature",
+
+    "message-pressurization-line-pressure",
+    "message-oxidizer-tank-pressure",
+    "message-fuel-tank-pressure",
+    "message-fuel-tank-temperature",
+    "message-oxidizer-tank-level",
+
+    # --- Build Info Messages ---
+    "message-flight-computer-build-info",
+    "message-rfs-computer-build-info",
+    "message-sensor-carrier-build-info",
+    "message-communication-board-build-info",
+    "message-engine-control-board-build-info",
+    "message-power-board-build-info",
+    "message-recovery-board-build-info",
+    "message-fuel-control-board-build-info",
+    "message-oxidizer-control-board-build-info",
+]
+
+# --- System Management ---
+# No features, since system_management messages are the absolute minimum
+
+# --- Event Messages ---
+message-separation-trigger = []
+message-deployment-trigger = []
+message-separation-occurred = []
+message-deployment-occurred = []
+message-steering-target-positions = []
+message-steering-actual-positions = []
+message-recovery-power-config = []
+message-camera-power-control = []
+
+message-gox-igniter-valve-control = []
+message-h2-igniter-valve-control = []
+message-igniter-spark-plug-control = []
+message-igniter-purge-control = []
+
+message-fuel-dpr-config-fc = []
+message-oxidizer-dpr-config-fc = []
+message-pressure-vent-control-fc = []
+message-fuel-vent-control-fc = []
+message-oxidizer-vent-control-fc = []
+message-fuel-main-control-fc = []
+message-oxidizer-main-control-fc = []
+
+message-fuel-dpr-config-ecu = []
+message-oxidizer-dpr-config-ecu = []
+message-pressure-vent-control-ecu = []
+message-fuel-vent-control-ecu = []
+message-oxidizer-vent-control-ecu = []
+
+message-fuel-dpr-config-rfs = []
+message-oxidizer-dpr-config-rfs = []
+message-pressure-vent-control-rfs = []
+message-fuel-vent-control-rfs = []
+message-oxidizer-vent-control-rfs = []
+message-fuel-main-control-rfs = []
+message-oxidizer-main-control-rfs = []
+
+message-engine-firing-initiation = []
+message-engine-thrust-config = []
+message-engine-firing-aborted = []
+message-engine-firing-abort-initiation = []
+message-engine-firing-completed = []
+message-engine-firing-initiated = []
+message-engine-ignition-detected = []
+message-engine-combustion-detected = []
+
+message-fuel-pressurization = []
+message-fuel-pressurization-gain = []
+message-fuel-pressurization-abort = []
+message-fuel-pressurization-completed = []
+message-oxidizer-pressurization = []
+message-oxidizer-pressurization-gain = []
+message-oxidizer-pressurization-abort = []
+message-oxidizer-pressurization-completed = []
+
+# --- Board Status Messages ---
+message-flight-computer-status = []
+message-rfs-computer-status = []
+message-sensor-carrier-status = []
+message-communication-board-status = []
+message-engine-control-board-status = []
+message-power-board-status = []
+message-recovery-board-status = []
+message-fuel-control-board-status = []
+message-oxidizer-control-board-status = []
+
+message-fuel-control-board-valve-states = []
+message-oxidizer-control-board-valve-states = []
+message-engine-control-board-valve-states = []
+message-rfs-computer-valve-states = []
+message-camera-power-status = []
+
+# --- Sensor Data ---
+message-position-data = []
+message-imu-data = []
+message-velocity-data = []
+message-orientation-data = []
+
+message-rail-status-5v = []
+message-rail-status-24v = []
+
+message-environmental-data = []
+message-pressure-data = []
+message-magnetometer-data = []
+
+message-pressurization-line-pressure = []
+
+message-oxidizer-tank-pressure = []
+message-fuel-tank-pressure = []
+
+message-fuel-tank-temperature = []
+
+message-oxidizer-tank-level = []
+
+message-engine-pressure-data = []
+message-engine-temperature-data = []
+
+message-igniter-pressure = []
+message-igniter-temperature = []
+
+# --- Build Info Messages ---
+message-flight-computer-build-info = []
+message-rfs-computer-build-info = []
+message-sensor-carrier-build-info = []
+message-communication-board-build-info = []
+message-engine-control-board-build-info = []
+message-power-board-build-info = []
+message-recovery-board-build-info = []
+message-fuel-control-board-build-info = []
+message-oxidizer-control-board-build-info = []
