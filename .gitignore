@@ -14,4 +14,6 @@ Cargo.lock
 *.pdb
 
 # No need to share these
-.idea/
+**/.idea
+**/.DS_Store
+*.log
