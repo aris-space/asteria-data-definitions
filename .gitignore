@@ -15,5 +15,6 @@ Cargo.lock
 
 # No need to share these
 **/.idea
+.vscode
 **/.DS_Store
 *.log
