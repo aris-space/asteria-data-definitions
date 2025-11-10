@@ -3,6 +3,7 @@ resolver = "3"
 
 members = [
     "can",
+    "can-hal",
     "can/hermes-can-derive",
     "mavlink",
 ]
