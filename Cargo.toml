@@ -5,6 +5,8 @@ members = [
     "can",
     "can-hal",
     "can/hermes-can-derive",
+    "datapoints/*",
+    "datatypes",
     "mavlink",
 ]
 

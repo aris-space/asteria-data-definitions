@@ -1,4 +1,4 @@
-use embedded_can::StandardId;
+pub use embedded_can::StandardId;
 
 pub const FD_DATA_LENGTH: usize = 64;
 
@@ -61,5 +61,5 @@ pub trait CanEncode {
     /// Tries to encode a message `self` into `buf`, returning the id and the number of bytes written.
     ///
     /// The number of bytes written must be a valid data length code.
-    fn encode_into(&self, buf: &mut [u8]) -> Result<(StandardId, u8), Self::Error>;
+    fn encode_into(&self, buf: &mut [u8; 64]) -> Result<(StandardId, u8), Self::Error>;
 }
