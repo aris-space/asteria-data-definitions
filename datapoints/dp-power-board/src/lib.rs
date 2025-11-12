@@ -38,15 +38,37 @@ pub enum Message {
     PowerBoardBuildInfo(BuildInformationCommon),
 }
 
-// generated
-#[derive(Debug, Clone, Copy)]
-pub enum MessageVariant {
-    ResetPowerBoard,
-    PowerBoardStatus,
-    CameraPowerStatus,
-    RailStatus5V,
-    RailStatus24V,
-    PowerBoardBuildInfo,
+#[allow(non_upper_case_globals)]
+pub mod __message_meta_ids {
+    use ::can_hal::StandardId;
+
+    pub const ResetPowerBoard: StandardId = StandardId::new(0x001).expect("must be in range");
+    pub const PowerBoardStatus: StandardId = StandardId::new(0x002).expect("must be in range");
+    pub const CameraPowerStatus: StandardId = StandardId::new(0x003).expect("must be in range");
+    pub const RailStatus5V: StandardId = StandardId::new(0x004).expect("must be in range");
+    pub const RailStatus24V: StandardId = StandardId::new(0x005).expect("must be in range");
+    pub const PowerBoardBuildInfo: StandardId = StandardId::new(0x006).expect("must be in range");
+
+    pub const ALL_IDS: [StandardId; 6] = [
+        ResetPowerBoard,
+        PowerBoardStatus,
+        CameraPowerStatus,
+        RailStatus5V,
+        RailStatus24V,
+        PowerBoardBuildInfo,
+    ];
+}
+
+pub mod __message_meta_types {
+    #[allow(clippy::wildcard_imports)]
+    use super::*;
+
+    pub type ResetPowerBoard = ();
+    pub type PowerBoardStatus = StatusCommonMessage;
+    pub type CameraPowerStatus = CameraPower;
+    pub type RailStatus5V = RailStatus;
+    pub type RailStatus24V = RailStatus;
+    pub type PowerBoardBuildInfo = BuildInformationCommon;
 }
 
 // generated:
@@ -54,15 +76,19 @@ impl CanDecode for Message {
     type Error = Error;
 
     fn from_parts(id: StandardId, data: &[u8]) -> Result<Self, Self::Error> {
-        match id.as_raw() {
+        match id {
             // random ids
-            0x00a => Ok(Self::ResetPowerBoard),
-            0x020 => bincode::decode_from_slice(data, BINCODE_CONFIG)
-                .map(|(x, _)| Self::PowerBoardStatus(x))
-                .map_err(Error::Decode),
-            0x030 => bincode::decode_from_slice(data, BINCODE_CONFIG)
-                .map(|(x, _)| Self::CameraPowerStatus(x))
-                .map_err(Error::Decode),
+            __message_meta_ids::ResetPowerBoard => Ok(Self::ResetPowerBoard),
+            __message_meta_ids::PowerBoardStatus => {
+                bincode::decode_from_slice(data, BINCODE_CONFIG)
+                    .map(|(x, _)| Self::PowerBoardStatus(x))
+                    .map_err(Error::Decode)
+            }
+            __message_meta_ids::CameraPowerStatus => {
+                bincode::decode_from_slice(data, BINCODE_CONFIG)
+                    .map(|(x, _)| Self::CameraPowerStatus(x))
+                    .map_err(Error::Decode)
+            }
             _ => Err(Error::UnknownId), // TODO
         }
     }
@@ -74,29 +100,15 @@ impl CanEncode for Message {
 
     fn encode_into(&self, buf: &mut [u8; 64]) -> Result<(StandardId, u8), Self::Error> {
         match self {
-            Message::ResetPowerBoard => {
-                const ID: StandardId =
-                    StandardId::new(0x00a).expect("must be in range 0x000-0x7ff");
-                Ok((ID, 0))
-            }
+            Message::ResetPowerBoard => Ok((__message_meta_ids::ResetPowerBoard, 0)),
             Message::PowerBoardStatus(x) => {
-                const ID: StandardId =
-                    StandardId::new(0x020).expect("must be in range 0x000-0x7ff");
                 let len = bincode::encode_into_slice(x, buf, BINCODE_CONFIG)?;
-                Ok((ID, next_valid_length(len).ok_or(Error::Other)?))
+                Ok((
+                    __message_meta_ids::PowerBoardStatus,
+                    next_valid_length(len).ok_or(Error::Other)?,
+                ))
             }
             _ => todo!(),
         }
-    }
-}
-
-impl MessageVariant {
-    pub const fn id(self) -> StandardId {
-        let raw_id: u16 = match self {
-            MessageVariant::ResetPowerBoard => 0x00a,
-            MessageVariant::PowerBoardStatus => 0x020,
-            _ => todo!(),
-        };
-        StandardId::new(raw_id).expect("must be in range 0x000-0x7ff")
     }
 }
