@@ -38,6 +38,17 @@ pub enum Message {
     PowerBoardBuildInfo(BuildInformationCommon),
 }
 
+// generated
+#[derive(Debug, Clone, Copy)]
+pub enum MessageVariant {
+    ResetPowerBoard,
+    PowerBoardStatus,
+    CameraPowerStatus,
+    RailStatus5V,
+    RailStatus24V,
+    PowerBoardBuildInfo,
+}
+
 // generated:
 impl CanDecode for Message {
     type Error = Error;
@@ -76,5 +87,16 @@ impl CanEncode for Message {
             }
             _ => todo!(),
         }
+    }
+}
+
+impl MessageVariant {
+    pub const fn id(self) -> StandardId {
+        let raw_id: u16 = match self {
+            MessageVariant::ResetPowerBoard => 0x00a,
+            MessageVariant::PowerBoardStatus => 0x020,
+            _ => todo!(),
+        };
+        StandardId::new(raw_id).expect("must be in range 0x000-0x7ff")
     }
 }

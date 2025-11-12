@@ -1,0 +1,15 @@
+[package]
+name = "example-nostd-client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bincode = { version = "2.0.1", default-features = false }
+can-hal = { version = "0.1.0", path = "../can-hal" }
+datatypes = { version = "0.1.0", path = "../datatypes" }
+dp-oxidizer-control-board = { version = "0.1.0", path = "../datapoints/dp-oxidizer-control-board" }
+dp-power-board = { version = "0.1.0", path = "../datapoints/dp-power-board" }
+thiserror = "2.0.17"
+
+[lints]
+workspace = true
