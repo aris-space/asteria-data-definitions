@@ -29,8 +29,9 @@ pub enum Error {
 }
 
 pub enum Message {
+    // #[can_id(0x001)]
     ResetPowerBoard,
-    // #[can_id(0x020)]
+    // #[can_id(0x002)]
     PowerBoardStatus(StatusCommonMessage),
     CameraPowerStatus(CameraPower),
     RailStatus5V(RailStatus),
@@ -39,7 +40,7 @@ pub enum Message {
 }
 
 #[allow(non_upper_case_globals)]
-pub mod __message_meta_ids {
+pub mod __message_meta_can_ids {
     use ::can_hal::StandardId;
 
     pub const ResetPowerBoard: StandardId = StandardId::new(0x001).expect("must be in range");
@@ -78,13 +79,13 @@ impl CanDecode for Message {
     fn from_parts(id: StandardId, data: &[u8]) -> Result<Self, Self::Error> {
         match id {
             // random ids
-            __message_meta_ids::ResetPowerBoard => Ok(Self::ResetPowerBoard),
-            __message_meta_ids::PowerBoardStatus => {
+            __message_meta_can_ids::ResetPowerBoard => Ok(Self::ResetPowerBoard),
+            __message_meta_can_ids::PowerBoardStatus => {
                 bincode::decode_from_slice(data, BINCODE_CONFIG)
                     .map(|(x, _)| Self::PowerBoardStatus(x))
                     .map_err(Error::Decode)
             }
-            __message_meta_ids::CameraPowerStatus => {
+            __message_meta_can_ids::CameraPowerStatus => {
                 bincode::decode_from_slice(data, BINCODE_CONFIG)
                     .map(|(x, _)| Self::CameraPowerStatus(x))
                     .map_err(Error::Decode)
@@ -100,11 +101,11 @@ impl CanEncode for Message {
 
     fn encode_into(&self, buf: &mut [u8; 64]) -> Result<(StandardId, u8), Self::Error> {
         match self {
-            Message::ResetPowerBoard => Ok((__message_meta_ids::ResetPowerBoard, 0)),
+            Message::ResetPowerBoard => Ok((__message_meta_can_ids::ResetPowerBoard, 0)),
             Message::PowerBoardStatus(x) => {
                 let len = bincode::encode_into_slice(x, buf, BINCODE_CONFIG)?;
                 Ok((
-                    __message_meta_ids::PowerBoardStatus,
+                    __message_meta_can_ids::PowerBoardStatus,
                     next_valid_length(len).ok_or(Error::Other)?,
                 ))
             }

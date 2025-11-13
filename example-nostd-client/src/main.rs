@@ -55,7 +55,7 @@ mod generated {
         type Error = AnyError;
 
         fn from_parts(id: can_hal::StandardId, data: &[u8]) -> Result<Self, Self::Error> {
-            if dp_power_board::__message_meta_ids::ALL_IDS.contains(&id) {
+            if dp_power_board::__message_meta_can_ids::ALL_IDS.contains(&id) {
                 return dp_power_board::Message::from_parts(id, data)
                     .map(Self::PowerBoard)
                     .map_err(AnyError::PowerBoard);
@@ -67,7 +67,8 @@ mod generated {
 
 // #[sparse_can_decode]
 enum ReceivedMessage {
-    /// [`dp_power_board::Message::PowerBoardStatus`]
+    // needs to know whether it is unit type
+    /// `PowerBoardStatus = dp_power_board::Message::PowerBoardStatus(..)`
     PowerBoardPowerBoardStatus(dp_power_board::__message_meta_types::PowerBoardStatus),
     /// `dp_oxidizer_control_board::Message::BoardStatus(StatusCommonMessage)`
     OxidizerControlBoardBoardStatus(StatusCommonMessage),
@@ -96,7 +97,7 @@ mod generated2 {
             const OxidizerControlBoardBoardStatus_ID: StandardId =
                 dp_oxidizer_control_board::MessageVariant::BoardStatus.id();
             match id {
-                dp_power_board::__message_meta_ids::PowerBoardStatus => {
+                dp_power_board::__message_meta_can_ids::PowerBoardStatus => {
                     bincode::decode_from_slice(data, BINCODE_CONFIG)
                         .map(|(x, _)| Self::PowerBoardPowerBoardStatus(x))
                         .map_err(Error::Decode)
@@ -113,7 +114,7 @@ mod generated2 {
 
     impl ReceivedMessage {
         pub const ALL_IDS: [StandardId; 2] = [
-            dp_power_board::__message_meta_ids::PowerBoardStatus,
+            dp_power_board::__message_meta_can_ids::PowerBoardStatus,
             dp_oxidizer_control_board::MessageVariant::BoardStatus.id(),
         ];
     }
