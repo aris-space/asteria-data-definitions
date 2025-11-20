@@ -1,114 +1,86 @@
-use can_hal::{CanDecode, CanEncode, FD_DATA_LENGTH, StandardId, next_valid_length};
+use can_hal::{CanDecode, CanEncode, StandardId};
 use datatypes::{BuildInformationCommon, CameraPower, RailStatus, StatusCommonMessage};
 
-/// The default bincode configuration for CAN messages.
-/// Uses little-endian, fixed integer encoding, and a 64-byte limit.
-const BINCODE_CONFIG: bincode::config::Configuration<
-    bincode::config::LittleEndian,
-    bincode::config::Varint,
-    bincode::config::Limit<FD_DATA_LENGTH>,
-> = bincode::config::standard()
-    .with_variable_int_encoding()
-    .with_limit();
-
-/// Error type for CAN operations.
-#[allow(unused)]
-#[derive(Debug, thiserror::Error)]
-pub enum Error {
-    #[error("Encoding CAN message failed: {0}")]
-    Encode(#[from] bincode::error::EncodeError),
-
-    #[error("Decoding CAN message failed: {0}")]
-    Decode(#[from] bincode::error::DecodeError),
-
-    #[error("Invalid frame or Id sent/received")]
-    Other,
-
-    #[error("Unknown Id to decode")]
-    UnknownId,
-}
-
+// define_messages! {
 pub enum Message {
     // #[can_id(0x001)]
-    ResetPowerBoard,
+    ResetBoard,
     // #[can_id(0x002)]
-    PowerBoardStatus(StatusCommonMessage),
+    BoardStatus(StatusCommonMessage),
+    // #[can_id(0x003)]
     CameraPowerStatus(CameraPower),
+    // #[can_id(0x004)]
     RailStatus5V(RailStatus),
+    // #[can_id(0x005)]
     RailStatus24V(RailStatus),
-    PowerBoardBuildInfo(BuildInformationCommon),
+    // #[can_id(0x006)]
+    BoardBuildInfo(BuildInformationCommon),
 }
+// }
 
 #[allow(non_upper_case_globals)]
 pub mod __message_meta_can_ids {
     use ::can_hal::StandardId;
 
-    pub const ResetPowerBoard: StandardId = StandardId::new(0x001).expect("must be in range");
-    pub const PowerBoardStatus: StandardId = StandardId::new(0x002).expect("must be in range");
+    pub const ResetBoard: StandardId = StandardId::new(0x001).expect("must be in range");
+    pub const BoardStatus: StandardId = StandardId::new(0x002).expect("must be in range");
     pub const CameraPowerStatus: StandardId = StandardId::new(0x003).expect("must be in range");
     pub const RailStatus5V: StandardId = StandardId::new(0x004).expect("must be in range");
     pub const RailStatus24V: StandardId = StandardId::new(0x005).expect("must be in range");
-    pub const PowerBoardBuildInfo: StandardId = StandardId::new(0x006).expect("must be in range");
+    pub const BoardBuildInfo: StandardId = StandardId::new(0x006).expect("must be in range");
 
     pub const ALL_IDS: [StandardId; 6] = [
-        ResetPowerBoard,
-        PowerBoardStatus,
+        ResetBoard,
+        BoardStatus,
         CameraPowerStatus,
         RailStatus5V,
         RailStatus24V,
-        PowerBoardBuildInfo,
+        BoardBuildInfo,
     ];
 }
 
+/// generated
 pub mod __message_meta_types {
     #[allow(clippy::wildcard_imports)]
     use super::*;
 
-    pub type ResetPowerBoard = ();
-    pub type PowerBoardStatus = StatusCommonMessage;
+    pub type ResetBoard = ();
+    pub type BoardStatus = StatusCommonMessage;
     pub type CameraPowerStatus = CameraPower;
     pub type RailStatus5V = RailStatus;
     pub type RailStatus24V = RailStatus;
-    pub type PowerBoardBuildInfo = BuildInformationCommon;
+    pub type BoardBuildInfo = BuildInformationCommon;
 }
 
 // generated:
 impl CanDecode for Message {
-    type Error = Error;
+    type Error = can_hal::codec::Error;
 
     fn from_parts(id: StandardId, data: &[u8]) -> Result<Self, Self::Error> {
         match id {
-            // random ids
-            __message_meta_can_ids::ResetPowerBoard => Ok(Self::ResetPowerBoard),
-            __message_meta_can_ids::PowerBoardStatus => {
-                bincode::decode_from_slice(data, BINCODE_CONFIG)
-                    .map(|(x, _)| Self::PowerBoardStatus(x))
-                    .map_err(Error::Decode)
+            __message_meta_can_ids::ResetBoard => Ok(Self::ResetBoard),
+            __message_meta_can_ids::BoardStatus => {
+                can_hal::codec::decode(data).map(Self::BoardStatus)
             }
             __message_meta_can_ids::CameraPowerStatus => {
-                bincode::decode_from_slice(data, BINCODE_CONFIG)
-                    .map(|(x, _)| Self::CameraPowerStatus(x))
-                    .map_err(Error::Decode)
+                can_hal::codec::decode(data).map(Self::CameraPowerStatus)
             }
-            _ => Err(Error::UnknownId), // TODO
+            _ => Err(Self::Error::UnknownId), // TODO
         }
     }
 }
 
 // generated:
 impl CanEncode for Message {
-    type Error = Error;
+    type Error = can_hal::codec::Error;
 
     fn encode_into(&self, buf: &mut [u8; 64]) -> Result<(StandardId, u8), Self::Error> {
         match self {
-            Message::ResetPowerBoard => Ok((__message_meta_can_ids::ResetPowerBoard, 0)),
-            Message::PowerBoardStatus(x) => {
-                let len = bincode::encode_into_slice(x, buf, BINCODE_CONFIG)?;
-                Ok((
-                    __message_meta_can_ids::PowerBoardStatus,
-                    next_valid_length(len).ok_or(Error::Other)?,
-                ))
-            }
+            Message::ResetBoard => Ok((__message_meta_can_ids::ResetBoard, 0)),
+            Message::BoardStatus(x) => Ok((
+                __message_meta_can_ids::BoardStatus,
+                can_hal::codec::encode(x, buf)?,
+            )),
             _ => todo!(),
         }
     }

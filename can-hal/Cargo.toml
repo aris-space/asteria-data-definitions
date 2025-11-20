@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 embedded-can = "0.4.1"
 thiserror = "2.0.17"
+bincode = "2.0.1"
 
 [lints]
 workspace = true

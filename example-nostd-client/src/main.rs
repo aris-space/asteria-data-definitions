@@ -1,19 +1,6 @@
 #![no_std]
 #![allow(dead_code)]
 
-use can_hal::FD_DATA_LENGTH;
-use datatypes::StatusCommonMessage;
-
-/// The default bincode configuration for CAN messages.
-/// Uses little-endian, fixed integer encoding, and a 64-byte limit.
-const BINCODE_CONFIG: bincode::config::Configuration<
-    bincode::config::LittleEndian,
-    bincode::config::Varint,
-    bincode::config::Limit<FD_DATA_LENGTH>,
-> = bincode::config::standard()
-    .with_variable_int_encoding()
-    .with_limit();
-
 // #[derive(CanEncode)]
 // #[can_encode(dispatch)]
 enum AnyMessage {
@@ -60,6 +47,11 @@ mod generated {
                     .map(Self::PowerBoard)
                     .map_err(AnyError::PowerBoard);
             }
+            if dp_oxidizer_control_board::__message_meta_can_ids::ALL_IDS.contains(&id) {
+                return dp_oxidizer_control_board::Message::from_parts(id, data)
+                    .map(Self::OxidizerControlBoard)
+                    .map_err(AnyError::OxidizerControlBoard);
+            }
             todo!()
         }
     }
@@ -67,55 +59,43 @@ mod generated {
 
 // #[sparse_can_decode]
 enum ReceivedMessage {
-    // needs to know whether it is unit type
-    /// `PowerBoardStatus = dp_power_board::Message::PowerBoardStatus(..)`
-    PowerBoardPowerBoardStatus(dp_power_board::__message_meta_types::PowerBoardStatus),
-    /// `dp_oxidizer_control_board::Message::BoardStatus(StatusCommonMessage)`
-    OxidizerControlBoardBoardStatus(StatusCommonMessage),
-    // ...
+    /// `PowerBoardStatus: dp_power_board::Message::BoardStatus,`
+    ResetPowerBoard,
+    /// `PowerBoardStatus: dp_power_board::Message::BoardStatus(_),`
+    PowerBoardStatus(dp_power_board::__message_meta_types::BoardStatus),
+    /// `OxidizerControlBoardStatus: dp_oxidizer_control_board::Message::BoardStatus(_)`
+    OxidizerControlBoardStatus(dp_oxidizer_control_board::__message_meta_types::BoardStatus),
 }
 
 mod generated2 {
 
     use can_hal::{CanDecode, StandardId};
 
-    use crate::{BINCODE_CONFIG, ReceivedMessage};
-
-    #[derive(Debug, thiserror::Error)]
-    pub enum Error {
-        #[error("Decoding CAN message failed: {0}")]
-        Decode(bincode::error::DecodeError),
-        #[error("unknown id")]
-        UnknownId,
-    }
+    use crate::ReceivedMessage;
 
     impl CanDecode for ReceivedMessage {
-        type Error = Error;
+        type Error = can_hal::codec::Error;
 
         #[allow(non_upper_case_globals)]
         fn from_parts(id: StandardId, data: &[u8]) -> Result<Self, Self::Error> {
-            const OxidizerControlBoardBoardStatus_ID: StandardId =
-                dp_oxidizer_control_board::MessageVariant::BoardStatus.id();
             match id {
-                dp_power_board::__message_meta_can_ids::PowerBoardStatus => {
-                    bincode::decode_from_slice(data, BINCODE_CONFIG)
-                        .map(|(x, _)| Self::PowerBoardPowerBoardStatus(x))
-                        .map_err(Error::Decode)
+                dp_power_board::__message_meta_can_ids::ResetBoard => Ok(Self::ResetPowerBoard),
+                dp_power_board::__message_meta_can_ids::BoardStatus => {
+                    can_hal::codec::decode(data).map(Self::PowerBoardStatus)
                 }
-                OxidizerControlBoardBoardStatus_ID => {
-                    bincode::decode_from_slice(data, BINCODE_CONFIG)
-                        .map(|(x, _)| Self::OxidizerControlBoardBoardStatus(x))
-                        .map_err(Error::Decode)
+                dp_oxidizer_control_board::__message_meta_can_ids::BoardStatus => {
+                    can_hal::codec::decode(data).map(Self::OxidizerControlBoardStatus)
                 }
-                _ => Err(Error::UnknownId),
+                _ => Err(Self::Error::UnknownId),
             }
         }
     }
 
     impl ReceivedMessage {
-        pub const ALL_IDS: [StandardId; 2] = [
-            dp_power_board::__message_meta_can_ids::PowerBoardStatus,
-            dp_oxidizer_control_board::MessageVariant::BoardStatus.id(),
+        pub const ALL_IDS: [StandardId; 3] = [
+            dp_power_board::__message_meta_can_ids::ResetBoard,
+            dp_power_board::__message_meta_can_ids::BoardStatus,
+            dp_oxidizer_control_board::__message_meta_can_ids::BoardStatus,
         ];
     }
 }

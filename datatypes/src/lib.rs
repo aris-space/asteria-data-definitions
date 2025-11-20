@@ -5,19 +5,18 @@ use serde::{Deserialize, Serialize};
 ///
 /// Is `NAN` by default.
 #[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
 pub struct Celsius(pub f32);
 
 /// A pressure in bar relative to atmospheric pressure (`barg`).
 ///
 /// Is `NAN` by default.
 #[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
 pub struct BarG(pub f32);
 
 /// The state of a valve that is normally open.
-/// This is a [`Settable`] with the value being 0.0 for closed and 1.0 for open.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Encode, Decode)]
 pub enum NormallyOpenValve {
     #[default]
     Open,
@@ -25,8 +24,7 @@ pub enum NormallyOpenValve {
 }
 
 /// The state of a valve that is normally closed.
-/// This is a [`Settable`] with the value being 0.0 for closed and 1.0 for open.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Encode, Decode)]
 pub enum NormallyClosedValve {
     Open,
     #[default]
