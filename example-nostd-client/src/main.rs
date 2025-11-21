@@ -59,7 +59,7 @@ mod generated {
 
 // #[sparse_can_decode]
 enum ReceivedMessage {
-    /// `PowerBoardStatus: dp_power_board::Message::BoardStatus,`
+    /// `ResetPowerBoard: dp_power_board::Message::ResetBoard,`
     ResetPowerBoard,
     /// `PowerBoardStatus: dp_power_board::Message::BoardStatus(_),`
     PowerBoardStatus(dp_power_board::__message_meta_types::BoardStatus),

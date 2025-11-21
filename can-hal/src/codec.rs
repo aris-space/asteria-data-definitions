@@ -1,13 +1,16 @@
+//! This module provides a canonical implementation to decode and encode bincode compatible types.
+//! This is mostly used inside of macros.
+
 use crate::next_valid_length;
 
 /// The bincode configuration for CAN messages.
 /// Uses little-endian, fixed integer encoding, and a 64-byte limit.
 pub const BINCODE_CONFIG: bincode::config::Configuration<
     bincode::config::LittleEndian,
-    bincode::config::Varint,
+    bincode::config::Fixint,
     bincode::config::Limit<{ crate::FD_DATA_LENGTH }>,
 > = bincode::config::standard()
-    .with_variable_int_encoding()
+    .with_fixed_int_encoding()
     .with_limit();
 
 /// Error type for CAN operations.
