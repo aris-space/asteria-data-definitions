@@ -98,6 +98,8 @@ mod generated2 {
             dp_oxidizer_control_board::__message_meta_can_ids::BoardStatus,
         ];
     }
+
+    // todo: maybe also CanEncode
 }
 
 fn main() {}
