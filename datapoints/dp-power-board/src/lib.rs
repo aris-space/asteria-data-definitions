@@ -18,15 +18,6 @@ pub enum Message {
 }
 // }
 
-#[derive(Debug, mavio::derive::Message)]
-#[message_id(1_000_001)]
-pub struct StatusCommonMessageML {
-    /// Number of errors encountered since startup.
-    pub errors: u32,
-    /// Number of microseconds since the last board restart.
-    pub micros_since_restart: u64,
-}
-
 #[allow(non_upper_case_globals)]
 pub mod __message_meta_can_ids {
     use ::can_hal::StandardId;

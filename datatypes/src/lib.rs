@@ -1,5 +1,6 @@
 use bincode::{Decode, Encode};
-use mavlink_hal::traits::{MavSimpleType, MavType, MessageField};
+use mavlink_hal::traits::{DescribeFieldSet, MessageField};
+use mavlink_hal::typing::{MavSimpleType, MavType};
 use serde::{Deserialize, Serialize};
 
 /// A temperature in degrees Celsius.
@@ -9,14 +10,49 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
 pub struct Celsius(pub f32);
 
+// maybe generated, maybe explicit
 impl Celsius {
-    pub const MAVLINK_FIELDS: &[MessageField] = &[MessageField {
-        type_: MavType::Simple(MavSimpleType::Float),
+    pub const MAVLINK_FIELDS: [MessageField; 1] = [MessageField {
+        type_: MavType::Scalar(MavSimpleType::Float),
         name: "temperature",
         unit: Some("°C"),
         description: "The measured temperature",
         enum_: None,
     }];
+}
+
+// generated
+impl DescribeFieldSet for Celsius {
+    const FIELDS: &[MessageField] = &Self::MAVLINK_FIELDS;
+}
+
+pub struct OSSTemperatures {
+    /// This description and field name would be overwritten by the ones of `Celsius`.
+    /// In this case not useful, but with other nested structures it should be.
+    // #[mavlink(flatten)]
+    pub tank: Celsius,
+    /// This description and name would overide the generic one in `Celsius`,
+    /// which would require exactly one field in the fieldset.
+    // #[mavlink(refine)]
+    pub runline: Celsius,
+}
+
+// generated
+impl OSSTemperatures {
+    pub const MAVLINK_FIELDS: [MessageField; Celsius::MAVLINK_FIELDS.len() + 1] =
+        mavlink_hal::macro_util::concat_field_sets(&[
+            &Celsius::MAVLINK_FIELDS,
+            &[mavlink_hal::macro_util::refine_field(
+                &Celsius::MAVLINK_FIELDS,
+                "runline",
+                "This description ...",
+            )],
+        ]);
+}
+
+// generated
+impl DescribeFieldSet for OSSTemperatures {
+    const FIELDS: &[MessageField] = &Self::MAVLINK_FIELDS;
 }
 
 /// A pressure in bar relative to atmospheric pressure (`barg`).
@@ -50,43 +86,29 @@ pub struct StatusCommonMessage {
     pub micros_since_restart: u64,
 }
 
+// generated
 impl StatusCommonMessage {
     pub const MAVLINK_FIELDS: [MessageField; 2] = [
         MessageField {
-            type_: MavType::Simple(MavSimpleType::UInt32),
+            type_: MavType::Scalar(MavSimpleType::UInt32),
             name: "errors",
             unit: None,
             description: "Number of errors encountered since startup.",
             enum_: None,
         },
         MessageField {
-            type_: MavType::Simple(MavSimpleType::UInt64),
+            type_: MavType::Scalar(MavSimpleType::UInt64),
             name: "micros_since_restart",
             unit: None,
             description: "Number of microseconds since the last board restart.",
             enum_: None,
         },
     ];
-
-    pub const x: [MessageField; Self::MAVLINK_FIELDS.len() + Self::MAVLINK_FIELDS.len()] = {
-        let mut x =
-            [MessageField::INVALID; Self::MAVLINK_FIELDS.len() + Self::MAVLINK_FIELDS.len()];
-        let rest = &mut x;
-
-        let (this, rest) = rest.split_at_mut(Self::MAVLINK_FIELDS.len());
-        this.copy_from_slice(&Self::MAVLINK_FIELDS);
-
-        let (this, rest) = rest.split_at_mut(Self::MAVLINK_FIELDS.len());
-        this.copy_from_slice(&Self::MAVLINK_FIELDS);
-
-        assert!(rest.is_empty());
-        x
-    };
 }
 
-#[test]
-fn foo() {
-    let x = StatusCommonMessage::x;
+// generated
+impl DescribeFieldSet for StatusCommonMessage {
+    const FIELDS: &[MessageField] = &Self::MAVLINK_FIELDS;
 }
 
 /// Shared firmware build information used by all boards.
