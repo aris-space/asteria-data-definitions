@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, Copy)]
 pub enum MavType {
     Scalar(MavSimpleType),
-    Array(MavSimpleType, usize),
+    Array(MavSimpleType, u8),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -18,6 +18,55 @@ pub enum MavSimpleType {
     Double,
     Char,
     UInt8MavlinkVersion,
+}
+
+impl MavSimpleType {
+    /// Returns the size in bytes
+    pub const fn size(self) -> usize {
+        match self {
+            MavSimpleType::UInt8 => 1,
+            MavSimpleType::UInt16 => 2,
+            MavSimpleType::UInt32 => 4,
+            MavSimpleType::UInt64 => 8,
+            MavSimpleType::Int8 => 1,
+            MavSimpleType::Int16 => 2,
+            MavSimpleType::Int32 => 4,
+            MavSimpleType::Int64 => 8,
+            MavSimpleType::Float => 4,
+            MavSimpleType::Double => 8,
+            MavSimpleType::Char => 1,
+            MavSimpleType::UInt8MavlinkVersion => 1,
+        }
+    }
+
+    /// Returns the name of the type as mavlink needs it
+    pub const fn type_name(self) -> &'static str {
+        match self {
+            MavSimpleType::UInt8 => "uint8_t",
+            MavSimpleType::UInt16 => "uint16_t",
+            MavSimpleType::UInt32 => "uint32_t",
+            MavSimpleType::UInt64 => "uint64_t",
+            MavSimpleType::Int8 => "int8_t",
+            MavSimpleType::Int16 => "int16_t",
+            MavSimpleType::Int32 => "int32_t",
+            MavSimpleType::Int64 => "int64_t",
+            MavSimpleType::Float => "float",
+            MavSimpleType::Double => "double",
+            MavSimpleType::Char => "char",
+            MavSimpleType::UInt8MavlinkVersion => "uint8_t_mavlink_version",
+        }
+    }
+}
+
+impl MavType {
+    /// Returns the base type, so either the scalar type itself or the element type of the array.
+    pub const fn base(self) -> MavSimpleType {
+        match self {
+            MavType::Scalar(mav_simple_type) | MavType::Array(mav_simple_type, _) => {
+                mav_simple_type
+            }
+        }
+    }
 }
 
 pub trait Typeable {
@@ -74,5 +123,8 @@ impl<T: ScalarTypeable> Typeable for T {
 }
 
 impl<T: ScalarTypeable, const N: usize> Typeable for [T; N] {
-    const TYPE: MavType = MavType::Array(T::SCALAR_TYPE, N);
+    const TYPE: MavType = {
+        assert!(N < 256, "mavlink only supports arrays up to 255 elements");
+        MavType::Array(T::SCALAR_TYPE, N as u8)
+    };
 }

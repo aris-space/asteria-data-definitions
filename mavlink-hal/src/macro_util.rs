@@ -1,4 +1,4 @@
-use crate::traits::MessageField;
+use crate::{traits::MessageField, typing::MavType};
 
 impl MessageField {
     const INVALID: MessageField = MessageField {
@@ -46,4 +46,81 @@ pub const fn refine_field(
         description: new_description,
         enum_: orig_fields[0].enum_,
     }
+}
+
+// TODO: redefine as const, should be possible maybe, at least with rewriting some stuff
+///
+/// In maviola: <https://docs.rs/mavinspect/latest/src/mavinspect/protocol/messages/message.rs.html#356-380>
+pub fn calc_extra_crc(message_name: &str, orig_fields: &mut [MessageField]) -> u8 {
+    const X25: crc::Crc<u16> = crc::Crc::<u16>::new(&crc::CRC_16_MCRF4XX);
+    orig_fields.sort_by_key(|t| std::cmp::Reverse(t.type_.base().size())); // non-const sort :/
+    let mut digest = X25.digest();
+    digest.update(message_name.as_bytes());
+    digest.update(b" ");
+    for field in orig_fields {
+        digest.update(field.type_.base().type_name().as_bytes());
+        digest.update(b" ");
+        digest.update(field.name.as_bytes());
+        digest.update(b" ");
+        if let MavType::Array(_, len) = field.type_ {
+            digest.update(&[len]);
+        }
+    }
+    let crc = digest.finalize();
+    #[allow(clippy::cast_possible_truncation)] // no truncation due to bit fiddling
+    let eight_bit = ((crc & 0xFF) ^ (crc >> 8)) as u8;
+    eight_bit
+}
+
+#[test]
+fn check_minimal_crc() {
+    use crate::typing::Typeable;
+    let minimal_field_set: &mut [MessageField] = &mut [
+        MessageField {
+            type_: <u8>::TYPE,
+            name: "type",
+            unit: None,
+            description: "irrelevant",
+            enum_: None,
+        },
+        MessageField {
+            type_: <u8>::TYPE,
+            name: "autopilot",
+            unit: None,
+            description: "irrelevant",
+            enum_: None,
+        },
+        MessageField {
+            type_: <u8>::TYPE,
+            name: "base_mode",
+            unit: None,
+            description: "irrelevant",
+            enum_: None,
+        },
+        MessageField {
+            type_: <u32>::TYPE,
+            name: "custom_mode",
+            unit: None,
+            description: "irrelevant",
+            enum_: None,
+        },
+        MessageField {
+            type_: <u8>::TYPE,
+            name: "system_status",
+            unit: None,
+            description: "irrelevant",
+            enum_: None,
+        },
+        MessageField {
+            type_: MavType::Scalar(crate::typing::MavSimpleType::UInt8MavlinkVersion),
+            name: "mavlink_version",
+            unit: None,
+            description: "irrelevant",
+            enum_: None,
+        },
+    ];
+    let crc = calc_extra_crc("HEARTBEAT", minimal_field_set);
+    let actual_crc = mavio::dialects::minimal::messages::Heartbeat::crc_extra();
+    // Doesn't work yet :/
+    assert_eq!(crc, actual_crc);
 }

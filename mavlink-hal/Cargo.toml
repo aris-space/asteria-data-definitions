@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-mavio = "0.5.10"
+crc = "3.3.0"
+mavio = { version = "0.5.10", features = ["dlct-minimal"] }
 
 [lints]
 workspace = true
