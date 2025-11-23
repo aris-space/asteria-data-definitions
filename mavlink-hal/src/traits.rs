@@ -4,7 +4,9 @@ pub trait DescribeFieldSet {
     const FIELDS: &[MessageField];
 }
 
-pub trait DescribeEnum {}
+pub trait DescribeEnum {
+    const ENUM: &'static Enum;
+}
 
 #[derive(Debug, Clone, Copy)]
 pub struct Enum {

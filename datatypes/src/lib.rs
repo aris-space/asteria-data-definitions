@@ -1,6 +1,6 @@
 use bincode::{Decode, Encode};
 use mavlink_hal::macro_util::calc_extra_crc;
-use mavlink_hal::traits::{DescribeFieldSet, MessageField};
+use mavlink_hal::traits::{DescribeEnum, DescribeFieldSet, Enum, EnumVariant, MessageField};
 use mavlink_hal::typing::{MavSimpleType, MavType};
 use serde::{Deserialize, Serialize};
 
@@ -67,8 +67,32 @@ pub struct BarG(pub f32);
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Encode, Decode)]
 pub enum NormallyOpenValve {
     #[default]
-    Open,
-    Closed,
+    Open = 0,
+    Closed = 1,
+}
+
+// generated:
+impl NormallyOpenValve {
+    pub const MAVLINK_ENUM_VARIANTS: [EnumVariant; 2] = [
+        EnumVariant {
+            value: 0,
+            name: "OPEN",
+            description: "",
+        },
+        EnumVariant {
+            value: 1,
+            name: "CLOSED",
+            description: "",
+        },
+    ];
+    pub const MAVLINK_ENUM: Enum = Enum {
+        name: "NORMALLY_OPEN_VALVE",
+        description: "The state of a valve that is normally open. ...",
+        variants: &Self::MAVLINK_ENUM_VARIANTS,
+    };
+}
+impl DescribeEnum for NormallyOpenValve {
+    const ENUM: &'static Enum = &Self::MAVLINK_ENUM;
 }
 
 /// The state of a valve that is normally closed.
