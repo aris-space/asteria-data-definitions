@@ -48,6 +48,17 @@ pub const fn refine_field(
     }
 }
 
+/// Computes the total size of all fields in bytes.
+pub const fn total_size(fields: &[MessageField]) -> usize {
+    let mut size = 0;
+    let mut i = 0;
+    while i < fields.len() {
+        size += fields[i].type_.size();
+        i += 1;
+    }
+    size
+}
+
 // TODO: redefine as const, should be possible maybe, at least with rewriting some stuff
 ///
 /// In maviola: <https://docs.rs/mavinspect/latest/src/mavinspect/protocol/messages/message.rs.html#356-380>

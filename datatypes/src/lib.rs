@@ -1,4 +1,5 @@
 use bincode::{Decode, Encode};
+use mavlink_hal::macro_util::calc_extra_crc;
 use mavlink_hal::traits::{DescribeFieldSet, MessageField};
 use mavlink_hal::typing::{MavSimpleType, MavType};
 use serde::{Deserialize, Serialize};
@@ -110,6 +111,45 @@ impl StatusCommonMessage {
 impl DescribeFieldSet for StatusCommonMessage {
     const FIELDS: &[MessageField] = &Self::MAVLINK_FIELDS;
 }
+
+struct MessageWrapper<T> {
+    id: u32,
+    data: T,
+}
+impl mavio::protocol::IntoPayload for MessageWrapper<StatusCommonMessage> {
+    fn encode(
+        &self,
+        version: mavio::prelude::MavLinkVersion,
+    ) -> Result<mavio::protocol::Payload, mavio::prelude::SpecError> {
+        if version != mavio::prelude::MavLinkVersion::V2 {
+            return Err(mavio::prelude::SpecError::UnsupportedMavLinkVersion {
+                actual: version,
+                minimal: mavio::prelude::MavLinkVersion::V2,
+            });
+        }
+        let payload = [0_u8; mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS)];
+        // TODO: actually encode. How?
+
+        Ok(mavio::protocol::Payload::new(
+            self.id,
+            &payload,
+            mavio::prelude::MavLinkVersion::V2,
+        ))
+    }
+}
+impl mavio::protocol::MessageSpec for MessageWrapper<StatusCommonMessage> {
+    fn id(&self) -> mavio::protocol::MessageId {
+        self.id
+    }
+    fn min_supported_mavlink_version(&self) -> mavio::prelude::MavLinkVersion {
+        mavio::prelude::MavLinkVersion::V2
+    }
+    fn crc_extra(&self) -> mavio::protocol::CrcExtra {
+        let mut thingy = StatusCommonMessage::MAVLINK_FIELDS;
+        calc_extra_crc("SOMETHING", &mut thingy)
+    }
+}
+impl mavio::Message for MessageWrapper<StatusCommonMessage> {}
 
 /// Shared firmware build information used by all boards.
 #[derive(Clone, Debug, PartialEq, Encode, Decode)]

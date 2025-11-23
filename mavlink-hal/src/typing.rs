@@ -67,6 +67,14 @@ impl MavType {
             }
         }
     }
+
+    /// Returns the size in bytes of this type.
+    pub const fn size(self) -> usize {
+        match self {
+            MavType::Scalar(mav_simple_type) => mav_simple_type.size(),
+            MavType::Array(mav_simple_type, len) => mav_simple_type.size() * (len as usize),
+        }
+    }
 }
 
 pub trait Typeable {
