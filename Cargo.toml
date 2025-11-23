@@ -9,6 +9,7 @@ members = [
     "datatypes",
     "example-nostd-client",
     "mavlink",
+    "mavlink-hal",
 ]
 
 [workspace.lints.clippy]

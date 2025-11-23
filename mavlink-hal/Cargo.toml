@@ -1,0 +1,10 @@
+[package]
+name = "mavlink-hal"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+mavio = "0.5.10"
+
+[lints]
+workspace = true

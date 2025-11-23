@@ -1,4 +1,5 @@
 use bincode::{Decode, Encode};
+use mavlink_hal::traits::{MavSimpleType, MavType, MessageField};
 use serde::{Deserialize, Serialize};
 
 /// A temperature in degrees Celsius.
@@ -7,6 +8,16 @@ use serde::{Deserialize, Serialize};
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
 pub struct Celsius(pub f32);
+
+impl Celsius {
+    pub const MAVLINK_FIELDS: &[MessageField] = &[MessageField {
+        type_: MavType::Simple(MavSimpleType::Float),
+        name: "temperature",
+        unit: Some("°C"),
+        description: "The measured temperature",
+        enum_: None,
+    }];
+}
 
 /// A pressure in bar relative to atmospheric pressure (`barg`).
 ///
@@ -37,6 +48,45 @@ pub struct StatusCommonMessage {
     pub errors: u32,
     /// Number of microseconds since the last board restart.
     pub micros_since_restart: u64,
+}
+
+impl StatusCommonMessage {
+    pub const MAVLINK_FIELDS: [MessageField; 2] = [
+        MessageField {
+            type_: MavType::Simple(MavSimpleType::UInt32),
+            name: "errors",
+            unit: None,
+            description: "Number of errors encountered since startup.",
+            enum_: None,
+        },
+        MessageField {
+            type_: MavType::Simple(MavSimpleType::UInt64),
+            name: "micros_since_restart",
+            unit: None,
+            description: "Number of microseconds since the last board restart.",
+            enum_: None,
+        },
+    ];
+
+    pub const x: [MessageField; Self::MAVLINK_FIELDS.len() + Self::MAVLINK_FIELDS.len()] = {
+        let mut x =
+            [MessageField::INVALID; Self::MAVLINK_FIELDS.len() + Self::MAVLINK_FIELDS.len()];
+        let rest = &mut x;
+
+        let (this, rest) = rest.split_at_mut(Self::MAVLINK_FIELDS.len());
+        this.copy_from_slice(&Self::MAVLINK_FIELDS);
+
+        let (this, rest) = rest.split_at_mut(Self::MAVLINK_FIELDS.len());
+        this.copy_from_slice(&Self::MAVLINK_FIELDS);
+
+        assert!(rest.is_empty());
+        x
+    };
+}
+
+#[test]
+fn foo() {
+    let x = StatusCommonMessage::x;
 }
 
 /// Shared firmware build information used by all boards.

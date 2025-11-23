@@ -6,6 +6,9 @@ edition = "2024"
 [dependencies]
 bincode = "2.0.1"
 serde = { version = "1.0.228", features = ["derive"] }
+mavio = { version = "0.5.10", features = ["std", "derive"] }
+mavlink-hal = { version = "0.1.0", path = "../mavlink-hal" }
+mavspec = "0.6.7"
 
 [lints]
 workspace = true
