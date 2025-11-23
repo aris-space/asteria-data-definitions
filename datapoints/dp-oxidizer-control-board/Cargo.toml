@@ -1,0 +1,11 @@
+[package]
+name = "dp-oxidizer-control-board"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+can-hal = { version = "0.1.0", path = "../../can-hal" }
+datatypes = { version = "0.1.0", path = "../../datatypes" }
+
+[lints]
+workspace = true
