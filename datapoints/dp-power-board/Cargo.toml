@@ -8,6 +8,8 @@ can-hal = { version = "0.1.0", path = "../../can-hal" }
 mavlink-hal = { version = "0.1.0", path = "../../mavlink-hal" }
 datatypes = { version = "0.1.0", path = "../../datatypes" }
 mavio = { version = "0.5.10", features = ["std", "derive"] }
+data-macros = { version = "0.1.0", path = "../../macros" }
+bincode = "2.0.1"
 
 [lints]
 workspace = true

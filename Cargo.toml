@@ -7,7 +7,7 @@ members = [
     "can/hermes-can-derive",
     "datapoints/*",
     "datatypes",
-    "example-nostd-client",
+    "example-nostd-client", "macros",
     "mavlink",
     "mavlink-hal",
     "mavlink-dialect",
