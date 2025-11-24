@@ -1,4 +1,6 @@
 use bincode::{Decode, Encode};
+use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
+use mavlink_hal::codec::tbytes::errors::TBytesError;
 use mavlink_hal::macro_util::calc_extra_crc;
 use mavlink_hal::traits::{DescribeEnum, DescribeFieldSet, Enum, EnumVariant, MessageField};
 use mavlink_hal::typing::{MavSimpleType, MavType};
@@ -135,6 +137,48 @@ impl StatusCommonMessage {
 impl DescribeFieldSet for StatusCommonMessage {
     const FIELDS: &[MessageField] = &Self::MAVLINK_FIELDS;
 }
+impl mavlink_hal::codec::Encode for StatusCommonMessage {
+    #[inline]
+    fn encode_8_aligned(
+        &self,
+        writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
+            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
+        >,
+    ) -> Result<usize, TBytesError> {
+        let mut written = 0;
+        written += writer.write(self.micros_since_restart)?;
+        Ok(written)
+    }
+    #[inline]
+    fn encode_4_aligned(
+        &self,
+        writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
+            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
+        >,
+    ) -> Result<usize, TBytesError> {
+        let mut written = 0;
+        written += writer.write(self.errors)?;
+        Ok(written)
+    }
+    #[inline]
+    fn encode_2_aligned(
+        &self,
+        _writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
+            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
+        >,
+    ) -> Result<usize, TBytesError> {
+        Ok(0)
+    }
+    #[inline]
+    fn encode_1_aligned(
+        &self,
+        _writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
+            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
+        >,
+    ) -> Result<usize, TBytesError> {
+        Ok(0)
+    }
+}
 
 struct MessageWrapper<T> {
     id: u32,
@@ -151,12 +195,19 @@ impl mavio::protocol::IntoPayload for MessageWrapper<StatusCommonMessage> {
                 minimal: mavio::prelude::MavLinkVersion::V2,
             });
         }
-        let payload = [0_u8; mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS)];
-        // TODO: actually encode. How?
+        let mut buffer = [0_u8; mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS)];
+        let mut writer = mavlink_hal::codec::tbytes::TBytesWriter::from(buffer.as_mut_slice());
+        let written = mavlink_hal::codec::encode_all(&self.data, &mut writer)
+            .map_err(|_e| todo!("idk which error yet"))?;
+        debug_assert_eq!(
+            written,
+            buffer.len(),
+            "the implementation should always write exactly as many bytes as are defined by the type"
+        );
 
         Ok(mavio::protocol::Payload::new(
             self.id,
-            &payload,
+            &buffer,
             mavio::prelude::MavLinkVersion::V2,
         ))
     }

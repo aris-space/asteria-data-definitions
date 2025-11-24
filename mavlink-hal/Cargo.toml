@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 crc = "3.3.0"
 mavio = { version = "0.5.10", features = ["dlct-minimal"] }
+tbytes = "0.1.0"
 
 [lints]
 workspace = true
