@@ -1,7 +1,7 @@
-use data_macros::CanMessage;
+use data_macros::{CanMessage, Message};
 use datatypes::{BuildInformationCommon, Celsius, NormallyOpenValve, StatusCommonMessage};
 
-#[derive(CanMessage)]
+#[derive(Message, CanMessage)]
 pub enum Message {
     #[can(id = 0x021)]
     ResetBoard,

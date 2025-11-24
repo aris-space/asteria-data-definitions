@@ -1,7 +1,7 @@
-use data_macros::CanMessage;
+use data_macros::{CanMessage, Message};
 use datatypes::{BuildInformationCommon, CameraPower, RailStatus, StatusCommonMessage};
 
-#[derive(CanMessage)]
+#[derive(Message, CanMessage)]
 pub enum Message {
     /// Tells the board that it should reset itself.
     ///

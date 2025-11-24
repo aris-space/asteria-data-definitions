@@ -1,8 +1,12 @@
 #![no_std]
 #![allow(dead_code)]
 
+use data_macros::CanDecode;
+
 // #[derive(CanEncode)]
 // #[can_encode(dispatch)]
+#[derive(CanDecode)]
+#[can(dispatch)]
 enum AnyMessage {
     PowerBoard(dp_power_board::Message),
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
@@ -38,23 +42,23 @@ mod generated {
     }
 
     // if #[derive(CanDecode)]
-    impl CanDecode for AnyMessage {
-        type Error = AnyError;
+    // impl CanDecode for AnyMessage {
+    //     type Error = AnyError;
 
-        fn from_parts(id: can_hal::StandardId, data: &[u8]) -> Result<Self, Self::Error> {
-            if dp_power_board::__message_meta_can_ids::ALL_IDS.contains(&id) {
-                return dp_power_board::Message::from_parts(id, data)
-                    .map(Self::PowerBoard)
-                    .map_err(AnyError::PowerBoard);
-            }
-            if dp_oxidizer_control_board::__message_meta_can_ids::ALL_IDS.contains(&id) {
-                return dp_oxidizer_control_board::Message::from_parts(id, data)
-                    .map(Self::OxidizerControlBoard)
-                    .map_err(AnyError::OxidizerControlBoard);
-            }
-            todo!()
-        }
-    }
+    //     fn from_parts(id: can_hal::StandardId, data: &[u8]) -> Result<Self, Self::Error> {
+    //         if dp_power_board::__message_meta_can_ids::ALL_IDS.contains(&id) {
+    //             return dp_power_board::Message::from_parts(id, data)
+    //                 .map(Self::PowerBoard)
+    //                 .map_err(AnyError::PowerBoard);
+    //         }
+    //         if dp_oxidizer_control_board::__message_meta_can_ids::ALL_IDS.contains(&id) {
+    //             return dp_oxidizer_control_board::Message::from_parts(id, data)
+    //                 .map(Self::OxidizerControlBoard)
+    //                 .map_err(AnyError::OxidizerControlBoard);
+    //         }
+    //         todo!()
+    //     }
+    // }
 }
 
 // #[sparse_can_decode]
