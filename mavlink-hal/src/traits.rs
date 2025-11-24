@@ -8,6 +8,18 @@ pub trait DescribeEnum {
     const ENUM: &'static Enum;
 }
 
+pub trait DescribeMessages {
+    const MESSAGES: &[Message];
+}
+
+#[derive(Debug, Clone)]
+pub struct Message {
+    pub id: u32,
+    pub name: &'static str,
+    pub description: &'static str,
+    pub fields: &'static [MessageField],
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct Enum {
     pub name: &'static str,

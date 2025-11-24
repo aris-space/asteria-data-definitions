@@ -3,17 +3,34 @@ use datatypes::{BuildInformationCommon, CameraPower, RailStatus, StatusCommonMes
 
 // define_messages! {
 pub enum Message {
+    /// Tells the board that it should reset itself.
+    ///
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight computer
     // #[can_id(0x001)]
     ResetBoard,
+
+    /// Sent by the power board to give its current health status.
+    ///
+    /// # CAN
+    /// - **Kind**: Periodic at 1Hz
+    /// - **Sent by**: Power Board
     // #[can_id(0x002)]
+    // #[mavlink_id(1_000_002)]
     BoardStatus(StatusCommonMessage),
+
     // #[can_id(0x003)]
+    // #[mavlink_id(2_000_003)]
     CameraPowerStatus(CameraPower),
     // #[can_id(0x004)]
+    // #[mavlink_id(1_000_004)]
     RailStatus5V(RailStatus),
     // #[can_id(0x005)]
+    // #[mavlink_id(1_000_005)]
     RailStatus24V(RailStatus),
     // #[can_id(0x006)]
+    // #[mavlink_id(1_000_006)]
     BoardBuildInfo(BuildInformationCommon),
 }
 // }
@@ -37,6 +54,30 @@ pub mod __message_meta_can_ids {
         RailStatus24V,
         BoardBuildInfo,
     ];
+}
+
+/// generated
+#[allow(non_upper_case_globals)]
+pub mod __message_meta_mavlink {
+    use datatypes::StatusCommonMessage;
+    use mavlink_hal::traits::{DescribeFieldSet, DescribeMessages};
+
+    // TODO: maybe do range checks on ids, such as 24 bit limit and no collision with other dialects.
+    // TODO: maybe name collision checks of enum names?
+
+    pub const MESSAGES: [mavlink_hal::traits::Message; 1] = [
+        mavlink_hal::traits::Message {
+            id: 1_000_002,
+            name: "BOARD_STATUS", // TODO: how to make this board specific
+            description: "Sent by the power board to give its current health status ...",
+            fields: StatusCommonMessage::FIELDS,
+        },
+        //...
+    ];
+
+    impl DescribeMessages for super::Message {
+        const MESSAGES: &[mavlink_hal::traits::Message] = &MESSAGES;
+    }
 }
 
 /// generated
