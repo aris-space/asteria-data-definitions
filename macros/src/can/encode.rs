@@ -1,4 +1,4 @@
-use darling::{FromDeriveInput, FromVariant, ast::Fields};
+use darling::{FromDeriveInput, FromVariant, ast::Fields, util::Flag};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
 use syn::Ident;
@@ -16,18 +16,36 @@ pub struct CanEncodeVariant {
 }
 
 #[derive(FromDeriveInput)]
-#[darling(attributes(can), supports(enum_any))]
+#[darling(attributes(can), supports(enum_any), and_then = Self::ensure_exclusive_flags)]
 pub struct CanEncode {
-    #[darling(default)]
-    /// Boolean whether the enum should be sparsely decodable
-    pub sparse: bool,
-    #[darling(default)]
-    /// Boolean whether all enum variants need to be newtypes and have
-    /// [`can_hal::Encode`] implemented
-    pub dispatch: bool,
+    /// Boolean flag whether the enum should be encoded in sparse mode
+    ///
+    /// **Important**: You cannot use sparse and dispatch at the same time
+    pub sparse: Flag,
+    /// Boolean flag whether the enum should be encoded in dispatch mode.
+    /// This means that all enum variants are message enums themselves.
+    ///
+    /// **Important**: You cannot use dispatch and sparse at the same time
+    pub dispatch: Flag,
 
     pub ident: Ident,
     pub data: darling::ast::Data<CanEncodeVariant, ()>,
+}
+
+impl CanEncode {
+    fn ensure_exclusive_flags(self) -> darling::Result<Self> {
+        if self.sparse.is_present() && self.dispatch.is_present() {
+            Err(darling::Error::custom(
+                "The `#[can(sparse)]` and `#[can(dispatch)]` attributes cannot be used at the same time!",
+            ))
+        } else if !self.sparse.is_present() && !self.dispatch.is_present() {
+            Err(darling::Error::custom(
+                "Either the `#[can(sparse)]` or `#[can(dispatch)]` attribute is needed for decoding",
+            ))
+        } else {
+            Ok(self)
+        }
+    }
 }
 
 pub fn handle(can_encode: CanEncode) -> TokenStream {
