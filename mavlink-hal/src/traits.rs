@@ -12,7 +12,7 @@ pub trait DescribeMessages {
     const MESSAGES: &[Message];
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Message {
     pub id: u32,
     pub name: &'static str,
