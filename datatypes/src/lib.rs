@@ -43,7 +43,7 @@ pub struct OSSTemperatures {
 // generated
 impl OSSTemperatures {
     pub const MAVLINK_FIELDS: [MessageField; Celsius::MAVLINK_FIELDS.len() + 1] =
-        mavlink_hal::macro_util::concat_field_sets(&[
+        mavlink_hal::macro_util::concat_slices(&[
             &Celsius::MAVLINK_FIELDS,
             &[mavlink_hal::macro_util::refine_field(
                 &Celsius::MAVLINK_FIELDS,

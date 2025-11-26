@@ -1,6 +1,10 @@
 use crate::{traits::MessageField, typing::MavType};
 
-impl MessageField {
+pub trait InvalidInitializable: Copy {
+    const INVALID: Self;
+}
+
+impl InvalidInitializable for MessageField {
     const INVALID: MessageField = MessageField {
         type_: crate::typing::MavType::Scalar(crate::typing::MavSimpleType::UInt8),
         name: "",
@@ -9,12 +13,21 @@ impl MessageField {
         enum_: None,
     };
 }
+impl InvalidInitializable for crate::traits::Message {
+    const INVALID: Self = Self {
+        id: 0,
+        name: "",
+        description: "",
+        fields: &[],
+    };
+}
 
-/// Concatenates field sets, with final length `N`. Gives a owned array back.
-/// Panics if `N` does not match the sum of the lengths of `sets`.
-pub const fn concat_field_sets<const N: usize>(sets: &[&[MessageField]]) -> [MessageField; N] {
-    let mut x = [MessageField::INVALID; N];
-    let mut rest: &mut [MessageField] = &mut x;
+/// Concatenates slices at compile time, with final length `N`. Gives a owned array back.
+/// Panics if `N` does not match the sum of the lengths of `sets`,
+/// but you can easily compute this in a const fashion as well.
+pub const fn concat_slices<T: InvalidInitializable, const N: usize>(sets: &[&[T]]) -> [T; N] {
+    let mut x = [T::INVALID; N];
+    let mut rest: &mut [T] = &mut x;
 
     let mut i = 0;
     while i < sets.len() {
@@ -30,6 +43,7 @@ pub const fn concat_field_sets<const N: usize>(sets: &[&[MessageField]]) -> [Mes
 }
 
 /// Refines a fieldset consisting of a single field with a new name and description, keeping the unit and type.
+/// Panics if `orig_fields` doesn't contain exactly one entry.
 pub const fn refine_field(
     orig_fields: &[MessageField],
     new_name: &'static str,
