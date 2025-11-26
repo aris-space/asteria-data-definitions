@@ -24,18 +24,13 @@ impl MavSimpleType {
     /// Returns the size in bytes
     pub const fn size(self) -> usize {
         match self {
-            MavSimpleType::UInt8 => 1,
-            MavSimpleType::UInt16 => 2,
-            MavSimpleType::UInt32 => 4,
-            MavSimpleType::UInt64 => 8,
-            MavSimpleType::Int8 => 1,
-            MavSimpleType::Int16 => 2,
-            MavSimpleType::Int32 => 4,
-            MavSimpleType::Int64 => 8,
-            MavSimpleType::Float => 4,
-            MavSimpleType::Double => 8,
-            MavSimpleType::Char => 1,
-            MavSimpleType::UInt8MavlinkVersion => 1,
+            MavSimpleType::UInt8
+            | MavSimpleType::Int8
+            | MavSimpleType::Char
+            | MavSimpleType::UInt8MavlinkVersion => 1,
+            MavSimpleType::UInt16 | MavSimpleType::Int16 => 2,
+            MavSimpleType::UInt32 | MavSimpleType::Int32 | MavSimpleType::Float => 4,
+            MavSimpleType::UInt64 | MavSimpleType::Int64 | MavSimpleType::Double => 8,
         }
     }
 
@@ -54,6 +49,23 @@ impl MavSimpleType {
             MavSimpleType::Double => "double",
             MavSimpleType::Char => "char",
             MavSimpleType::UInt8MavlinkVersion => "uint8_t_mavlink_version",
+        }
+    }
+
+    /// Returns the name of the type as the crc calculation needs it
+    pub const fn c_type(self) -> &'static str {
+        match self {
+            MavSimpleType::UInt8MavlinkVersion | MavSimpleType::UInt8 => "uint8_t",
+            MavSimpleType::UInt16 => "uint16_t",
+            MavSimpleType::UInt32 => "uint32_t",
+            MavSimpleType::UInt64 => "uint64_t",
+            MavSimpleType::Int8 => "int8_t",
+            MavSimpleType::Int16 => "int16_t",
+            MavSimpleType::Int32 => "int32_t",
+            MavSimpleType::Int64 => "int64_t",
+            MavSimpleType::Float => "float",
+            MavSimpleType::Double => "double",
+            MavSimpleType::Char => "char",
         }
     }
 }
@@ -131,6 +143,7 @@ impl<T: ScalarTypeable> Typeable for T {
 }
 
 impl<T: ScalarTypeable, const N: usize> Typeable for [T; N] {
+    #[allow(clippy::cast_possible_truncation)] // checked by assert
     const TYPE: MavType = {
         assert!(N < 256, "mavlink only supports arrays up to 255 elements");
         MavType::Array(T::SCALAR_TYPE, N as u8)

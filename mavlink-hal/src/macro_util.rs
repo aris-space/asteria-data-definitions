@@ -62,19 +62,24 @@ pub const fn total_size(fields: &[MessageField]) -> usize {
 // TODO: redefine as const, should be possible maybe, at least with rewriting some stuff
 ///
 /// In maviola: <https://docs.rs/mavinspect/latest/src/mavinspect/protocol/messages/message.rs.html#356-380>
-pub fn calc_extra_crc(message_name: &str, orig_fields: &mut [MessageField]) -> u8 {
+pub fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) -> u8 {
     const X25: crc::Crc<u16> = crc::Crc::<u16>::new(&crc::CRC_16_MCRF4XX);
-    orig_fields.sort_by_key(|t| std::cmp::Reverse(t.type_.base().size())); // non-const sort :/
     let mut digest = X25.digest();
     digest.update(message_name.as_bytes());
     digest.update(b" ");
-    for field in orig_fields {
-        digest.update(field.type_.base().type_name().as_bytes());
-        digest.update(b" ");
-        digest.update(field.name.as_bytes());
-        digest.update(b" ");
-        if let MavType::Array(_, len) = field.type_ {
-            digest.update(&[len]);
+    // instead of reordering, do the calculation 4x, once for every alignment, as it is done in our encoding.
+    for align in [8, 4, 2, 1] {
+        for field in orig_fields {
+            if field.type_.base().size() != align {
+                continue;
+            }
+            digest.update(field.type_.base().c_type().as_bytes());
+            digest.update(b" ");
+            digest.update(field.name.as_bytes());
+            digest.update(b" ");
+            if let MavType::Array(_, len) = field.type_ {
+                digest.update(&[len]);
+            }
         }
     }
     let crc = digest.finalize();
@@ -132,6 +137,5 @@ fn check_minimal_crc() {
     ];
     let crc = calc_extra_crc("HEARTBEAT", minimal_field_set);
     let actual_crc = mavio::dialects::minimal::messages::Heartbeat::crc_extra();
-    // Doesn't work yet :/
     assert_eq!(crc, actual_crc);
 }
