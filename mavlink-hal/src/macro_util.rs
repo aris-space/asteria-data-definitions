@@ -59,7 +59,8 @@ pub const fn total_size(fields: &[MessageField]) -> usize {
     size
 }
 
-// TODO: redefine as const, should be possible maybe, at least with rewriting some stuff
+// TODO: redefine as const, should be possible with rewriting the for loops, and taking a patched
+// CRC crate with this PR <https://github.com/mrhooray/crc-rs/pull/128>.
 ///
 /// In maviola: <https://docs.rs/mavinspect/latest/src/mavinspect/protocol/messages/message.rs.html#356-380>
 pub fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) -> u8 {
