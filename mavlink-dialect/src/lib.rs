@@ -4,6 +4,8 @@ use mavio::{
 };
 use mavlink_hal::traits::DescribeMessages as _;
 
+mod experiment;
+
 // #[derive(MavlinkDialect)]
 // #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
 enum AnyMessage {

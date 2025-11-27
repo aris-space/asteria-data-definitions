@@ -9,6 +9,7 @@ dp-oxidizer-control-board = { version = "0.1.0", path = "../datapoints/dp-oxidiz
 dp-power-board = { version = "0.1.0", path = "../datapoints/dp-power-board" }
 mavio = { version = "0.5.10", features = ["std", "derive"] }
 mavlink-hal = { version = "0.1.0", path = "../mavlink-hal" }
+mavspec = "0.6.7"
 
 [lints]
 workspace = true
