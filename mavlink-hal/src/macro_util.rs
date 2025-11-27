@@ -62,6 +62,20 @@ pub const fn refine_field(
     }
 }
 
+/// Computes the total size of the fields that are `align`-aligned in bytes.
+/// Note that this is only non null for `align` in 1, 2, 4, 8.
+pub const fn total_size_by_align(fields: &[MessageField], align: usize) -> usize {
+    let mut size = 0;
+    let mut i = 0;
+    while i < fields.len() {
+        if fields[i].type_.base().size() == align {
+            size += fields[i].type_.size();
+        }
+        i += 1;
+    }
+    size
+}
+
 /// Computes the total size of all fields in bytes.
 pub const fn total_size(fields: &[MessageField]) -> usize {
     let mut size = 0;
@@ -103,10 +117,13 @@ pub fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) -> u8 {
     eight_bit
 }
 
-#[test]
-fn check_minimal_crc() {
-    use crate::typing::Typeable;
-    let minimal_field_set: &mut [MessageField] = &mut [
+#[cfg(test)]
+mod tests {
+    use crate::macro_util::{calc_extra_crc, total_size, total_size_by_align};
+    use crate::traits::MessageField;
+    use crate::typing::Typeable as _;
+
+    const MINIMAL_FIELD_SET: &[MessageField] = &[
         MessageField {
             type_: <u8>::TYPE,
             name: "type",
@@ -143,14 +160,32 @@ fn check_minimal_crc() {
             enum_: None,
         },
         MessageField {
-            type_: MavType::Scalar(crate::typing::MavSimpleType::UInt8MavlinkVersion),
+            type_: crate::typing::MavType::Scalar(
+                crate::typing::MavSimpleType::UInt8MavlinkVersion,
+            ),
             name: "mavlink_version",
             unit: None,
             description: "irrelevant",
             enum_: None,
         },
     ];
-    let crc = calc_extra_crc("HEARTBEAT", minimal_field_set);
-    let actual_crc = mavio::dialects::minimal::messages::Heartbeat::crc_extra();
-    assert_eq!(crc, actual_crc);
+
+    #[test]
+    fn check_minimal_crc() {
+        let crc = calc_extra_crc("HEARTBEAT", MINIMAL_FIELD_SET);
+        let actual_crc = mavio::dialects::minimal::messages::Heartbeat::crc_extra();
+        assert_eq!(crc, actual_crc);
+    }
+
+    #[allow(clippy::identity_op)]
+    #[test]
+    fn check_length_consistent() {
+        let full_len = total_size(MINIMAL_FIELD_SET);
+        let len_1 = total_size_by_align(MINIMAL_FIELD_SET, 1);
+        let len_2 = total_size_by_align(MINIMAL_FIELD_SET, 2);
+        let len_4 = total_size_by_align(MINIMAL_FIELD_SET, 4);
+        let len_8 = total_size_by_align(MINIMAL_FIELD_SET, 8);
+        assert_eq!(full_len, 0 + 4 + 1 + 1 + 1 + 1 + 1); // copied from mavio macro expansion
+        assert_eq!(full_len, len_1 + len_2 + len_4 + len_8); // copied from mavio macro expansion
+    }
 }

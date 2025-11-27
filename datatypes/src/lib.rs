@@ -180,6 +180,29 @@ impl mavlink_hal::codec::Encode for StatusCommonMessage {
     }
 }
 
+impl mavlink_hal::codec::Decode for StatusCommonMessage {
+    fn decode(
+        reader_8_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
+            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
+        >,
+        reader_4_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
+            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
+        >,
+        _reader_2_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
+            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
+        >,
+        _reader_1_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
+            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
+        >,
+    ) -> Result<Self, TBytesError> {
+        use mavlink_hal::codec::tbytes::TBytesReaderFor as _;
+        Ok(Self {
+            errors: reader_4_aligned.read()?,
+            micros_since_restart: reader_8_aligned.read()?,
+        })
+    }
+}
+
 struct MessageWrapper<T> {
     id: u32,
     data: T,
@@ -197,13 +220,8 @@ impl mavio::protocol::IntoPayload for MessageWrapper<StatusCommonMessage> {
         }
         let mut buffer = [0_u8; mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS)];
         let mut writer = mavlink_hal::codec::tbytes::TBytesWriter::from(buffer.as_mut_slice());
-        let written = mavlink_hal::codec::encode_all(&self.data, &mut writer)
+        mavlink_hal::codec::encode_all(&self.data, &mut writer)
             .map_err(|_e| todo!("idk which error yet"))?;
-        debug_assert_eq!(
-            written,
-            buffer.len(),
-            "the implementation should always write exactly as many bytes as are defined by the type"
-        );
 
         Ok(mavio::protocol::Payload::new(
             self.id,
