@@ -65,7 +65,8 @@ pub mod __message_meta_mavlink {
     // TODO: maybe do range checks on ids, such as 24 bit limit and no collision with other dialects.
     // TODO: maybe name collision checks of enum names?
 
-    pub const MESSAGES: [mavlink_hal::traits::Message; 1] = [
+    // generated: specify which messages exist.
+    const MESSAGES: [mavlink_hal::traits::Message; 1] = [
         mavlink_hal::traits::Message {
             id: 1_000_002,
             name: "BOARD_STATUS", // TODO: how to make this board specific
@@ -74,10 +75,70 @@ pub mod __message_meta_mavlink {
         },
         //...
     ];
-
     impl DescribeMessages for super::Message {
         const MESSAGES: &[mavlink_hal::traits::Message] = &MESSAGES;
     }
+    impl mavio::protocol::MessageSpec for super::Message {
+        fn id(&self) -> mavio::protocol::MessageId {
+            match self {
+                crate::Message::ResetBoard => {
+                    panic!("ResetBoard is not a mavlink compatible variant")
+                }
+                crate::Message::BoardStatus(_) => 1_000_002,
+                _ => todo!(),
+            }
+        }
+        fn min_supported_mavlink_version(&self) -> mavio::prelude::MavLinkVersion {
+            mavio::prelude::MavLinkVersion::V2
+        }
+        fn crc_extra(&self) -> mavio::protocol::CrcExtra {
+            match self {
+                crate::Message::ResetBoard => {
+                    panic!("ResetBoard is not a mavlink compatible variant")
+                }
+                crate::Message::BoardStatus(_) => mavlink_hal::macro_util::calc_extra_crc(
+                    "BOARD_STATUS",
+                    StatusCommonMessage::FIELDS,
+                ),
+                _ => todo!(),
+            }
+        }
+    }
+    impl mavio::protocol::IntoPayload for super::Message {
+        fn encode(
+            &self,
+            version: mavio::prelude::MavLinkVersion,
+        ) -> Result<mavio::protocol::Payload, mavio::prelude::SpecError> {
+            if version != mavio::prelude::MavLinkVersion::V2 {
+                return Err(mavio::prelude::SpecError::UnsupportedMavLinkVersion {
+                    actual: version,
+                    minimal: mavio::prelude::MavLinkVersion::V2,
+                });
+            }
+            match self {
+                crate::Message::ResetBoard => Err(mavio::prelude::SpecError::NotInDialect(0)), // somewhat scuffed error
+                crate::Message::BoardStatus(value) => {
+                    let buffer = mavlink_hal::codec::encode_body::<
+                        _,
+                        { mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS) },
+                    >(value)
+                    .map_err(|_e| mavio::prelude::SpecError::V2PayloadIsTooLong {
+                        actual: 0,
+                        maximum: 0,
+                    })?;
+                    // somewhat scuffed error
+
+                    Ok(mavio::protocol::Payload::new(
+                        1_000_002,
+                        &buffer,
+                        mavio::prelude::MavLinkVersion::V2,
+                    ))
+                }
+                _ => todo!("has to also be generated"),
+            }
+        }
+    }
+    impl mavio::Message for super::Message {}
 }
 
 /// generated

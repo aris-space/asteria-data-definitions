@@ -1,7 +1,6 @@
 use bincode::{Decode, Encode};
 use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
 use mavlink_hal::codec::tbytes::errors::TBytesError;
-use mavlink_hal::macro_util::calc_extra_crc;
 use mavlink_hal::traits::{DescribeEnum, DescribeFieldSet, Enum, EnumVariant, MessageField};
 use mavlink_hal::typing::{MavSimpleType, MavType};
 use serde::{Deserialize, Serialize};
@@ -67,6 +66,7 @@ pub struct BarG(pub f32);
 
 /// The state of a valve that is normally open.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Encode, Decode)]
+#[repr(u8)]
 pub enum NormallyOpenValve {
     #[default]
     Open = 0,
@@ -106,6 +106,7 @@ pub enum NormallyClosedValve {
 }
 
 #[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+// #[derive(MavlinkFieldSet)
 pub struct StatusCommonMessage {
     /// Number of errors encountered since startup.
     pub errors: u32,
@@ -113,9 +114,9 @@ pub struct StatusCommonMessage {
     pub micros_since_restart: u64,
 }
 
-// generated
+// generated: track the fields, used for `DescribeFieldSet` trait and ultimately XMl generation.
 impl StatusCommonMessage {
-    pub const MAVLINK_FIELDS: [MessageField; 2] = [
+    const MAVLINK_FIELDS: [MessageField; 2] = [
         MessageField {
             type_: MavType::Scalar(MavSimpleType::UInt32),
             name: "errors",
@@ -132,11 +133,10 @@ impl StatusCommonMessage {
         },
     ];
 }
-
-// generated
 impl DescribeFieldSet for StatusCommonMessage {
     const FIELDS: &[MessageField] = &Self::MAVLINK_FIELDS;
 }
+// generated: provide a alignment reordering compliant encode implementation
 impl mavlink_hal::codec::Encode for StatusCommonMessage {
     #[inline]
     fn encode_8_aligned(
@@ -179,8 +179,9 @@ impl mavlink_hal::codec::Encode for StatusCommonMessage {
         Ok(0)
     }
 }
-
+// generated: provide alignment-reordering compliant recursive trait implementation
 impl mavlink_hal::codec::Decode for StatusCommonMessage {
+    #[inline]
     fn decode(
         reader_8_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
             impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
@@ -202,47 +203,6 @@ impl mavlink_hal::codec::Decode for StatusCommonMessage {
         })
     }
 }
-
-struct MessageWrapper<T> {
-    id: u32,
-    data: T,
-}
-impl mavio::protocol::IntoPayload for MessageWrapper<StatusCommonMessage> {
-    fn encode(
-        &self,
-        version: mavio::prelude::MavLinkVersion,
-    ) -> Result<mavio::protocol::Payload, mavio::prelude::SpecError> {
-        if version != mavio::prelude::MavLinkVersion::V2 {
-            return Err(mavio::prelude::SpecError::UnsupportedMavLinkVersion {
-                actual: version,
-                minimal: mavio::prelude::MavLinkVersion::V2,
-            });
-        }
-        let mut buffer = [0_u8; mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS)];
-        let mut writer = mavlink_hal::codec::tbytes::TBytesWriter::from(buffer.as_mut_slice());
-        mavlink_hal::codec::encode_all(&self.data, &mut writer)
-            .map_err(|_e| todo!("idk which error yet"))?;
-
-        Ok(mavio::protocol::Payload::new(
-            self.id,
-            &buffer,
-            mavio::prelude::MavLinkVersion::V2,
-        ))
-    }
-}
-impl mavio::protocol::MessageSpec for MessageWrapper<StatusCommonMessage> {
-    fn id(&self) -> mavio::protocol::MessageId {
-        self.id
-    }
-    fn min_supported_mavlink_version(&self) -> mavio::prelude::MavLinkVersion {
-        mavio::prelude::MavLinkVersion::V2
-    }
-    fn crc_extra(&self) -> mavio::protocol::CrcExtra {
-        let mut thingy = StatusCommonMessage::MAVLINK_FIELDS;
-        calc_extra_crc("SOMETHING", &mut thingy)
-    }
-}
-impl mavio::Message for MessageWrapper<StatusCommonMessage> {}
 
 /// Shared firmware build information used by all boards.
 #[derive(Clone, Debug, PartialEq, Encode, Decode)]
