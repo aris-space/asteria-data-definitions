@@ -2,8 +2,6 @@ use mavio::Dialect;
 use mavio::protocol::{IntoPayload, MessageSpec};
 use mavlink_hal::traits::DescribeMessages;
 
-mod experiment;
-
 // #[derive(MavlinkDialect)]
 // #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
 // every variant should be a newtype whose type implements `DescribeMessages` and the other things derived with it.
