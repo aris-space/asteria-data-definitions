@@ -35,6 +35,7 @@ pub trait Encode: DescribeFieldSet {
 /// For `N` you should use `total_size(T::FIELDS)`, but this can't be automated.
 #[inline]
 pub fn encode_body<T: Encode, const N: usize>(value: &T) -> Result<[u8; N], TBytesError> {
+    debug_assert_eq!(N, total_size(T::FIELDS), "incompatible N chosen");
     let mut buffer = [0_u8; N];
     let mut writer = tbytes::TBytesWriter::from(buffer.as_mut_slice());
     let mut written = 0;
@@ -70,6 +71,7 @@ pub trait Decode: DescribeFieldSet + Sized {
 #[inline]
 pub fn decode_body<T: Decode, const N: usize>(payload: &[u8]) -> Result<T, TBytesError> {
     let payload_size: usize = total_size(T::FIELDS);
+    debug_assert_eq!(N, payload_size, "incompatible N chosen");
     if payload.len() > payload_size {
         return Err(TBytesError::OutOfBounds); // the only error that exists.
     }

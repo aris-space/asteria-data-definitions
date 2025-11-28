@@ -1,4 +1,4 @@
-use crate::{traits::MessageField, typing::MavType};
+use crate::traits::{Message, MessageField};
 
 pub trait InvalidInitializable: Copy {
     const INVALID: Self;
@@ -112,7 +112,7 @@ pub const fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) ->
                 digest.update(b" ");
                 digest.update(field.name.as_bytes());
                 digest.update(b" ");
-                if let MavType::Array(_, len) = field.type_ {
+                if let crate::typing::MavType::Array(_, len) = field.type_ {
                     digest.update(&[len]);
                 }
             }
@@ -124,6 +124,69 @@ pub const fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) ->
     #[allow(clippy::cast_possible_truncation)] // no truncation due to bit fiddling
     let eight_bit = ((crc & 0xFF) ^ (crc >> 8)) as u8;
     eight_bit
+}
+
+/// A function to check that a given ID is valid and doesn't collide with other dialects.
+/// Panics if it doesn't, so use at compile time.
+///
+/// See <https://github.com/mavlink/mavlink/blob/master/message_definitions/v1.0/all.xml> for the ranges
+pub const fn sanitize_id(id: u32) -> u32 {
+    assert!((id <= 0x00ff_ffff), "id is larger than 24 bit");
+    assert!(
+        !(id >= 11000 && id <= 11999),
+        "ardupilotmega.xml range of IDs"
+    );
+    assert!(!(id >= 8000 && id <= 8999), "ASLUAV.xml range of IDs");
+    assert!(!(id >= 300 && id <= 10000), "common.xml range of IDs");
+    assert!(!(id >= 42000 && id <= 42999), "icarous.xml range of IDs");
+    assert!(!(id >= 10001 && id <= 10999), "uAvionix.xml range of IDs");
+    assert!(!(id >= 60000 && id <= 60049), "storm32.xml range of IDs");
+    assert!(!(id >= 60050 && id <= 60099), "AVSSUAS.xml range of IDs");
+    assert!(!(id >= 50000 && id <= 50099), "Herelink.xml range of IDs");
+    assert!(!(id >= 51000 && id <= 51999), "ras_a.xml range of IDs");
+    assert!(!(id >= 52000 && id <= 52099), "csAirLink.xml range of IDs");
+    assert!(
+        !(id >= 52100 && id <= 52499),
+        "reserved range of IDs: contact james@auturgy.com.a"
+    );
+    assert!(!(id >= 52500 && id <= 52599), "marsh.xml range of IDs");
+    assert!(
+        !(id >= 52600 && id <= 52699),
+        "next range to allocate range of IDs"
+    );
+
+    id
+}
+
+/// Checks that all ids defined by `messages` are unique.
+/// Otherwise panics, to be used at compile time.
+pub const fn check_unique_ids(messages: &[Message]) {
+    let mut i = 0;
+    while i < messages.len() {
+        let mut j = i + 1;
+        while j < messages.len() {
+            assert!(messages[i].id != messages[j].id, "Duplicate ID detected",);
+            j += 1;
+        }
+        i += 1;
+    }
+}
+
+/// Converts fully descriptive message into the info required by mavio.
+///
+/// For `N` you should use `msgs.len()`, but this can't be automated. Panics otherwise.
+pub const fn into_mavio_infos<const N: usize>(
+    msgs: &[Message],
+) -> [mavio::protocol::MessageInfo; N] {
+    assert!(N == msgs.len(), "incompatible N given");
+    let mut arr = [mavio::protocol::MessageInfo::new(0, 0); N];
+    let mut i = 0;
+    while i < arr.len() {
+        let msg = msgs[i];
+        arr[i] = mavio::protocol::MessageInfo::new(msg.id, calc_extra_crc(msg.name, msg.fields));
+        i += 1;
+    }
+    arr
 }
 
 #[cfg(test)]

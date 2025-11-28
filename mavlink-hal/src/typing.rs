@@ -103,40 +103,32 @@ impl ScalarTypeable for u8 {
 impl ScalarTypeable for u16 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt16;
 }
-
 impl ScalarTypeable for u32 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt32;
 }
-
 impl ScalarTypeable for u64 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt64;
 }
-
 impl ScalarTypeable for i8 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int8;
 }
-
 impl ScalarTypeable for i16 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int16;
 }
-
 impl ScalarTypeable for i32 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int32;
 }
-
 impl ScalarTypeable for i64 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int64;
 }
-
 impl ScalarTypeable for f32 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Float;
 }
-
 impl ScalarTypeable for f64 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Double;
 }
 
-// note that char is not typeable directly (would be u32, not char)
+// note that rust's char is not typeable directly (would be u32, not char)
 
 impl<T: ScalarTypeable> Typeable for T {
     const TYPE: MavType = MavType::Scalar(Self::SCALAR_TYPE);

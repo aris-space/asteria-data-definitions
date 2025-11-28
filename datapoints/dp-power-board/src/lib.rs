@@ -18,6 +18,7 @@ pub enum Message {
     /// - **Sent by**: Power Board
     // #[can_id(0x002)]
     // #[mavlink_id(1_000_002)]
+    // #[mavlink_name("POWERBOARD_STATUS")]
     BoardStatus(StatusCommonMessage),
 
     // #[can_id(0x003)]
@@ -62,19 +63,17 @@ pub mod __message_meta_mavlink {
     use datatypes::StatusCommonMessage;
     use mavlink_hal::traits::{DescribeFieldSet, DescribeMessages};
 
-    // TODO: maybe do range checks on ids, such as 24 bit limit and no collision with other dialects.
-    // TODO: maybe name collision checks of enum names?
-
     // generated: specify which messages exist.
     const MESSAGES: [mavlink_hal::traits::Message; 1] = [
         mavlink_hal::traits::Message {
-            id: 1_000_002,
-            name: "BOARD_STATUS", // TODO: how to make this board specific
-            description: "Sent by the power board to give its current health status ...",
-            fields: StatusCommonMessage::FIELDS,
+            id: mavlink_hal::macro_util::sanitize_id(1_000_002),
+            name: "POWERBOARD_STATUS", // defaults to the uppercased variant name unless overriden with `mavlink_name` attr.
+            description: "Sent by the power board to give its current health status ...", // from doc comment
+            fields: StatusCommonMessage::FIELDS, // because inner must derive `DescribeFieldSet`
         },
         //...
     ];
+    const _: () = mavlink_hal::macro_util::check_unique_ids(&MESSAGES);
     impl DescribeMessages for super::Message {
         const MESSAGES: &[mavlink_hal::traits::Message] = &MESSAGES;
     }
@@ -98,7 +97,7 @@ pub mod __message_meta_mavlink {
                     panic!("ResetBoard is not a mavlink compatible variant")
                 }
                 crate::Message::BoardStatus(_) => mavlink_hal::macro_util::calc_extra_crc(
-                    "BOARD_STATUS",
+                    "POWERBOARD_STATUS",
                     StatusCommonMessage::FIELDS,
                 ),
                 _ => todo!(),
@@ -128,7 +127,7 @@ pub mod __message_meta_mavlink {
                         actual: 0,
                         maximum: 0,
                     })?;
-                    // somewhat scuffed error
+                    // somewhat scuffed error, but there are no better ones. Mavio just panics.
 
                     Ok(mavio::protocol::Payload::new(
                         1_000_002,

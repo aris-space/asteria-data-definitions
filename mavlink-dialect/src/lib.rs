@@ -13,14 +13,13 @@ pub enum AnyMessage {
 // generated
 impl AnyMessage {
     const MAVLINK_MESSAGES: [mavlink_hal::traits::Message;
-        // fixme: of course should be once dp_oxidizer_control_board, but not implemented yet
-        dp_power_board::Message::MESSAGES.len() + dp_power_board::Message::MESSAGES.len()] =
+        // fixme: of course should include dp_oxidizer_control_board, but not implemented yet
+        dp_power_board::Message::MESSAGES.len()] =
         mavlink_hal::macro_util::concat_slices(&[
             dp_power_board::Message::MESSAGES,
-            dp_power_board::Message::MESSAGES,
         ]);
-    // todo: uniqueness checks
 }
+const _: () = mavlink_hal::macro_util::check_unique_ids(&AnyMessage::MAVLINK_MESSAGES);
 impl DescribeMessages for AnyMessage {
     const MESSAGES: &[mavlink_hal::traits::Message] = &Self::MAVLINK_MESSAGES;
 }
@@ -88,19 +87,10 @@ impl Dialect for AnyMessage {
     }
     fn spec() -> &'static mavio::protocol::DialectSpec {
         // convert to the mavio message info type, which would also implement their trait, but here dyn isn't used...
-        const MESSAGE_INFO: [mavio::protocol::MessageInfo; AnyMessage::MESSAGES.len()] = {
-            let mut arr = [mavio::protocol::MessageInfo::new(0, 0); AnyMessage::MESSAGES.len()];
-            let mut i = 0;
-            while i < arr.len() {
-                let msg = AnyMessage::MESSAGES[i];
-                arr[i] = mavio::protocol::MessageInfo::new(
-                    msg.id,
-                    mavlink_hal::macro_util::calc_extra_crc(msg.name, msg.fields),
-                );
-                i += 1;
-            }
-            arr
-        };
+        const MESSAGE_INFO: [mavio::protocol::MessageInfo; AnyMessage::MESSAGES.len()] =
+            mavlink_hal::macro_util::into_mavio_infos::<{ AnyMessage::MESSAGES.len() }>(
+                AnyMessage::MESSAGES,
+            );
         const DIALECT_SPEC: mavspec::rust::spec::DialectSpec =
             mavspec::rust::spec::DialectSpec::new(
                 "ASTERIA",
