@@ -87,29 +87,38 @@ pub const fn total_size(fields: &[MessageField]) -> usize {
     size
 }
 
-// TODO: redefine as const, should be possible with rewriting the for loops, and taking a patched
-// CRC crate with this PR <https://github.com/mrhooray/crc-rs/pull/128>.
+/// Calculates the Mavlink CRC-Extra for a message definition.
 ///
-/// In maviola: <https://docs.rs/mavinspect/latest/src/mavinspect/protocol/messages/message.rs.html#356-380>
-pub fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) -> u8 {
+/// This is appended to the payload when generating the message checksum to check common message format understanding.
+///
+/// See <https://mavlink.io/en/guide/serialization.html#payload> and
+/// in maviola: <https://docs.rs/mavinspect/latest/src/mavinspect/protocol/messages/message.rs.html#356-380>
+pub const fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) -> u8 {
     const X25: crc::Crc<u16> = crc::Crc::<u16>::new(&crc::CRC_16_MCRF4XX);
     let mut digest = X25.digest();
     digest.update(message_name.as_bytes());
     digest.update(b" ");
     // instead of reordering, do the calculation 4x, once for every alignment, as it is done in our encoding.
-    for align in [8, 4, 2, 1] {
-        for field in orig_fields {
-            if field.type_.base().size() != align {
-                continue;
+
+    // for align in [8, 4, 2, 1]:
+    let mut align = 8;
+    while align > 0 {
+        // for field in orig_fields:
+        let mut i = 0;
+        while i < orig_fields.len() {
+            let field = orig_fields[i];
+            if field.type_.base().size() == align {
+                digest.update(field.type_.base().c_type().as_bytes());
+                digest.update(b" ");
+                digest.update(field.name.as_bytes());
+                digest.update(b" ");
+                if let MavType::Array(_, len) = field.type_ {
+                    digest.update(&[len]);
+                }
             }
-            digest.update(field.type_.base().c_type().as_bytes());
-            digest.update(b" ");
-            digest.update(field.name.as_bytes());
-            digest.update(b" ");
-            if let MavType::Array(_, len) = field.type_ {
-                digest.update(&[len]);
-            }
+            i += 1;
         }
+        align /= 2;
     }
     let crc = digest.finalize();
     #[allow(clippy::cast_possible_truncation)] // no truncation due to bit fiddling
