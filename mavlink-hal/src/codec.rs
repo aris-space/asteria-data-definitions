@@ -3,8 +3,8 @@ pub use tbytes;
 use tbytes::errors::TBytesError;
 use tbytes::{TBytesReader, TBytesReaderBackend, TBytesWriter, TBytesWriterBackend};
 
-use crate::macro_util::{total_size, total_size_by_align};
 use crate::description::DescribeFieldSet;
+use crate::macro_util::{total_size, total_size_by_align};
 
 /// A type that can encode itself as part of a mavlink message.
 ///
@@ -12,22 +12,34 @@ use crate::description::DescribeFieldSet;
 /// needs to happen, but the message parts can be encoded recursively.
 /// Implementors must ensure this matches the message fields they provide with [`DescribeFieldSet`].
 pub trait Encode: DescribeFieldSet {
+    #[inline]
     fn encode_8_aligned(
         &self,
-        writer: &mut TBytesWriter<impl TBytesWriterBackend>,
-    ) -> Result<usize, TBytesError>;
+        _writer: &mut TBytesWriter<impl TBytesWriterBackend>,
+    ) -> Result<usize, TBytesError> {
+        Ok(0)
+    }
+    #[inline]
     fn encode_4_aligned(
         &self,
-        writer: &mut TBytesWriter<impl TBytesWriterBackend>,
-    ) -> Result<usize, TBytesError>;
+        _writer: &mut TBytesWriter<impl TBytesWriterBackend>,
+    ) -> Result<usize, TBytesError> {
+        Ok(0)
+    }
+    #[inline]
     fn encode_2_aligned(
         &self,
-        writer: &mut TBytesWriter<impl TBytesWriterBackend>,
-    ) -> Result<usize, TBytesError>;
+        _writer: &mut TBytesWriter<impl TBytesWriterBackend>,
+    ) -> Result<usize, TBytesError> {
+        Ok(0)
+    }
+    #[inline]
     fn encode_1_aligned(
         &self,
-        writer: &mut TBytesWriter<impl TBytesWriterBackend>,
-    ) -> Result<usize, TBytesError>;
+        _writer: &mut TBytesWriter<impl TBytesWriterBackend>,
+    ) -> Result<usize, TBytesError> {
+        Ok(0)
+    }
 }
 
 /// Encodes a full message body `value`, with payload size `N`.

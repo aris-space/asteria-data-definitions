@@ -7,9 +7,8 @@ edition = "2024"
 datatypes = { version = "0.1.0", path = "../datatypes" }
 dp-oxidizer-control-board = { version = "0.1.0", path = "../datapoints/dp-oxidizer-control-board" }
 dp-power-board = { version = "0.1.0", path = "../datapoints/dp-power-board" }
-mavio = { version = "0.5.10", features = ["std", "derive"] }
+mavio = { version = "0.5.10", features = ["std"] }
 mavlink-hal = { version = "0.1.0", path = "../mavlink-hal" }
-mavspec = "0.6.7"
 
 [lints]
 workspace = true

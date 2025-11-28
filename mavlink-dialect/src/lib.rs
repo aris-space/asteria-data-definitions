@@ -91,13 +91,12 @@ impl Dialect for AnyMessage {
             mavlink_hal::macro_util::into_mavio_infos::<{ AnyMessage::MESSAGES.len() }>(
                 AnyMessage::MESSAGES,
             );
-        const DIALECT_SPEC: mavspec::rust::spec::DialectSpec =
-            mavspec::rust::spec::DialectSpec::new(
-                "ASTERIA",
-                core::option::Option::Some(900),
-                core::option::Option::Some(1),
-                &MESSAGE_INFO,
-            );
+        const DIALECT_SPEC: mavio::protocol::DialectSpec = mavio::protocol::DialectSpec::new(
+            "ASTERIA",
+            core::option::Option::Some(900),
+            core::option::Option::Some(1),
+            &MESSAGE_INFO,
+        );
         &DIALECT_SPEC
     }
 }

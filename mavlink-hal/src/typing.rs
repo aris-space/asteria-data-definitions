@@ -1,3 +1,5 @@
+use crate::description::Enum;
+
 #[derive(Debug, Clone, Copy)]
 pub enum MavType {
     Scalar(MavSimpleType),
@@ -91,47 +93,60 @@ impl MavType {
 
 pub trait Typeable {
     const TYPE: MavType;
+    const ENUM: Option<&'static Enum>;
 }
 
 pub trait ScalarTypeable {
     const SCALAR_TYPE: MavSimpleType;
+    const SCALAR_ENUM: Option<&'static Enum>;
 }
 
 impl ScalarTypeable for u8 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt8;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for u16 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt16;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for u32 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt32;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for u64 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt64;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i8 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int8;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i16 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int16;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i32 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int32;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i64 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int64;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for f32 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Float;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for f64 {
     const SCALAR_TYPE: MavSimpleType = MavSimpleType::Double;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 
 // note that rust's char is not typeable directly (would be u32, not char)
 
 impl<T: ScalarTypeable> Typeable for T {
     const TYPE: MavType = MavType::Scalar(Self::SCALAR_TYPE);
+    const ENUM: Option<&'static Enum> = Self::SCALAR_ENUM;
 }
 
 impl<T: ScalarTypeable, const N: usize> Typeable for [T; N] {
@@ -140,4 +155,5 @@ impl<T: ScalarTypeable, const N: usize> Typeable for [T; N] {
         assert!(N < 256, "mavlink only supports arrays up to 255 elements");
         MavType::Array(T::SCALAR_TYPE, N as u8)
     };
+    const ENUM: Option<&'static Enum> = T::SCALAR_ENUM;
 }
