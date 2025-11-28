@@ -82,12 +82,13 @@ pub mod __message_meta_mavlink {
         fn id(&self) -> mavio::protocol::MessageId {
             match self {
                 crate::Message::ResetBoard => {
-                    panic!("ResetBoard is not a mavlink compatible variant")
+                    panic!("ResetBoard is not a mavlink compatible variant") // FIXME: a non-panicky way would also be nice
                 }
                 crate::Message::BoardStatus(_) => 1_000_002,
                 _ => todo!(),
             }
         }
+        #[inline]
         fn min_supported_mavlink_version(&self) -> mavio::prelude::MavLinkVersion {
             mavio::prelude::MavLinkVersion::V2
         }
@@ -105,6 +106,7 @@ pub mod __message_meta_mavlink {
         }
     }
     impl mavio::protocol::IntoPayload for super::Message {
+        #[inline]
         fn encode(
             &self,
             version: mavio::prelude::MavLinkVersion,
@@ -135,6 +137,34 @@ pub mod __message_meta_mavlink {
                     ))
                 }
                 _ => todo!("has to also be generated"),
+            }
+        }
+    }
+    impl TryFrom<&mavio::protocol::Payload> for super::Message {
+        type Error = mavio::prelude::SpecError;
+        #[inline]
+        fn try_from(payload: &mavio::protocol::Payload) -> Result<Self, Self::Error> {
+            if payload.version() != mavio::prelude::MavLinkVersion::V2 {
+                return Err(mavio::prelude::SpecError::UnsupportedMavLinkVersion {
+                    actual: payload.version(),
+                    minimal: mavio::prelude::MavLinkVersion::V2,
+                });
+            }
+            match payload.id() {
+                1_000_002 => mavlink_hal::codec::decode_body::<
+                    _,
+                    { mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS) },
+                >(payload.bytes())
+                .map(Self::BoardStatus)
+                .map_err(|_e| mavio::prelude::SpecError::V2PayloadIsTooLong {
+                    actual: 0,
+                    maximum: 0,
+                }), // there are no good fitting errors :/
+                2_000_003 => todo!(),
+                1_000_004 => todo!(),
+                1_000_005 => todo!(),
+                1_000_006 => todo!(),
+                id => Err(mavio::prelude::SpecError::NotInDialect(id)),
             }
         }
     }

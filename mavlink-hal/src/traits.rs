@@ -1,4 +1,6 @@
-use crate::typing::MavType;
+use mavio::protocol::MessageSpec;
+
+use crate::{macro_util::calc_extra_crc, typing::MavType};
 
 pub trait DescribeFieldSet {
     const FIELDS: &[MessageField];
@@ -18,6 +20,18 @@ pub struct Message {
     pub name: &'static str,
     pub description: &'static str,
     pub fields: &'static [MessageField],
+}
+
+impl MessageSpec for Message {
+    fn id(&self) -> mavio::protocol::MessageId {
+        self.id
+    }
+    fn min_supported_mavlink_version(&self) -> mavio::prelude::MavLinkVersion {
+        mavio::prelude::MavLinkVersion::V2
+    }
+    fn crc_extra(&self) -> mavio::protocol::CrcExtra {
+        calc_extra_crc(self.name, self.fields)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

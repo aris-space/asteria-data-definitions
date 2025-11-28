@@ -1,22 +1,20 @@
-use mavio::{
-    Dialect,
-    protocol::{IntoPayload, MessageSpec},
-};
-use mavlink_hal::traits::DescribeMessages as _;
+use mavio::Dialect;
+use mavio::protocol::{IntoPayload, MessageSpec};
+use mavlink_hal::traits::DescribeMessages;
 
 mod experiment;
 
 // #[derive(MavlinkDialect)]
 // #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
-enum AnyMessage {
-    // every newtype variant should implement `DescribeMessages`
+// every variant should be a newtype whose type implements `DescribeMessages` and the other things derived with it.
+pub enum AnyMessage {
     PowerBoard(dp_power_board::Message),
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
 }
 
 // generated
 impl AnyMessage {
-    pub const MESSAGES: [mavlink_hal::traits::Message;
+    const MAVLINK_MESSAGES: [mavlink_hal::traits::Message;
         // fixme: of course should be once dp_oxidizer_control_board, but not implemented yet
         dp_power_board::Message::MESSAGES.len() + dp_power_board::Message::MESSAGES.len()] =
         mavlink_hal::macro_util::concat_slices(&[
@@ -25,14 +23,17 @@ impl AnyMessage {
         ]);
     // todo: uniqueness checks
 }
+impl DescribeMessages for AnyMessage {
+    const MESSAGES: &[mavlink_hal::traits::Message] = &Self::MAVLINK_MESSAGES;
+}
 impl IntoPayload for AnyMessage {
     fn encode(
         &self,
         version: mavio::prelude::MavLinkVersion,
     ) -> Result<mavio::protocol::Payload, mavio::prelude::SpecError> {
         match self {
-            AnyMessage::PowerBoard(message) => todo!(),
-            AnyMessage::OxidizerControlBoard(message) => todo!(),
+            AnyMessage::PowerBoard(message) => message.encode(version),
+            AnyMessage::OxidizerControlBoard(_message) => todo!("dispatch"),
         }
     }
 }
@@ -49,27 +50,57 @@ impl MessageSpec for AnyMessage {
 }
 impl Dialect for AnyMessage {
     fn name() -> &'static str {
-        "ASTERIA"
+        "ASTERIA" // from macro attribute
     }
     fn dialect() -> Option<mavio::protocol::DialectId> {
-        Some(900)
+        core::option::Option::Some(900) // from macro attribute
     }
     fn version() -> Option<mavio::protocol::DialectVersion> {
-        Some(1)
+        core::option::Option::Some(1) // from macro attribute
     }
     fn message_info(
         id: mavio::protocol::MessageId,
     ) -> Result<&'static dyn mavio::protocol::MessageSpec, mavio::prelude::SpecError> {
-        // needs to lookup id in variants, and then dispatch.
-        // But not to `Dialect` trait, needs another trait and const stuff maybe.
-        todo!()
+        Self::MESSAGES
+            .iter()
+            .find(|m| m.id == id)
+            .map(|m| m as &'static dyn mavio::protocol::MessageSpec)
+            .ok_or(mavio::prelude::SpecError::NotInDialect(id))
     }
     fn decode(payload: &mavio::protocol::Payload) -> Result<Self, mavio::prelude::SpecError> {
-        // Can also look up id and dispatch.
-        todo!()
+        // look up id and dispatch.
+        if dp_power_board::Message::MESSAGES
+            .iter()
+            .any(|m| m.id == payload.id())
+        {
+            return dp_power_board::Message::try_from(payload).map(Self::PowerBoard);
+        }
+        // ...
+
+        Err(mavio::prelude::SpecError::NotInDialect(payload.id()))
     }
     fn spec() -> &'static mavio::protocol::DialectSpec {
-        // need to generate dummy type I think.
-        todo!()
+        // convert to the mavio message info type, which would also implement their trait, but here dyn isn't used...
+        const MESSAGE_INFO: [mavio::protocol::MessageInfo; AnyMessage::MESSAGES.len()] = {
+            let mut arr = [mavio::protocol::MessageInfo::new(0, 0); AnyMessage::MESSAGES.len()];
+            let mut i = 0;
+            while i < arr.len() {
+                let msg = AnyMessage::MESSAGES[i];
+                arr[i] = mavio::protocol::MessageInfo::new(
+                    msg.id,
+                    mavlink_hal::macro_util::calc_extra_crc(msg.name, msg.fields),
+                );
+                i += 1;
+            }
+            arr
+        };
+        const DIALECT_SPEC: mavspec::rust::spec::DialectSpec =
+            mavspec::rust::spec::DialectSpec::new(
+                "ASTERIA",
+                core::option::Option::Some(900),
+                core::option::Option::Some(1),
+                &MESSAGE_INFO,
+            );
+        &DIALECT_SPEC
     }
 }
