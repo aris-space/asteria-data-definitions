@@ -37,13 +37,22 @@ impl IntoPayload for AnyMessage {
 }
 impl MessageSpec for AnyMessage {
     fn id(&self) -> mavio::protocol::MessageId {
-        todo!("can be dispatched to variant")
+        match self {
+            AnyMessage::PowerBoard(message) => message.id(),
+            AnyMessage::OxidizerControlBoard(_message) => todo!(),
+        }
     }
     fn min_supported_mavlink_version(&self) -> mavio::prelude::MavLinkVersion {
-        todo!("can be dispatched to variant")
+        match self {
+            AnyMessage::PowerBoard(message) => message.min_supported_mavlink_version(),
+            AnyMessage::OxidizerControlBoard(_message) => todo!(),
+        }
     }
     fn crc_extra(&self) -> mavio::protocol::CrcExtra {
-        todo!("can be dispatched to variant")
+        match self {
+            AnyMessage::PowerBoard(message) => message.crc_extra(),
+            AnyMessage::OxidizerControlBoard(_message) => todo!(),
+        }
     }
 }
 impl Dialect for AnyMessage {

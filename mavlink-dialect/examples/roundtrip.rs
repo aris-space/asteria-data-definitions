@@ -1,0 +1,64 @@
+use std::net::{TcpListener, TcpStream};
+
+use datatypes::StatusCommonMessage;
+use mavio::io::{StdIoReader, StdIoWriter};
+use mavio::prelude::V2;
+use mavio::{Endpoint, MavLinkId, Receiver, Sender};
+
+use mavlink_dialect::AnyMessage;
+
+fn main() {
+    let receiver = std::thread::spawn(|| {
+        // Create a TCP client receiver
+        let listener = TcpListener::bind("0.0.0.0:5600").expect("must be able to bind");
+        let (stream, _) = listener.accept().expect("must get a connection");
+        let reader = StdIoReader::new(stream);
+        let mut receiver = Receiver::versioned(reader, V2);
+
+        for _i in 0..10 {
+            let frame = receiver.recv().expect("must be able to receive frame");
+
+            // Validate MAVLink frame
+            if let Err(err) = frame.validate_checksum::<AnyMessage>() {
+                eprintln!("Invalid checksum: {err:?}");
+                continue;
+            }
+
+            if let Ok(AnyMessage::PowerBoard(dp_power_board::Message::BoardStatus(msg))) =
+                frame.decode()
+            {
+                println!("STATUS #{}: {msg:?}", frame.sequence());
+            }
+        }
+    });
+
+    let sender = std::thread::spawn(|| {
+        // Create a TCP client sender
+        let writer =
+            StdIoWriter::new(TcpStream::connect("0.0.0.0:5600").expect("must be able to connect"));
+        let mut sender = Sender::new(writer);
+
+        // Create an endpoint that represents a MAVLink device speaking `MAVLink 2` protocol
+        let endpoint = Endpoint::v2(MavLinkId::new(15, 42));
+
+        for i in 0..10 {
+            // Create a message (without the AnyMessage wrapper)
+            let message = dp_power_board::Message::BoardStatus(StatusCommonMessage {
+                errors: 0,
+                micros_since_restart: i * 999,
+            });
+
+            // Build the next frame for this endpoint.
+            // All required fields will be populated, including frame sequence counter.
+            let frame = endpoint
+                .next_frame(&message)
+                .expect("must be able encode next frame");
+
+            sender.send(&frame).expect("must be able to send");
+            println!("FRAME #{i} sent");
+        }
+    });
+
+    sender.join().expect("sender error");
+    receiver.join().expect("receiver error");
+}
