@@ -1,7 +1,7 @@
 use bincode::{Decode, Encode};
 use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
 use mavlink_hal::codec::tbytes::errors::TBytesError;
-use mavlink_hal::traits::{DescribeEnum, DescribeFieldSet, Enum, EnumVariant, MessageField};
+use mavlink_hal::description::{DescribeEnum, DescribeFieldSet, Enum, EnumVariant, MessageField};
 use mavlink_hal::typing::{MavSimpleType, MavType};
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +15,7 @@ pub struct Celsius(pub f32);
 // maybe generated, maybe explicit
 impl Celsius {
     pub const MAVLINK_FIELDS: [MessageField; 1] = [MessageField {
-        type_: MavType::Scalar(MavSimpleType::Float),
+        type_: <f32 as mavlink_hal::typing::Typeable>::TYPE, // from inner type
         name: "temperature",
         unit: Some("°C"),
         description: "The measured temperature",
@@ -28,6 +28,7 @@ impl DescribeFieldSet for Celsius {
     const FIELDS: &[MessageField] = &Self::MAVLINK_FIELDS;
 }
 
+// #[derive(MavlinkFieldSet)
 pub struct OSSTemperatures {
     /// This description and field name would be overwritten by the ones of `Celsius`.
     /// In this case not useful, but with other nested structures it should be.

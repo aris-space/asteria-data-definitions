@@ -1,6 +1,6 @@
 use mavio::Dialect;
 use mavio::protocol::{IntoPayload, MessageSpec};
-use mavlink_hal::traits::DescribeMessages;
+use mavlink_hal::description::DescribeMessages;
 
 // #[derive(MavlinkDialect)]
 // #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
@@ -12,7 +12,7 @@ pub enum AnyMessage {
 
 // generated
 impl AnyMessage {
-    const MAVLINK_MESSAGES: [mavlink_hal::traits::Message;
+    const MAVLINK_MESSAGES: [mavlink_hal::description::Message;
         // fixme: of course should include dp_oxidizer_control_board, but not implemented yet
         dp_power_board::Message::MESSAGES.len()] =
         mavlink_hal::macro_util::concat_slices(&[
@@ -21,7 +21,7 @@ impl AnyMessage {
 }
 const _: () = mavlink_hal::macro_util::check_unique_ids(&AnyMessage::MAVLINK_MESSAGES);
 impl DescribeMessages for AnyMessage {
-    const MESSAGES: &[mavlink_hal::traits::Message] = &Self::MAVLINK_MESSAGES;
+    const MESSAGES: &[mavlink_hal::description::Message] = &Self::MAVLINK_MESSAGES;
 }
 impl IntoPayload for AnyMessage {
     fn encode(

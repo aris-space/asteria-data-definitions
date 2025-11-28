@@ -61,11 +61,11 @@ pub mod __message_meta_can_ids {
 #[allow(non_upper_case_globals)]
 pub mod __message_meta_mavlink {
     use datatypes::StatusCommonMessage;
-    use mavlink_hal::traits::{DescribeFieldSet, DescribeMessages};
+    use mavlink_hal::description::{DescribeFieldSet, DescribeMessages};
 
     // generated: specify which messages exist.
-    const MESSAGES: [mavlink_hal::traits::Message; 1] = [
-        mavlink_hal::traits::Message {
+    const MESSAGES: [mavlink_hal::description::Message; 1] = [
+        mavlink_hal::description::Message {
             id: mavlink_hal::macro_util::sanitize_id(1_000_002),
             name: "POWERBOARD_STATUS", // defaults to the uppercased variant name unless overriden with `mavlink_name` attr.
             description: "Sent by the power board to give its current health status ...", // from doc comment
@@ -75,7 +75,7 @@ pub mod __message_meta_mavlink {
     ];
     const _: () = mavlink_hal::macro_util::check_unique_ids(&MESSAGES);
     impl DescribeMessages for super::Message {
-        const MESSAGES: &[mavlink_hal::traits::Message] = &MESSAGES;
+        const MESSAGES: &[mavlink_hal::description::Message] = &MESSAGES;
     }
     impl mavio::protocol::MessageSpec for super::Message {
         fn id(&self) -> mavio::protocol::MessageId {

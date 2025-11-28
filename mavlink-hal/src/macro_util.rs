@@ -1,4 +1,4 @@
-use crate::traits::{Message, MessageField};
+use crate::description::{Message, MessageField};
 
 pub trait InvalidInitializable: Copy {
     const INVALID: Self;
@@ -13,7 +13,7 @@ impl InvalidInitializable for MessageField {
         enum_: None,
     };
 }
-impl InvalidInitializable for crate::traits::Message {
+impl InvalidInitializable for crate::description::Message {
     const INVALID: Self = Self {
         id: 0,
         name: "",
@@ -192,7 +192,7 @@ pub const fn into_mavio_infos<const N: usize>(
 #[cfg(test)]
 mod tests {
     use crate::macro_util::{calc_extra_crc, total_size, total_size_by_align};
-    use crate::traits::MessageField;
+    use crate::description::MessageField;
     use crate::typing::Typeable as _;
 
     const MINIMAL_FIELD_SET: &[MessageField] = &[

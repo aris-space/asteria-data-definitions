@@ -4,7 +4,7 @@ use tbytes::errors::TBytesError;
 use tbytes::{TBytesReader, TBytesReaderBackend, TBytesWriter, TBytesWriterBackend};
 
 use crate::macro_util::{total_size, total_size_by_align};
-use crate::traits::DescribeFieldSet;
+use crate::description::DescribeFieldSet;
 
 /// A type that can encode itself as part of a mavlink message.
 ///
