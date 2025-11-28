@@ -2,12 +2,12 @@ use crate::description::Enum;
 
 #[derive(Debug, Clone, Copy)]
 pub enum MavType {
-    Scalar(MavSimpleType),
-    Array(MavSimpleType, u8),
+    Scalar(MavScalarType),
+    Array(MavScalarType, u8),
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum MavSimpleType {
+pub enum MavScalarType {
     UInt8,
     UInt16,
     UInt32,
@@ -22,59 +22,59 @@ pub enum MavSimpleType {
     UInt8MavlinkVersion,
 }
 
-impl MavSimpleType {
+impl MavScalarType {
     /// Returns the size in bytes
     pub const fn size(self) -> usize {
         match self {
-            MavSimpleType::UInt8
-            | MavSimpleType::Int8
-            | MavSimpleType::Char
-            | MavSimpleType::UInt8MavlinkVersion => 1,
-            MavSimpleType::UInt16 | MavSimpleType::Int16 => 2,
-            MavSimpleType::UInt32 | MavSimpleType::Int32 | MavSimpleType::Float => 4,
-            MavSimpleType::UInt64 | MavSimpleType::Int64 | MavSimpleType::Double => 8,
+            MavScalarType::UInt8
+            | MavScalarType::Int8
+            | MavScalarType::Char
+            | MavScalarType::UInt8MavlinkVersion => 1,
+            MavScalarType::UInt16 | MavScalarType::Int16 => 2,
+            MavScalarType::UInt32 | MavScalarType::Int32 | MavScalarType::Float => 4,
+            MavScalarType::UInt64 | MavScalarType::Int64 | MavScalarType::Double => 8,
         }
     }
 
     /// Returns the name of the type as mavlink needs it
     pub const fn type_name(self) -> &'static str {
         match self {
-            MavSimpleType::UInt8 => "uint8_t",
-            MavSimpleType::UInt16 => "uint16_t",
-            MavSimpleType::UInt32 => "uint32_t",
-            MavSimpleType::UInt64 => "uint64_t",
-            MavSimpleType::Int8 => "int8_t",
-            MavSimpleType::Int16 => "int16_t",
-            MavSimpleType::Int32 => "int32_t",
-            MavSimpleType::Int64 => "int64_t",
-            MavSimpleType::Float => "float",
-            MavSimpleType::Double => "double",
-            MavSimpleType::Char => "char",
-            MavSimpleType::UInt8MavlinkVersion => "uint8_t_mavlink_version",
+            MavScalarType::UInt8 => "uint8_t",
+            MavScalarType::UInt16 => "uint16_t",
+            MavScalarType::UInt32 => "uint32_t",
+            MavScalarType::UInt64 => "uint64_t",
+            MavScalarType::Int8 => "int8_t",
+            MavScalarType::Int16 => "int16_t",
+            MavScalarType::Int32 => "int32_t",
+            MavScalarType::Int64 => "int64_t",
+            MavScalarType::Float => "float",
+            MavScalarType::Double => "double",
+            MavScalarType::Char => "char",
+            MavScalarType::UInt8MavlinkVersion => "uint8_t_mavlink_version",
         }
     }
 
     /// Returns the name of the type as the crc calculation needs it
     pub const fn c_type(self) -> &'static str {
         match self {
-            MavSimpleType::UInt8MavlinkVersion | MavSimpleType::UInt8 => "uint8_t",
-            MavSimpleType::UInt16 => "uint16_t",
-            MavSimpleType::UInt32 => "uint32_t",
-            MavSimpleType::UInt64 => "uint64_t",
-            MavSimpleType::Int8 => "int8_t",
-            MavSimpleType::Int16 => "int16_t",
-            MavSimpleType::Int32 => "int32_t",
-            MavSimpleType::Int64 => "int64_t",
-            MavSimpleType::Float => "float",
-            MavSimpleType::Double => "double",
-            MavSimpleType::Char => "char",
+            MavScalarType::UInt8MavlinkVersion | MavScalarType::UInt8 => "uint8_t",
+            MavScalarType::UInt16 => "uint16_t",
+            MavScalarType::UInt32 => "uint32_t",
+            MavScalarType::UInt64 => "uint64_t",
+            MavScalarType::Int8 => "int8_t",
+            MavScalarType::Int16 => "int16_t",
+            MavScalarType::Int32 => "int32_t",
+            MavScalarType::Int64 => "int64_t",
+            MavScalarType::Float => "float",
+            MavScalarType::Double => "double",
+            MavScalarType::Char => "char",
         }
     }
 }
 
 impl MavType {
     /// Returns the base type, so either the scalar type itself or the element type of the array.
-    pub const fn base(self) -> MavSimpleType {
+    pub const fn base(self) -> MavScalarType {
         match self {
             MavType::Scalar(mav_simple_type) | MavType::Array(mav_simple_type, _) => {
                 mav_simple_type
@@ -91,54 +91,57 @@ impl MavType {
     }
 }
 
+/// A type that describes a mavlink type.
 pub trait Typeable {
     const TYPE: MavType;
+    /// The enum of the type, applied to all elements of the array.
     const ENUM: Option<&'static Enum>;
 }
 
+/// A type that describes a scalar mavlink type, i.e. not an array.
 pub trait ScalarTypeable {
-    const SCALAR_TYPE: MavSimpleType;
+    const SCALAR_TYPE: MavScalarType;
     const SCALAR_ENUM: Option<&'static Enum>;
 }
 
 impl ScalarTypeable for u8 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt8;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::UInt8;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for u16 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt16;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::UInt16;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for u32 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt32;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::UInt32;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for u64 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::UInt64;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::UInt64;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i8 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int8;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::Int8;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i16 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int16;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::Int16;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i32 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int32;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::Int32;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for i64 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::Int64;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::Int64;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for f32 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::Float;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::Float;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 impl ScalarTypeable for f64 {
-    const SCALAR_TYPE: MavSimpleType = MavSimpleType::Double;
+    const SCALAR_TYPE: MavScalarType = MavScalarType::Double;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
 

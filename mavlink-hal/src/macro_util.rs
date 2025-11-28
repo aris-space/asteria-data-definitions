@@ -6,7 +6,7 @@ pub trait InvalidInitializable: Copy {
 
 impl InvalidInitializable for MessageField {
     const INVALID: MessageField = MessageField {
-        type_: crate::typing::MavType::Scalar(crate::typing::MavSimpleType::UInt8),
+        type_: crate::typing::MavType::Scalar(crate::typing::MavScalarType::UInt8),
         name: "",
         unit: None,
         description: "",
@@ -191,8 +191,8 @@ pub const fn into_mavio_infos<const N: usize>(
 
 #[cfg(test)]
 mod tests {
-    use crate::macro_util::{calc_extra_crc, total_size, total_size_by_align};
     use crate::description::MessageField;
+    use crate::macro_util::{calc_extra_crc, total_size, total_size_by_align};
     use crate::typing::Typeable as _;
 
     const MINIMAL_FIELD_SET: &[MessageField] = &[
@@ -233,7 +233,7 @@ mod tests {
         },
         MessageField {
             type_: crate::typing::MavType::Scalar(
-                crate::typing::MavSimpleType::UInt8MavlinkVersion,
+                crate::typing::MavScalarType::UInt8MavlinkVersion,
             ),
             name: "mavlink_version",
             unit: None,

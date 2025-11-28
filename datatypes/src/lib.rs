@@ -4,7 +4,7 @@ use bincode::{Decode, Encode};
 use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
 use mavlink_hal::codec::tbytes::errors::TBytesError;
 use mavlink_hal::description::{DescribeEnum, Enum, EnumVariant};
-use mavlink_hal::typing::MavSimpleType;
+use mavlink_hal::typing::MavScalarType;
 
 use serde::{Deserialize, Serialize};
 
@@ -103,7 +103,7 @@ impl DescribeEnum for NormallyOpenValve {
 }
 // also implement it as a type, that way the other macros can use this.
 impl mavlink_hal::typing::ScalarTypeable for NormallyOpenValve {
-    const SCALAR_TYPE: MavSimpleType = <u8 as mavlink_hal::typing::ScalarTypeable>::SCALAR_TYPE;
+    const SCALAR_TYPE: MavScalarType = <u8 as mavlink_hal::typing::ScalarTypeable>::SCALAR_TYPE;
     const SCALAR_ENUM: Option<&'static Enum> = Some(<NormallyOpenValve as DescribeEnum>::ENUM);
 }
 // generated with MavlinkFieldSet
