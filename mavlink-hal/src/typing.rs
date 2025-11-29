@@ -1,3 +1,5 @@
+//! Provides definitions and helpers to interact between primitive mavlink types and rust types.
+
 use crate::description::Enum;
 
 #[derive(Debug, Clone, Copy)]
@@ -91,7 +93,7 @@ impl MavType {
     }
 }
 
-/// A type that describes a mavlink type.
+/// A type that describes a primitive mavlink type.
 pub trait Typeable {
     const TYPE: MavType;
     /// The enum of the type, applied to all elements of the array.

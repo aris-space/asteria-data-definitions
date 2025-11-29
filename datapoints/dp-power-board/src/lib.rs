@@ -64,19 +64,18 @@ pub mod __message_meta_mavlink {
     use mavlink_hal::description::{DescribeFieldSet, DescribeMessages};
 
     // generated: specify which messages exist.
-    const MESSAGES: [mavlink_hal::description::Message; 1] = [
-        mavlink_hal::description::Message {
-            id: mavlink_hal::macro_util::sanitize_id(1_000_002),
-            name: "POWERBOARD_STATUS", // defaults to the uppercased variant name unless overriden with `mavlink_name` attr.
-            description: "Sent by the power board to give its current health status ...", // from doc comment
-            fields: StatusCommonMessage::FIELDS, // because inner must derive `DescribeFieldSet`
-        },
-        //...
-    ];
-    const _: () = mavlink_hal::macro_util::check_unique_ids(&MESSAGES);
     impl DescribeMessages for super::Message {
-        const MESSAGES: &[mavlink_hal::description::Message] = &MESSAGES;
+        const MESSAGES: &[mavlink_hal::description::Message] = &[
+            mavlink_hal::description::Message {
+                id: mavlink_hal::macro_util::sanitize_id(1_000_002),
+                name: "POWERBOARD_STATUS", // defaults to the uppercased variant name unless overriden with `mavlink_name` attr.
+                description: "Sent by the power board to give its current health status ...", // from doc comment
+                fields: StatusCommonMessage::FIELDS, // because inner must derive `DescribeFieldSet`
+            },
+            //...
+        ];
     }
+    const _: () = mavlink_hal::macro_util::check_unique_ids(super::Message::MESSAGES);
     impl mavio::protocol::MessageSpec for super::Message {
         fn id(&self) -> mavio::protocol::MessageId {
             match self {

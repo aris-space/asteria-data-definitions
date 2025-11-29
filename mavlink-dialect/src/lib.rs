@@ -1,6 +1,7 @@
-use mavio::Dialect;
-use mavio::protocol::{IntoPayload, MessageSpec};
-use mavlink_hal::description::DescribeMessages;
+//! This crate defines the full mavlink dialect by including all relevant subdialects.
+//!
+//! [`AnyMessage`] can then be decoded using [`mavio`], and to encode one can directly use the subdialects.
+//! See the `roundtrip example`.
 
 // #[derive(MavlinkDialect)]
 // #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
@@ -10,31 +11,18 @@ pub enum AnyMessage {
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
 }
 
-// generated
-impl AnyMessage {
-    const MAVLINK_MESSAGES: [mavlink_hal::description::Message;
-        // fixme: of course should include dp_oxidizer_control_board, but not implemented yet
-        dp_power_board::Message::MESSAGES.len()] =
-        mavlink_hal::macro_util::concat_slices(&[
-            dp_power_board::Message::MESSAGES,
-        ]);
+// generated: collect the messages
+impl mavlink_hal::description::DescribeMessages for AnyMessage {
+    const MESSAGES: &[mavlink_hal::description::Message] =
+        &mavlink_hal::macro_util::concat_slices::<_, { dp_power_board::Message::MESSAGES.len() }>(
+            &[dp_power_board::Message::MESSAGES],
+        );
 }
-const _: () = mavlink_hal::macro_util::check_unique_ids(&AnyMessage::MAVLINK_MESSAGES);
-impl DescribeMessages for AnyMessage {
-    const MESSAGES: &[mavlink_hal::description::Message] = &Self::MAVLINK_MESSAGES;
-}
-impl IntoPayload for AnyMessage {
-    fn encode(
-        &self,
-        version: mavio::prelude::MavLinkVersion,
-    ) -> Result<mavio::protocol::Payload, mavio::prelude::SpecError> {
-        match self {
-            AnyMessage::PowerBoard(message) => message.encode(version),
-            AnyMessage::OxidizerControlBoard(_message) => todo!("dispatch"),
-        }
-    }
-}
-impl MessageSpec for AnyMessage {
+const _: () = mavlink_hal::macro_util::check_unique_ids(
+    <AnyMessage as mavlink_hal::description::DescribeMessages>::MESSAGES,
+);
+// generated: dipatched mavio message info
+impl mavio::protocol::MessageSpec for AnyMessage {
     fn id(&self) -> mavio::protocol::MessageId {
         match self {
             AnyMessage::PowerBoard(message) => message.id(),
@@ -54,7 +42,20 @@ impl MessageSpec for AnyMessage {
         }
     }
 }
-impl Dialect for AnyMessage {
+// generated: dispatched encoding
+impl mavio::protocol::IntoPayload for AnyMessage {
+    fn encode(
+        &self,
+        version: mavio::prelude::MavLinkVersion,
+    ) -> Result<mavio::protocol::Payload, mavio::prelude::SpecError> {
+        match self {
+            AnyMessage::PowerBoard(message) => message.encode(version),
+            AnyMessage::OxidizerControlBoard(_message) => todo!("dispatch"),
+        }
+    }
+}
+// generated: dialect info and dispatched decoding
+impl mavio::Dialect for AnyMessage {
     fn name() -> &'static str {
         "ASTERIA" // from macro attribute
     }
@@ -67,7 +68,8 @@ impl Dialect for AnyMessage {
     fn message_info(
         id: mavio::protocol::MessageId,
     ) -> Result<&'static dyn mavio::protocol::MessageSpec, mavio::prelude::SpecError> {
-        Self::MESSAGES
+        // linear search is maybe not the nicest option, but I think mavio does the same.
+        <Self as mavlink_hal::description::DescribeMessages>::MESSAGES
             .iter()
             .find(|m| m.id == id)
             .map(|m| m as &'static dyn mavio::protocol::MessageSpec)
@@ -75,7 +77,7 @@ impl Dialect for AnyMessage {
     }
     fn decode(payload: &mavio::protocol::Payload) -> Result<Self, mavio::prelude::SpecError> {
         // look up id and dispatch.
-        if dp_power_board::Message::MESSAGES
+        if <dp_power_board::Message as mavlink_hal::description::DescribeMessages>::MESSAGES
             .iter()
             .any(|m| m.id == payload.id())
         {
@@ -87,15 +89,13 @@ impl Dialect for AnyMessage {
     }
     fn spec() -> &'static mavio::protocol::DialectSpec {
         // convert to the mavio message info type, which would also implement their trait, but here dyn isn't used...
-        const MESSAGE_INFO: [mavio::protocol::MessageInfo; AnyMessage::MESSAGES.len()] =
-            mavlink_hal::macro_util::into_mavio_infos::<{ AnyMessage::MESSAGES.len() }>(
-                AnyMessage::MESSAGES,
-            );
         const DIALECT_SPEC: mavio::protocol::DialectSpec = mavio::protocol::DialectSpec::new(
             "ASTERIA",
             core::option::Option::Some(900),
             core::option::Option::Some(1),
-            &MESSAGE_INFO,
+            &mavlink_hal::macro_util::into_mavio_infos::<
+                { <AnyMessage as mavlink_hal::description::DescribeMessages>::MESSAGES.len() },
+            >(<AnyMessage as mavlink_hal::description::DescribeMessages>::MESSAGES),
         );
         &DIALECT_SPEC
     }

@@ -1,5 +1,8 @@
+//! This module contains `const` functions which are very helpful in macro bodies.
+
 use crate::description::{Message, MessageField};
 
+/// A helper trait analogous to `Default` that is used as a safe initialization value.
 pub trait InvalidInitializable: Copy {
     const INVALID: Self;
 }

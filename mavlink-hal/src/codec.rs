@@ -1,3 +1,10 @@
+//! This module provices the packet serialization implementation for our HAL.
+//!
+//! See <https://mavlink.io/en/guide/serialization.html> for the description of how packets are serialized.
+//! In particular, we have choosen traits that can be called recursively, and still provide the right field order.
+//! This is achieved by separating the 4 alignments (8, 4, 2, 1) into separate information flows.
+//! This shouldn't concern the user of the HAL, as macros will take care of the details.
+
 pub use tbytes;
 
 use tbytes::errors::TBytesError;

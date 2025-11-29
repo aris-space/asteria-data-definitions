@@ -1,8 +1,6 @@
 use bincode::{Decode, Encode};
 
 // FIXME: replace all these imports with fully qualified types
-use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
-use mavlink_hal::codec::tbytes::errors::TBytesError;
 use mavlink_hal::description::{DescribeEnum, Enum, EnumVariant};
 use mavlink_hal::typing::MavScalarType;
 
@@ -18,19 +16,15 @@ use serde::{Deserialize, Serialize};
 pub struct Celsius(pub f32);
 
 // generated: then `DescribeFieldSet` needs to be derived
-impl Celsius {
-    const MAVLINK_FIELDS: [mavlink_hal::description::MessageField; 1] =
-        [mavlink_hal::description::MessageField {
+impl mavlink_hal::description::DescribeFieldSet for Celsius {
+    const FIELDS: &[mavlink_hal::description::MessageField] =
+        &[mavlink_hal::description::MessageField {
             type_: <f32 as mavlink_hal::typing::Typeable>::TYPE, // from inner type
             name: "celsius",  // by default from the type name. Should be changeable.
             unit: Some("°C"), // from the optional `unit` attribute (note that this will also be needed by the CSV macros probably).
             description: "A temperature in degrees Celsius ...", // from doc comment
             enum_: <f32 as mavlink_hal::typing::Typeable>::ENUM, // inner type must be Typeable
         }];
-}
-// and exposed as trait implementation
-impl mavlink_hal::description::DescribeFieldSet for Celsius {
-    const FIELDS: &[mavlink_hal::description::MessageField] = &Self::MAVLINK_FIELDS;
 }
 
 /// This example shows how I imagine recursive fieldsets to work.
@@ -47,20 +41,19 @@ pub struct OSSTemperatures {
 }
 
 // generated
-impl OSSTemperatures {
-    const MAVLINK_FIELDS: [mavlink_hal::description::MessageField;
-        <Celsius as mavlink_hal::description::DescribeFieldSet>::FIELDS.len() + 1] =
-        mavlink_hal::macro_util::concat_slices(&[
-            &Celsius::MAVLINK_FIELDS,
+impl mavlink_hal::description::DescribeFieldSet for OSSTemperatures {
+    const FIELDS: &[mavlink_hal::description::MessageField] =
+        &mavlink_hal::macro_util::concat_slices::<
+            _,
+            { <Celsius as mavlink_hal::description::DescribeFieldSet>::FIELDS.len() + 1 },
+        >(&[
+            Celsius::FIELDS,
             &[mavlink_hal::macro_util::refine_field(
-                &Celsius::MAVLINK_FIELDS,
+                Celsius::FIELDS,
                 "runline",
                 "This description ...",
             )],
         ]);
-}
-impl mavlink_hal::description::DescribeFieldSet for OSSTemperatures {
-    const FIELDS: &[mavlink_hal::description::MessageField] = &Self::MAVLINK_FIELDS;
 }
 // TODO: derive also the recursive en/decode.
 
@@ -117,7 +110,7 @@ impl mavlink_hal::description::DescribeFieldSet for NormallyOpenValve {
             enum_: <NormallyOpenValve as mavlink_hal::typing::Typeable>::ENUM,
         }];
 }
-// generated: provide a alignment reordering compliant encode/decode implementation
+// generated: Encode/Decode so you can use it as a fully functional message body or refine/flatten it.
 impl mavlink_hal::codec::Encode for NormallyOpenValve {
     #[inline]
     fn encode_1_aligned(
@@ -125,7 +118,8 @@ impl mavlink_hal::codec::Encode for NormallyOpenValve {
         writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
             impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
         >,
-    ) -> Result<usize, TBytesError> {
+    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
+        use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
         writer.write(*self as u8)
     }
 }
@@ -144,15 +138,60 @@ impl mavlink_hal::codec::Decode for NormallyOpenValve {
         reader_1_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
             impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
         >,
-    ) -> Result<Self, TBytesError> {
+    ) -> Result<Self, mavlink_hal::codec::tbytes::errors::TBytesError> {
         use mavlink_hal::codec::tbytes::TBytesReaderFor as _;
-        let variant_id: u8 = reader_1_aligned.read()?;
+        reader_1_aligned.read()
+    }
+}
+// generated: "primitive" reading of enums without flatten/refine
+impl<B: mavlink_hal::codec::tbytes::TBytesReaderBackend>
+    mavlink_hal::codec::tbytes::TBytesReaderFor<NormallyOpenValve>
+    for mavlink_hal::codec::tbytes::TBytesReader<B>
+{
+    #[inline]
+    fn read(&self) -> Result<NormallyOpenValve, mavlink_hal::codec::tbytes::errors::TBytesError> {
+        let variant_id: u8 = self.read()?;
         match variant_id {
             0 => Ok(NormallyOpenValve::Open),
             1 => Ok(NormallyOpenValve::Closed),
-            // Now this is really quite a sad message, maybe a custom error type is required.
-            _ => Err(TBytesError::OutOfBounds),
+            _ => Err(mavlink_hal::codec::tbytes::errors::TBytesError::OutOfBounds),
         }
+    }
+    #[inline]
+    fn read_array<const N: usize>(
+        &self,
+    ) -> Result<[NormallyOpenValve; N], mavlink_hal::codec::tbytes::errors::TBytesError> {
+        let mut res = [NormallyOpenValve::Closed; N]; // any value, will be overridden.
+        for item in &mut res {
+            *item = self.read()?;
+        }
+        Ok(res)
+    }
+}
+// generated: "primitive" writing of enums without flatten/refine
+impl<B: mavlink_hal::codec::tbytes::TBytesWriterBackend>
+    mavlink_hal::codec::tbytes::TBytesWriterFor<NormallyOpenValve>
+    for mavlink_hal::codec::tbytes::TBytesWriter<B>
+where
+    NormallyOpenValve: Copy, // required for functionality
+{
+    #[inline]
+    fn write(
+        &mut self,
+        value: NormallyOpenValve,
+    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
+        self.write(value as u8)
+    }
+    #[inline]
+    fn write_slice(
+        &mut self,
+        values: &[NormallyOpenValve],
+    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
+        let mut written = 0;
+        for value in values {
+            written += self.write(*value)?;
+        }
+        Ok(written)
     }
 }
 
@@ -181,14 +220,14 @@ impl mavlink_hal::description::DescribeFieldSet for StatusCommonMessage {
             name: "errors",
             unit: None,
             description: "Number of errors encountered since startup.",
-            enum_: None,
+            enum_: <u32 as mavlink_hal::typing::Typeable>::ENUM,
         },
         mavlink_hal::description::MessageField {
             type_: <u64 as mavlink_hal::typing::Typeable>::TYPE,
             name: "micros_since_restart",
             unit: None,
             description: "Number of microseconds since the last board restart.",
-            enum_: None,
+            enum_: <u64 as mavlink_hal::typing::Typeable>::ENUM,
         },
     ];
 }
@@ -200,7 +239,8 @@ impl mavlink_hal::codec::Encode for StatusCommonMessage {
         writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
             impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
         >,
-    ) -> Result<usize, TBytesError> {
+    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
+        use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
         let mut written = 0;
         written += writer.write(self.micros_since_restart)?;
         Ok(written)
@@ -211,28 +251,11 @@ impl mavlink_hal::codec::Encode for StatusCommonMessage {
         writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
             impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
         >,
-    ) -> Result<usize, TBytesError> {
+    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
+        use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
         let mut written = 0;
         written += writer.write(self.errors)?;
         Ok(written)
-    }
-    #[inline]
-    fn encode_2_aligned(
-        &self,
-        _writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
-            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
-        >,
-    ) -> Result<usize, TBytesError> {
-        Ok(0)
-    }
-    #[inline]
-    fn encode_1_aligned(
-        &self,
-        _writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
-            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
-        >,
-    ) -> Result<usize, TBytesError> {
-        Ok(0)
     }
 }
 // generated: provide alignment-reordering compliant recursive trait implementation
@@ -251,7 +274,7 @@ impl mavlink_hal::codec::Decode for StatusCommonMessage {
         _reader_1_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
             impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
         >,
-    ) -> Result<Self, TBytesError> {
+    ) -> Result<Self, mavlink_hal::codec::tbytes::errors::TBytesError> {
         use mavlink_hal::codec::tbytes::TBytesReaderFor as _;
         Ok(Self {
             errors: reader_4_aligned.read()?,
