@@ -1,9 +1,11 @@
 #![no_std]
 #![allow(dead_code)]
 
-use data_macros::CanDecode;
+// use data_macros::CanDecode;
 
-#[derive(CanDecode)]
+use data_core::{CanDecode, CanEncode};
+
+#[derive(CanDecode, CanEncode)]
 #[can(dispatch)]
 enum AnyMessage {
     PowerBoard(dp_power_board::Message),
@@ -58,28 +60,28 @@ enum AnyMessage {
 //     //     }
 //     // }
 // }
-pub mod other {
-    use data_macros::CanDecode;
+// pub mod other {
+//     use data_macros::CanDecode;
 
-    #[derive(CanDecode)]
-    #[can(sparse)]
-    #[allow(non_snake_case)]
-    // #[sparse_can_decode]
-    enum ReceivedMessage {
-        /// `ResetPowerBoard: dp_power_board::Message::ResetBoard,`
-        #[can(
-            variant_type = dp_power_board::__message_meta_types::ResetBoard,
-            variant_id = dp_power_board::__message_meta_can_ids::ResetBoard
-        )]
-        ResetPowerBoard,
-        /// `PowerBoardStatus: dp_power_board::Message::BoardStatus(_),`
-        #[can(variant_id = dp_power_board::__message_meta_can_ids::BoardStatus)]
-        PowerBoardStatus(dp_power_board::__message_meta_types::BoardStatus),
-        /// `OxidizerControlBoardStatus: dp_oxidizer_control_board::Message::BoardStatus(_)`
-        #[can(variant_id = dp_oxidizer_control_board::__message_meta_can_ids::BoardStatus)]
-        OxidizerControlBoardStatus(dp_oxidizer_control_board::__message_meta_types::BoardStatus),
-    }
-}
+//     #[derive(CanDecode)]
+//     #[can(sparse)]
+//     #[allow(non_snake_case)]
+//     // #[sparse_can_decode]
+//     enum ReceivedMessage {
+//         /// `ResetPowerBoard: dp_power_board::Message::ResetBoard,`
+//         #[can(
+//             variant_type = dp_power_board::__message_meta_types::ResetBoard,
+//             variant_id = dp_power_board::__message_meta_can_ids::ResetBoard
+//         )]
+//         ResetPowerBoard,
+//         /// `PowerBoardStatus: dp_power_board::Message::BoardStatus(_),`
+//         #[can(variant_id = dp_power_board::__message_meta_can_ids::BoardStatus)]
+//         PowerBoardStatus(dp_power_board::__message_meta_types::BoardStatus),
+//         /// `OxidizerControlBoardStatus: dp_oxidizer_control_board::Message::BoardStatus(_)`
+//         #[can(variant_id = dp_oxidizer_control_board::__message_meta_can_ids::BoardStatus)]
+//         OxidizerControlBoardStatus(dp_oxidizer_control_board::__message_meta_types::BoardStatus),
+//     }
+// }
 
 // mod generated2 {
 

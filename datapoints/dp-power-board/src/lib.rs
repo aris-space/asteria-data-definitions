@@ -1,4 +1,4 @@
-use data_macros::{CanMessage, Message};
+use data_core::{CanMessage, Message};
 use datatypes::{BuildInformationCommon, CameraPower, RailStatus, StatusCommonMessage};
 
 #[derive(Message, CanMessage)]
