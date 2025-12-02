@@ -16,7 +16,7 @@ mod can;
 mod message;
 
 /// Derive macro for generating a module with type aliasses for all enum variants
-#[proc_macro_derive(Message)]
+#[proc_macro_derive(Message, attributes(message))]
 pub fn derive_message(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     match Message::from_derive_input(&input) {
