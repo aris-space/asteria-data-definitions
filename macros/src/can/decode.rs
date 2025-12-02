@@ -9,8 +9,6 @@ use crate::can::{CanVariantTuple, CanVariantTupleWithIdAndType};
 /// CAN decode implementation of the message enum
 pub const CAN_DECODE_MESSAGE_META_IDENT: &str = "__message_meta_can_decode";
 
-// The [`darling::FromVariant`] macro seems to have needless continues
-#[allow(clippy::needless_continue)]
 #[derive(FromVariant)]
 #[darling(attributes(can))]
 pub struct CanDecodeVariant {

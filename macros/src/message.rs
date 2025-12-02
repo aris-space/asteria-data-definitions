@@ -7,8 +7,6 @@ use syn::Ident;
 /// message enum variant type aliases
 pub const MESSAGE_META_TYPES_IDENT: &str = "__message_meta_types";
 
-// The [`darling::FromVariant`] macro seems to have needless continues
-#[allow(clippy::needless_continue)]
 #[derive(FromVariant)]
 struct MessageVariant {
     ident: Ident,

@@ -2,6 +2,8 @@
 // in the rustdoc don't need to be available in this crate but only in the
 // target crate
 #![allow(rustdoc::broken_intra_doc_links)]
+// The [`darling::FromVariant`] macro seems to have needless continues
+#![allow(clippy::needless_continue)]
 
 use darling::FromDeriveInput;
 use proc_macro::TokenStream;

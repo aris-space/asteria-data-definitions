@@ -15,8 +15,6 @@ use crate::{
 /// CAN id's for the different message enum variants
 pub const CAN_MESSAGE_META_CAN_IDS_IDENT: &str = "__message_meta_can_ids";
 
-// The [`darling::FromVariant`] macro seems to have needless continues
-#[allow(clippy::needless_continue)]
 #[derive(FromVariant)]
 #[darling(attributes(can))]
 pub struct CanMessageVariant {
