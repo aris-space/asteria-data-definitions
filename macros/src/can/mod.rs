@@ -4,6 +4,7 @@ use syn::Ident;
 pub mod decode;
 pub mod encode;
 pub mod message;
+pub mod sparse;
 
 /// Tuple containing the identifier and fields of a CAN message variant
 pub type CanVariantTuple<'a> = (&'a Ident, &'a Fields<syn::Field>);

@@ -1,9 +1,7 @@
 #![no_std]
 #![allow(dead_code)]
 
-// use data_macros::CanDecode;
-
-use data_core::{CanDecode, CanEncode};
+use data_core::{CanDecode, CanEncode, sparse_decodable_can_message};
 
 #[derive(CanDecode, CanEncode)]
 #[can(dispatch)]
@@ -60,28 +58,16 @@ enum AnyMessage {
 //     //     }
 //     // }
 // }
-// pub mod other {
-//     use data_macros::CanDecode;
-
-//     #[derive(CanDecode)]
-//     #[can(sparse)]
-//     #[allow(non_snake_case)]
-//     // #[sparse_can_decode]
-//     enum ReceivedMessage {
-//         /// `ResetPowerBoard: dp_power_board::Message::ResetBoard,`
-//         #[can(
-//             variant_type = dp_power_board::__message_meta_types::ResetBoard,
-//             variant_id = dp_power_board::__message_meta_can_ids::ResetBoard
-//         )]
-//         ResetPowerBoard,
-//         /// `PowerBoardStatus: dp_power_board::Message::BoardStatus(_),`
-//         #[can(variant_id = dp_power_board::__message_meta_can_ids::BoardStatus)]
-//         PowerBoardStatus(dp_power_board::__message_meta_types::BoardStatus),
-//         /// `OxidizerControlBoardStatus: dp_oxidizer_control_board::Message::BoardStatus(_)`
-//         #[can(variant_id = dp_oxidizer_control_board::__message_meta_can_ids::BoardStatus)]
-//         OxidizerControlBoardStatus(dp_oxidizer_control_board::__message_meta_types::BoardStatus),
-//     }
-// }
+pub mod other {
+    use crate::sparse_decodable_can_message;
+    sparse_decodable_can_message! {
+        enum ReceivedMessage {
+            ResetPowerBoard(dp_power_board::ResetBoard),
+            PowerBoardStatus(dp_power_board::BoardStatus),
+            OxidizerControlBoardStatus(dp_oxidizer_control_board::BoardStatus)
+        }
+    }
+}
 
 // mod generated2 {
 

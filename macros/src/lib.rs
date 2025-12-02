@@ -32,9 +32,11 @@ pub fn derive_message(input: TokenStream) -> TokenStream {
 #[cfg(feature = "can")]
 #[proc_macro_derive(CanMessage, attributes(can))]
 pub fn derive_can_message(input: TokenStream) -> TokenStream {
+    use crate::can::message::{CanMessage, handle};
+
     let input = parse_macro_input!(input as DeriveInput);
-    match can::message::CanMessage::from_derive_input(&input) {
-        Ok(message) => can::message::handle(message),
+    match CanMessage::from_derive_input(&input) {
+        Ok(message) => handle(message),
         Err(err) => err.write_errors(),
     }
     .into()
@@ -52,9 +54,11 @@ pub fn derive_can_message(input: TokenStream) -> TokenStream {
 #[cfg(feature = "can")]
 #[proc_macro_derive(CanDecode, attributes(can))]
 pub fn derive_can_decode(input: TokenStream) -> TokenStream {
+    use crate::can::decode::{CanDecode, handle};
+
     let input = parse_macro_input!(input as DeriveInput);
-    match can::decode::CanDecode::from_derive_input(&input) {
-        Ok(decode) => can::decode::handle(decode),
+    match CanDecode::from_derive_input(&input) {
+        Ok(decode) => handle(decode),
         Err(err) => err.write_errors(),
     }
     .into()
@@ -72,10 +76,62 @@ pub fn derive_can_decode(input: TokenStream) -> TokenStream {
 #[cfg(feature = "can")]
 #[proc_macro_derive(CanEncode, attributes(can))]
 pub fn derive_can_encode(input: TokenStream) -> TokenStream {
+    use crate::can::encode::{CanEncode, handle};
+
     let input = parse_macro_input!(input as DeriveInput);
-    match can::encode::CanEncode::from_derive_input(&input) {
-        Ok(encode) => can::encode::handle(encode),
+    match CanEncode::from_derive_input(&input) {
+        Ok(encode) => handle(encode),
         Err(err) => err.write_errors(),
     }
     .into()
+}
+
+/// Create a CAN message enum which is sparsely decodable.
+/// It automatically derives the [`CanDecode`] macro with the `#[can(sparse)]` attribute on the new enum.
+///
+/// This macro supports pseudo-rust syntax for defining a new enum. All variant types need to be
+/// a path consisting of two segments:
+/// - The first segment represents the **module** where the message enum for this variant is defined
+/// - The second segment represents the **variant name** within the message enum for this variant
+/// # Usage
+/// ```rust
+/// sparse_decodable_can_message! {
+///     enum SparseMessage {
+///         // here `ResetBoard` is a variant of `dp_power_board::Message::ResetBoard`
+///         Reset(dp_power_board::ResetBoard)
+///     }
+/// }
+/// ```
+#[cfg(feature = "can")]
+#[proc_macro]
+pub fn sparse_decodable_can_message(input: TokenStream) -> TokenStream {
+    use crate::can::sparse::{SparseCanMessage, handle_decode};
+
+    let input = parse_macro_input!(input as SparseCanMessage);
+    handle_decode(&input).into()
+}
+
+/// Create a CAN message enum which is sparsely encodable.
+/// It automatically derives the [`CanEncode`] macro with the `#[can(sparse)]` attribute on the new enum.
+///
+/// This macro supports pseudo-rust syntax for defining a new enum. All variant types need to be
+/// a path consisting of two segments:
+/// - The first segment represents the **module** where the message enum for this variant is defined
+/// - The second segment represents the **variant name** within the message enum for this variant
+/// # Usage
+/// ```rust
+/// sparse_encodable_can_message! {
+///     enum SparseMessage {
+///         // here `ResetBoard` is a variant of `dp_power_board::Message::ResetBoard`
+///         Reset(dp_power_board::ResetBoard)
+///     }
+/// }
+/// ```
+#[cfg(feature = "can")]
+#[proc_macro]
+pub fn sparse_encodable_can_message(input: TokenStream) -> TokenStream {
+    use crate::can::sparse::{SparseCanMessage, handle_encode};
+
+    let input = parse_macro_input!(input as SparseCanMessage);
+    handle_encode(&input).into()
 }

@@ -10,7 +10,6 @@ dp-oxidizer-control-board = { version = "0.1.0", path = "../datapoints/dp-oxidiz
 dp-power-board = { version = "0.1.0", path = "../datapoints/dp-power-board" }
 
 data-core = { version = "0.1.0", path = "../core", features = ["can"] }
-# data-macros = { version = "0.1.0", path = "../macros" }
 thiserror = "2.0.17"
 
 [lints]
