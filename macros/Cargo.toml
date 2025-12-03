@@ -10,6 +10,7 @@ proc-macro = true
 
 [features]
 default = []
+# Enable all CAN related macros
 can = []
 
 [dependencies]
