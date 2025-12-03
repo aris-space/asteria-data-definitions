@@ -62,9 +62,9 @@ pub mod other {
     use crate::sparse_decodable_can_message;
     sparse_decodable_can_message! {
         enum ReceivedMessage {
-            ResetPowerBoard(dp_power_board::ResetBoard),
-            PowerBoardStatus(dp_power_board::BoardStatus),
-            OxidizerControlBoardStatus(dp_oxidizer_control_board::BoardStatus)
+            ResetPowerBoard(dp_power_board::Message::ResetBoard),
+            PowerBoardStatus(dp_power_board::Message::BoardStatus),
+            OxidizerControlBoardStatus(dp_oxidizer_control_board::Message::BoardStatus)
         }
     }
 }

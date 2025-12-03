@@ -24,10 +24,10 @@ impl Parse for SparseCanMessageVariant {
         syn::parenthesized!(content in input);
 
         let path = parser(&content)?;
-        if path.len() != 2 {
+        if path.len() != 3 {
             Err(syn::Error::new(
                 path.span(),
-                "Expected `message_module::variant_name` where `message_module` is the module where the CAN message is defined and `variant_name` is the name of the variant within this message enum",
+                "Expected `message_module::message_enum::variant_name` where `message_module` is the module where the CAN message `message_enum` is defined and `variant_name` is the name of the variant within this message enum",
             ))?;
         }
 

@@ -19,7 +19,10 @@ pub const CAN_MESSAGE_META_CAN_IDS_IDENT: &str = "__message_meta_can_ids";
 #[darling(attributes(can))]
 pub struct CanMessageVariant {
     /// Unique id of the CAN message variant
-    id: u16,
+    ///
+    /// **Important**: Only variants which have a `#[can(id = ...)]` attribute are considered by this macro
+    #[darling(default)]
+    id: Option<u16>,
 
     ident: Ident,
     fields: Fields<syn::Field>,
@@ -33,7 +36,13 @@ pub struct CanMessage {
 }
 
 pub fn handle(can_message: CanMessage) -> TokenStream {
-    let variants = can_message.data.take_enum().unwrap_or_default();
+    let variants = can_message
+        .data
+        .take_enum()
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|variant| variant.id.is_some())
+        .collect::<Vec<_>>();
     let ident = can_message.ident;
 
     let meta_types_mod = Ident::new(MESSAGE_META_TYPES_IDENT, Span::call_site());
