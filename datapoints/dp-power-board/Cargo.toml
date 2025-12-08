@@ -10,7 +10,6 @@ datatypes = { version = "0.1.0", path = "../../datatypes" }
 mavio = { version = "0.5.10", features = ["std", "derive"] }
 data-macros = { version = "0.1.0", path = "../../macros" }
 bincode = "2.0.1"
-datatypes = { version = "0.1.0", path = "../../datatypes" }
 data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
 
 [lints]

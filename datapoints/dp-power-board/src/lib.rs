@@ -146,7 +146,3 @@ pub mod __message_meta_mavlink {
     }
     impl mavio::Message for super::Message {}
 }
-
-
-
-}
