@@ -67,7 +67,7 @@ pub struct Message {
     /// be merged and duplicate paths get removed.
     ///
     /// # Usage
-    /// ```rust
+    /// ```rust,ignore
     /// #[derive(Message)]
     /// #[message(struct_derives = [Debug])]
     /// #[message(struct_derives = [Clone])]

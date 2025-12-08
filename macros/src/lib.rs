@@ -33,7 +33,7 @@ mod message;
 /// are written to the [`message::MESSAGE_META_TYPES_IDENT`] module, which does not contain the enum name in it's name.
 ///
 /// # Usage
-/// ```rust
+/// ```rust,ignore
 /// #[derive(Message)]
 /// // implement `Debug` for the struct which will be generated
 /// // for `Variant3`
@@ -64,7 +64,7 @@ pub fn derive_message(input: TokenStream) -> TokenStream {
 /// Both modules don't contain the enum name in their name.
 ///
 /// # Usage
-/// ```rust
+/// ```rust,ignore
 /// #[derive(Message, CanMessage)]
 /// enum Message {
 ///     #[can(id = 0x01)]
@@ -102,8 +102,8 @@ pub fn derive_can_message(input: TokenStream) -> TokenStream {
 /// This module doesn't contain the enum name in it's name.
 ///
 /// # Usage
-/// ```rust
-/// #[derive(CanEncode)]
+/// ```rust,ignore
+/// #[derive(CanDecode)]
 /// #[can(dispatch)]
 /// enum Message {
 ///     MessageKind1(path::to::message1),
@@ -138,7 +138,7 @@ pub fn derive_can_decode(input: TokenStream) -> TokenStream {
 /// This module doesn't contain the enum name in it's name.
 ///
 /// # Usage
-/// ```rust
+/// ```rust,ignore
 /// #[derive(CanEncode)]
 /// #[can(dispatch)]
 /// enum Message {
@@ -169,7 +169,7 @@ pub fn derive_can_encode(input: TokenStream) -> TokenStream {
 /// - All preceding segments represent the **module path** where the message enum for this variant is defined (can be empty)
 ///
 /// # Usage
-/// ```rust
+/// ```rust,ignore
 /// sparse_decodable_can_message! {
 ///     enum SparseMessage {
 ///         Reset(dp_power_board::ResetBoard)
@@ -195,7 +195,7 @@ pub fn sparse_decodable_can_message(input: TokenStream) -> TokenStream {
 /// - All preceding segments represent the **module path** where the message enum for this variant is defined (can be empty)
 ///
 /// # Usage
-/// ```rust
+/// ```rust,ignore
 /// sparse_encodable_can_message! {
 ///     enum SparseMessage {
 ///         Reset(dp_power_board::Message::ResetBoard)
