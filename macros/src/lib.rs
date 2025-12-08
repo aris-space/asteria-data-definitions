@@ -163,10 +163,10 @@ pub fn derive_can_encode(input: TokenStream) -> TokenStream {
 /// It automatically derives the `CanDecode` macro with the `#[can(sparse)]` attribute on the new enum.
 ///
 /// This macro supports pseudo-rust syntax for defining a new enum. All variant types need to be
-/// a path consisting of two segments:
-/// - The first segment represents the **module name** where the message enum for this variant is defined
-/// - The second segment represents the **enum name** within the module for this message enum
-/// - The third segment represents the **variant name** within the message enum for this variant
+/// a path consisting of at least two segments:
+/// - The last segment represents the **variant name** within the message enum for this variant
+/// - The second to last segment represents the **enum name** within the module for this message enum
+/// - All preceding segments represent the **module path** where the message enum for this variant is defined (can be empty)
 ///
 /// # Usage
 /// ```rust
@@ -189,10 +189,10 @@ pub fn sparse_decodable_can_message(input: TokenStream) -> TokenStream {
 /// It automatically derives the `CanEncode` macro with the `#[can(sparse)]` attribute on the new enum.
 ///
 /// This macro supports pseudo-rust syntax for defining a new enum. All variant types need to be
-/// a path consisting of three segments:
-/// - The first segment represents the **module name** where the message enum for this variant is defined
-/// - The second segment represents the **enum name** within the module for this message enum
-/// - The third segment represents the **variant name** within the message enum for this variant
+/// a path consisting of at least two segments:
+/// - The last segment represents the **variant name** within the message enum for this variant
+/// - The second to last segment represents the **enum name** within the module for this message enum
+/// - All preceding segments represent the **module path** where the message enum for this variant is defined (can be empty)
 ///
 /// # Usage
 /// ```rust

@@ -181,7 +181,7 @@ fn generate_can_encode_dispatch_impl(
             fn encode_into(&self, buf: &mut [u8; 64]) -> Result<(StandardId, u8), Self::Error> {
                 match self {
                     #(Self::#idents(message) => message.encode_into(buf).map_err(#error_ident::#idents),)*
-                    _ => Err(Self::Error::UnknownId)
+                    _ => Err(Self::Error::UnknownVariant)
                 }
             }
         }
@@ -215,8 +215,8 @@ fn generate_can_encode_error(
             #(
                 #[error(transparent)] #variant_idents(#mappings),
             )*
-            #[error("Unknown Id to encode")]
-            UnknownId
+            #[error("Unknown variant to encode")]
+            UnknownVariant
         }
     };
 
@@ -282,7 +282,7 @@ where
             fn encode_into(&self, buf: &mut [u8; 64]) -> Result<(StandardId, u8), Self::Error> {
                 match self {
                     #(Self::#idents => #mappings,)*
-                    _ => Err(Self::Error::UnknownId)
+                    _ => Err(Self::Error::UnknownVariant)
                 }
             }
         }

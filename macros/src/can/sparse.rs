@@ -5,9 +5,8 @@ use syn::{Ident, PathSegment, Token, parse::Parse, punctuated::Punctuated, spann
 use crate::{can::message::CAN_MESSAGE_META_CAN_IDS_IDENT, message::MESSAGE_META_TYPES_IDENT};
 
 struct SparseCanMessageVariant {
-    /// Path segment representing the module where the original message enum
-    /// exists
-    module_segment: PathSegment,
+    /// Path segments representing the module path where the original message enum exists
+    module_segments: Punctuated<PathSegment, Token![::]>,
     /// Path segment representing the name of a variant of the original message enum
     variant_segment: PathSegment,
     /// Identifier of the enum which should be newly created
@@ -24,22 +23,23 @@ impl Parse for SparseCanMessageVariant {
         syn::parenthesized!(content in input);
 
         let path = parser(&content)?;
-        if path.len() != 3 {
+        let len = path.len();
+        if len < 2 {
             Err(syn::Error::new(
                 path.span(),
-                "Expected `message_module::message_enum::variant_name` where `message_module` is the module where the CAN message `message_enum` is defined and `variant_name` is the name of the variant within this message enum",
+                "Expected `message_enum::variant_name` where `message_enum` is the CAN message enum and `variant_name` is the name of the variant within this message enum",
             ))?;
         }
 
-        let module_segment = path.first().expect("this is already checked above").clone();
         let variant_segment = path.last().expect("this is already checked above").clone();
+        let module_segments = path.into_iter().take(len - 2).collect();
 
         if input.peek(Token![,]) {
             let _ = input.parse::<Token![,]>();
         }
 
         Ok(Self {
-            module_segment,
+            module_segments,
             variant_segment,
             ident,
         })
@@ -75,8 +75,7 @@ impl SparseCanMessage {
             .variants
             .iter()
             .map(|variant| {
-                let mut type_segments = Punctuated::new();
-                type_segments.push(variant.module_segment.clone());
+                let mut type_segments = variant.module_segments.clone();
                 type_segments.push_punct(syn::token::PathSep::default());
                 type_segments.push(PathSegment::from(Ident::new(
                     MESSAGE_META_TYPES_IDENT,
@@ -90,8 +89,7 @@ impl SparseCanMessage {
                     segments: type_segments,
                 };
 
-                let mut id_segments = Punctuated::new();
-                id_segments.push(variant.module_segment.clone());
+                let mut id_segments = variant.module_segments.clone();
                 id_segments.push_punct(syn::token::PathSep::default());
                 id_segments.push(PathSegment::from(Ident::new(
                     CAN_MESSAGE_META_CAN_IDS_IDENT,

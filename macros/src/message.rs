@@ -8,9 +8,29 @@ use syn::{Ident, spanned::Spanned};
 pub const MESSAGE_META_TYPES_IDENT: &str = "__message_meta_types";
 
 #[derive(FromVariant)]
+#[darling(forward_attrs(doc))]
 struct MessageVariant {
     ident: Ident,
     fields: Fields<syn::Field>,
+    attrs: Vec<syn::Attribute>,
+}
+
+impl MessageVariant {
+    /// Get the doc comments for this variant
+    pub fn get_docs(&self) -> Option<TokenStream> {
+        let attrs = self
+            .attrs
+            .iter()
+            .filter(|attr| attr.path().is_ident("doc"))
+            .collect::<Vec<_>>();
+        if attrs.is_empty() {
+            None
+        } else {
+            Some(quote! {
+                #(#attrs)*
+            })
+        }
+    }
 }
 
 fn parse_path_list(meta: &syn::Meta) -> darling::Result<Vec<syn::Path>> {
@@ -105,7 +125,7 @@ fn meta_types(variants: &[MessageVariant], struct_derives: &[syn::Path]) -> Toke
         }
     };
 
-    let type_defs = variants
+    let (type_defs, docs) = variants
         .iter()
         .map(|variant| {
             let (types, type_idents) = variant
@@ -116,7 +136,7 @@ fn meta_types(variants: &[MessageVariant], struct_derives: &[syn::Path]) -> Toke
 
             let ident = &variant.ident;
 
-            if variant.fields.is_struct() {
+            let type_def = if variant.fields.is_struct() {
                 // if the variant is a struct type, we create a new struct with the same fields
                 // instead of a type alias
                 quote! {
@@ -135,11 +155,16 @@ fn meta_types(variants: &[MessageVariant], struct_derives: &[syn::Path]) -> Toke
                 // if the variant is a tuple type with more than one type, we create a new
                 // tuple with the same fields instead of a type alias
                 quote! { pub type #ident = (#(#types),*); }
-            }
+            };
+
+            (type_def, variant.get_docs())
         })
-        .collect::<Vec<_>>();
+        .collect::<(Vec<_>, Vec<_>)>();
 
     quote! {
-        #(#type_defs)*
+        #(
+            #docs
+            #type_defs
+        )*
     }
 }

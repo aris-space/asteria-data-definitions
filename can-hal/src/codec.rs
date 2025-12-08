@@ -28,6 +28,9 @@ pub enum Error {
 
     #[error("Unknown Id to decode")]
     UnknownId,
+
+    #[error("Unknown variant to encode")]
+    UnknownVariant,
 }
 
 /// Encodes a type as a can message into `buf` and returns the amount of bytes written,
