@@ -4,10 +4,10 @@ resolver = "3"
 members = [
     "can",
     "can-hal",
-    "can/hermes-can-derive",
+    "can/hermes-can-derive", "core",
     "datapoints/*",
     "datatypes",
-    "example-nostd-client",
+    "example-nostd-client", "macros",
     "mavlink",
     "mavlink-hal",
     "mavlink-dialect",

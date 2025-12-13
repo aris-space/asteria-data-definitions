@@ -4,10 +4,10 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-can-hal = { version = "0.1.0", path = "../../can-hal" }
 mavlink-hal = { version = "0.1.0", path = "../../mavlink-hal" }
 datatypes = { version = "0.1.0", path = "../../datatypes" }
 mavio = { version = "0.5.10", features = ["std", "derive"] }
+data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
 
 [lints]
 workspace = true

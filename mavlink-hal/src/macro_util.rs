@@ -134,7 +134,7 @@ pub const fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) ->
 ///
 /// See <https://github.com/mavlink/mavlink/blob/master/message_definitions/v1.0/all.xml> for the ranges
 pub const fn sanitize_id(id: u32) -> u32 {
-    assert!((id <= 0x00ff_ffff), "id is larger than 24 bit");
+    assert!(id <= 0x00ff_ffff, "id is larger than 24 bit");
     assert!(
         !(id >= 11000 && id <= 11999),
         "ardupilotmega.xml range of IDs"
