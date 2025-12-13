@@ -172,7 +172,7 @@ pub fn derive_can_encode(input: TokenStream) -> TokenStream {
 /// ```rust,ignore
 /// sparse_decodable_can_message! {
 ///     enum SparseMessage {
-///         Reset(dp_power_board::ResetBoard)
+///         Reset(dp_power_board::Message::ResetBoard)
 ///     }
 /// }
 /// ```
