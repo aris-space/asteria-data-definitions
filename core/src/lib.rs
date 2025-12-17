@@ -8,5 +8,13 @@ pub use data_macros::*;
 #[cfg(feature = "can")]
 pub use can_hal;
 
+#[cfg(feature = "mavlink")]
+pub use mavlink_hal;
+#[cfg(feature = "mavlink")]
+pub use mavio;
+
 #[cfg(feature = "bincode")]
 pub use bincode;
+
+#[cfg(feature = "datatypes")]
+pub use datatypes;

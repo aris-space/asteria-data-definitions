@@ -9,6 +9,7 @@ use gated_derive::gated_derive;
 
 #[derive(Message)]
 #[gated_derive(data_core::CanMessage(feature = "can"), Debug)]
+#[gated_derive(data_core::MavlinkMessage(feature = "mavlink"))]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = PowerBoardMessage)]
@@ -30,6 +31,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x615)]
+    #[mavlink(id = 1_000_006)]
     BuildInfo(BuildInformationCommon),
 
     /// # `PowerBoardStatus`
@@ -48,6 +50,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x315)]
+    #[mavlink(id = 1_000_002, name = "POWERBOARD_STATUS")]
     BoardStatus(StatusCommonMessage),
 
     /// # `RailStatus5V`
@@ -66,6 +69,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log, display, or track these values. They may trigger warnings if any measurement is out of nominal range.
     #[can(id = 0x500)]
+    #[mavlink(id = 1_000_004)]
     RailStatus5V(RailStatus),
 
     /// # `RailStatus24V`
@@ -84,6 +88,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log, display, or track these values. They may trigger warnings if any measurement is out of nominal range.
     #[can(id = 0x501)]
+    #[mavlink(id = 1_000_005)]
     RailStatus24V(RailStatus),
 
     // ======================== RX ========================
@@ -121,5 +126,6 @@ pub enum Message {
     /// ## Reaction
     /// No action required.
     #[can(id = 0x330)]
+    #[mavlink(id = 2_000_003)]
     CameraPowerStatus(CameraPowerStatus),
 }

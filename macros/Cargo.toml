@@ -12,11 +12,14 @@ proc-macro = true
 default = []
 # Enable all CAN related macros
 can = []
+# Enable all MavLink related macros
+mavlink = []
 
 [dependencies]
 darling = "0.21.3"
 proc-macro2 = "1.0.103"
 quote = "1.0.42"
+stringcase = "0.4.0"
 syn = { version = "2.0.111", features = ["extra-traits"] }
 
 [lints]

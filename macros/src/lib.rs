@@ -21,6 +21,9 @@ use message::Message;
 
 #[cfg(feature = "can")]
 mod can;
+#[cfg(feature = "mavlink")]
+mod mavlink;
+
 mod message;
 
 /// Derive macro for generating a module with type aliases for all enum variants
@@ -212,4 +215,17 @@ pub fn sparse_encodable_can_message(input: TokenStream) -> TokenStream {
 
     let input = parse_macro_input!(input as SparseCanMessage);
     handle_encode(&input).into()
+}
+
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkMessage, attributes(mavlink))]
+pub fn derive_mavlink_message(input: TokenStream) -> TokenStream {
+    use crate::mavlink::message::{MavlinkMessage, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkMessage::from_derive_input(&input) {
+        Ok(message) => handle(message),
+        Err(err) => err.write_errors(),
+    }
+    .into()
 }
