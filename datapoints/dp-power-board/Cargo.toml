@@ -17,6 +17,7 @@ utoipa = { workspace = true, optional = true }
 
 [features]
 can = ["data-core/can", "datatypes/derive_bincode"]
+mavlink = ["data-core/mavlink"]
 std = ["datatypes/std", "data-core/std"]
 mission-control = ["derive_serde", "derive_utoipa"]
 derive_serde = ["dep:serde", "datatypes/derive_serde"]

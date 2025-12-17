@@ -97,6 +97,8 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("CanEncode", &["can"]),
     ("CanDecode", &["can"]),
     ("thiserror::Error", &["error"]),
+    ("data_core::MavlinkMessage", &["mavlink"]),
+    ("MavlinkMessage", &["mavlink"])
 ];
 
 // -----------------------------------------------------------------------------
