@@ -15,6 +15,3 @@ pub use mavio;
 
 #[cfg(feature = "bincode")]
 pub use bincode;
-
-#[cfg(feature = "datatypes")]
-pub use datatypes;
