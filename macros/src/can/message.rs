@@ -31,8 +31,8 @@ pub struct CanMessageVariant {
 #[derive(FromDeriveInput)]
 #[darling(supports(enum_any))]
 pub struct CanMessage {
-    pub ident: Ident,
-    pub data: darling::ast::Data<CanMessageVariant, ()>,
+    ident: Ident,
+    data: darling::ast::Data<CanMessageVariant, ()>,
 }
 
 pub fn handle(can_message: CanMessage) -> TokenStream {

@@ -27,6 +27,7 @@ macro_rules! unit_newtypes {
             /// Is `NAN` by default.
             #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
             #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+            #[gated_derive(mavlink::FieldSet)]
             #[gated_derive(utoipa::ToSchema)]
             #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
             #[repr(transparent)]
@@ -44,6 +45,7 @@ macro_rules! unit_newtypes {
 
 unit_newtypes! {
     /// A temperature in degrees Celsius.
+    #[unit("°C")]
     Celsius(f32),
 
     /// A pressure in bar relative to atmospheric pressure (`barg`).
@@ -56,6 +58,7 @@ unit_newtypes! {
 /// Shared rail status structure for both 5V and 24V power rails.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::FieldSet, mavlink::Encode, mavlink::Decode)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]

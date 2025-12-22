@@ -52,15 +52,15 @@ pub struct CanDecode {
     /// Boolean flag whether the enum should be decoded in sparse mode
     ///
     /// **Important**: You cannot use sparse and dispatch at the same time
-    pub sparse: Flag,
+    sparse: Flag,
     /// Boolean flag whether the enum should be decoded in dispatch mode.
     /// This means that all enum variants are message enums themselves.
     ///
     /// **Important**: You cannot use dispatch and sparse at the same time
-    pub dispatch: Flag,
+    dispatch: Flag,
 
-    pub ident: Ident,
-    pub data: darling::ast::Data<CanDecodeVariant, ()>,
+    ident: Ident,
+    data: darling::ast::Data<CanDecodeVariant, ()>,
 }
 
 impl CanDecode {

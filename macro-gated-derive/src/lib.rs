@@ -96,9 +96,14 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("CanMessage", &["can"]),
     ("CanEncode", &["can"]),
     ("CanDecode", &["can"]),
-    ("thiserror::Error", &["error"]),
     ("data_core::MavlinkMessage", &["mavlink"]),
-    ("MavlinkMessage", &["mavlink"])
+    ("mavlink::Message", &["mavlink"]),
+    ("mavlink::FieldSet", &["mavlink", "unit"]),
+    ("mavlink::Encode", &["mavlink"]),
+    ("mavlink::Decode", &["mavlink"]),
+    ("mavlink::Enum", &["mavlink"]),
+    ("MavlinkMessage", &["mavlink"]),
+    ("thiserror::Error", &["error"]),
 ];
 
 // -----------------------------------------------------------------------------
