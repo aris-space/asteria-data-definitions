@@ -312,3 +312,45 @@ pub fn derive_mavlink_enum(input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+/// Derive macro for implementing the [`mavlink_hal::codec::Encode`] trait for structs and enums.
+///
+/// When added to structs with named fields, the following attributes can be used on the fields:
+/// - `#[mavlink(flatten)]`: Optional boolean flag to indicate that this field is a nested fieldset which should be flattened
+/// - `#[mavlink(refine)]`: Optional boolean flag to indicate that this field should refine a previous definition
+///
+/// **Important**: The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used on a field at the same time
+///
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkEncode, attributes(mavlink))]
+pub fn derive_mavlink_encode(input: TokenStream) -> TokenStream {
+    use crate::mavlink::encode::{MavlinkEncode, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkEncode::from_derive_input(&input) {
+        Ok(encode) => handle(encode),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
+
+/// Derive macro for implementing the [`mavlink_hal::codec::Decode`] trait for structs and enums.
+///
+/// When added to structs with named fields, the following attributes can be used on the fields:
+/// - `#[mavlink(flatten)]`: Optional boolean flag to indicate that this field is a nested fieldset which should be flattened
+/// - `#[mavlink(refine)]`: Optional boolean flag to indicate that this field should refine a previous definition
+///
+/// **Important**: The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used on a field at the same time
+///
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkDecode, attributes(mavlink))]
+pub fn derive_mavlink_decode(input: TokenStream) -> TokenStream {
+    use crate::mavlink::decode::{MavlinkDecode, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkDecode::from_derive_input(&input) {
+        Ok(decode) => handle(decode),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}

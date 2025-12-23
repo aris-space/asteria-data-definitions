@@ -156,8 +156,10 @@ fn generate_mavlink_message_spec(ident: &Ident, variants: &[MavlinkMessageVarian
     }
 }
 
-
-fn generate_mavlink_message_encode(ident: &Ident, variants: &[MavlinkMessageVariant]) -> TokenStream {
+fn generate_mavlink_message_encode(
+    ident: &Ident,
+    variants: &[MavlinkMessageVariant],
+) -> TokenStream {
     quote! {
         impl protocol::IntoPayload for #ident {
             #[inline]
@@ -184,6 +186,9 @@ fn generate_mavlink_message_encode(ident: &Ident, variants: &[MavlinkMessageVari
     }
 }
 
-fn generate_mavlink_message_decode(ident: &Ident, variants: &[MavlinkMessageVariant]) -> TokenStream {
+fn generate_mavlink_message_decode(
+    ident: &Ident,
+    variants: &[MavlinkMessageVariant],
+) -> TokenStream {
     quote! {}
 }

@@ -9,9 +9,9 @@ pub use data_macros::*;
 pub use can_hal;
 
 #[cfg(feature = "mavlink")]
-pub use mavlink_hal;
-#[cfg(feature = "mavlink")]
 pub use mavio;
+#[cfg(feature = "mavlink")]
+pub use mavlink_hal;
 
 #[cfg(feature = "bincode")]
 pub use bincode;

@@ -120,7 +120,7 @@ pub fn handle_struct(fieldset: MavlinkFieldSet) -> TokenStream {
                Err(darling::Error::custom("The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used at the same time!").with_span(&field.ident.span()))?;
            }
 
-           let name = snake_case(&field.name.clone().unwrap_or(field.ident.as_ref().map(|ident| ident.to_string()).unwrap_or_default()));
+           let name = snake_case(&field.name.clone().unwrap_or(field.ident.as_ref().map(ToString::to_string).unwrap_or_default()));
            let name_lit = LitStr::new(&name, Span::call_site());
            let description_lit = LitStr::new(&field.attrs.get_docs_str(), Span::call_site());
            let ty = &field.ty;
