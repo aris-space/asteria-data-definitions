@@ -9,13 +9,17 @@ pub struct Unit(pub LitStr);
 impl FromMeta for Unit {
     fn from_list(items: &[darling::ast::NestedMeta]) -> darling::Result<Self> {
         if items.len() != 1 {
-            return Err(darling::Error::custom("Expected exactly one argument, use `#[unit(\"...\")]`"));
+            return Err(darling::Error::custom(
+                "Expected exactly one argument, use `#[unit(\"...\")]`",
+            ));
         }
 
         if let darling::ast::NestedMeta::Lit(syn::Lit::Str(s)) = &items[0] {
             Ok(Unit(s.clone()))
         } else {
-            Err(darling::Error::custom("Expected a string literal, use `#[unit(\"...\")]`"))
+            Err(darling::Error::custom(
+                "Expected a string literal, use `#[unit(\"...\")]`",
+            ))
         }
     }
 }
