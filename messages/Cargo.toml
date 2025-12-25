@@ -20,6 +20,10 @@ thiserror = { version = "2.0.17", optional = true, default-features = false }
 utoipa = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 
+
+[dev-dependencies]
+criterion = { version = "0.5.1", optional = true }
+
 [features]
 default = ["can"]
 # Derive can related traits for all datapoints and datapoint specific types
@@ -112,5 +116,12 @@ derive_utoipa = [
     "dep:utoipa",
 ]
 
+
 [lints]
 workspace = true
+
+
+[[bench]]
+name = "heartbeat_encode"
+harness = false
+features = ["dep:criterion"]
