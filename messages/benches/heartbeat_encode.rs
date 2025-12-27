@@ -6,6 +6,7 @@
 //! ## Results
 //! - mavio: 88.3ns +- 0.3ns
 //! - ours: 32.0ns +- 0.2ns
+//! - bincode: approx 19.5ns +- 0.2ns
 
 use criterion::{Criterion, criterion_group, criterion_main};
 use std::hint::black_box;
@@ -51,7 +52,35 @@ fn ours_benchmark(c: &mut Criterion) {
     });
 }
 
-criterion_group!(benches, mavio_benchmark, ours_benchmark);
+fn encode_bincode(
+    heartbeat: &heartbeat::Heartbeat,
+) -> Result<[u8; 64], bincode::error::EncodeError> {
+    let mut msg = [0; 64];
+    let _len = bincode::encode_into_slice(
+        heartbeat,
+        &mut msg,
+        bincode::config::standard()
+            .with_fixed_int_encoding()
+            .with_limit::<64>(),
+    )?;
+    Ok(msg)
+}
+
+fn bincode_benchmark(c: &mut Criterion) {
+    let msg = heartbeat::Heartbeat {
+        type_: heartbeat::MavType::Rocket,
+        autopilot: heartbeat::MavAutopilot::Invalid,
+        base_mode: 1,
+        custom_mode: 42,
+        system_status: heartbeat::MavState::Standby,
+        mavlink_version: 3, // minor version of minimal.xml
+    };
+    c.bench_function("enc heartbeat bincode", |b| {
+        b.iter(|| encode_bincode(black_box(&msg)));
+    });
+}
+
+criterion_group!(benches, mavio_benchmark, ours_benchmark, bincode_benchmark);
 criterion_main!(benches);
 
 mod heartbeat {
@@ -66,6 +95,7 @@ mod heartbeat {
         core::fmt::Debug,
         core::default::Default,
         core::cmp::PartialEq,
+        bincode::Encode,
     )]
     pub struct Heartbeat {
         /// MAVLink field `type`.
@@ -114,6 +144,7 @@ mod heartbeat {
         core::fmt::Debug,
         core::default::Default,
         core::cmp::PartialEq,
+        bincode::Encode,
     )]
     #[repr(u8)]
     pub enum MavState {
@@ -172,6 +203,7 @@ mod heartbeat {
         core::fmt::Debug,
         core::default::Default,
         core::cmp::PartialEq,
+        bincode::Encode,
     )]
     #[repr(u8)]
     pub enum MavType {
@@ -394,6 +426,7 @@ mod heartbeat {
         core::fmt::Debug,
         core::default::Default,
         core::cmp::PartialEq,
+        bincode::Encode,
     )]
     #[repr(u8)]
     pub enum MavAutopilot {
