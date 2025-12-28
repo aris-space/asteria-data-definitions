@@ -11,6 +11,7 @@ members = [
     "mavlink",
     "mavlink-hal",
     "mavlink-dialect",
+    "macro-gated-derive",
 ]
 
 [workspace.lints.clippy]
