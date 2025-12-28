@@ -3,10 +3,14 @@ name = "datatypes"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
-bincode = "2.0.1"
-serde = { version = "1.0.228", features = ["derive"] }
-mavlink-hal = { version = "0.1.0", path = "../mavlink-hal" }
-
 [lints]
 workspace = true
+
+[dependencies]
+bincode = { version = "2.0.1", optional = true }
+serde = { version = "1.0.228", features = ["derive"] }
+mavlink-hal = { version = "0.1.0", path = "../mavlink-hal" }
+gated-derive = { path = "../macro-gated-derive" }
+
+[features]
+derive_bincode = ["dep:bincode"]

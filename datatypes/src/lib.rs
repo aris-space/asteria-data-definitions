@@ -1,4 +1,5 @@
 use bincode::{Decode, Encode};
+use gated_derive::gated_derive;
 
 // FIXME: replace all these imports with fully qualified types
 use mavlink_hal::description::{DescribeEnum, Enum, EnumVariant};
@@ -12,7 +13,8 @@ use serde::{Deserialize, Serialize};
 // #[derive(MavlinkFieldSet) // A newtype can be a fieldset with a single field
 // #[unit("°C")]
 #[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
 pub struct Celsius(pub f32);
 
 // generated: then `DescribeFieldSet` needs to be derived
