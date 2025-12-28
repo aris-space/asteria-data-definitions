@@ -1,9 +1,115 @@
+//! # Gated Derive
+//!
+//! `gated_derive` is a procedural macro utility designed to reduce boilerplate when managing
+//! optional dependencies and their associated derive macros and attributes.
+//!
+//! It automatically transforms a simple list of desired derives into a set of `#[cfg_attr(...)]`
+//! gates. Furthermore, it scans the struct or enum for helper attributes associated with those
+//! derives and gates them behind the same feature flags.
+//!
+//! ## Usage
+//!
+//! Apply the attribute to a struct or enum:
+//!
+//! ```rust,ignore
+//! #[gated_derive(DerivePath, AnotherDerive(managed_attr))]
+//! ```
+//!
+//! ### Semantic Rules
+//!
+//! 1.  **Feature Naming**: The feature name is derived from the **first segment** of the path.
+//!     *   `serde::Serialize` $\rightarrow$ `feature = "derive_serde"`
+//!     *   `MyTrait` $\rightarrow$ `feature = "derive_MyTrait"`
+//!
+//! 2.  **Attribute Association**:
+//!     *   **Explicit**: `Path::To::Derive(attr_name)` will gate usages of `#[attr_name(...)]`
+//!         behind the feature.
+//!     *   **Implicit**: `Path::To::Derive` (no parens) defaults to gating attributes matching
+//!         the first path segment (e.g., `serde` for `serde::Serialize`).
+//!
+//! 3.  **Shared Attributes**: If multiple derives claim the same attribute (e.g., `Serialize`
+//!     and `Deserialize` both use `#[serde]`), the macro generates an `any(...)` condition,
+//!     ensuring the attribute remains active if *at least one* of the features is enabled.
+//!
+//! ---
+//!
+//! ## Examples
+//!
+//! ### Example 1: CLI Configuration
+//!
+//! A configuration struct that supports command-line parsing (via `clap`) and file loading
+//! (via `serde`), but both are optional features.
+//!
+//! ```rust,ignore
+//! // Cargo.toml:
+//! // [features]
+//! // derive_clap = ["dep:clap"]
+//! // derive_serde = ["dep:serde"]
+//!
+//! #[gated_derive(clap::Parser, serde::Deserialize)]
+//! #[command(author, version)] // Gated by `derive_clap` (default inference)
+//! struct AppConfig {
+//!     #[arg(long)] // Gated by `derive_clap` (clap uses `arg` and `command` attributes?
+//!                  // *See caveats below regarding multiple attributes per derive*)
+//!     #[serde(default)] // Gated by `derive_serde`
+//!     port: u16,
+//! }
+//! ```
+//! *Note: To handle `clap` correctly which uses multiple attribute names (`clap`, `command`, `arg`),
+//! you would pass them explicitly: `clap::Parser(clap, command, arg)`.*
+//!
+//! ### Example 2: Database and API Models
+//!
+//! A model that might be used with `sqlx` for database interaction or `schemars` for generating
+//! OpenAPI specs.
+//!
+//! ```rust,ignore
+//! #[gated_derive(sqlx::FromRow, schemars::JsonSchema(schemars))]
+//! struct User {
+//!     #[sqlx(rename = "user_id")] // Gated by feature "derive_sqlx"
+//!     id: i32,
+//!
+//!     #[schemars(skip)] // Gated by feature "derive_schemars"
+//!     internal_flag: bool,
+//! }
+//! ```
+//!
+//! ---
+//!
+//! ## Details and Caveats
+//!
+//! ### 1. Cargo.toml Requirements
+//! This macro **does not** create features for you. You must define the corresponding features
+//! in your `Cargo.toml`.
+//!
+//! ```toml
+//! [features]
+//! derive_serde = ["dep:serde"]
+//! derive_defmt = ["dep:defmt"]
+//! ```
+//!
+//! ### 2. Multiple Attributes
+//! If a single derive uses multiple helper attributes (like `clap` uses `arg`, `command`, and `value`),
+//! you must list them all in parentheses if you want them gated:
+//!
+//! ```rust,ignore
+//! #[gated_derive(clap::Parser(clap, command, arg, value))]
+//! ```
+//!
+//! ### 3. Hygiene
+//! The macro parses the syntax tree of your item. It blindly gates attributes based on the identifier.
+//! If you have a local macro or attribute named `#[serde]` that has nothing to do with `serde::Serialize`,
+//! it will still be gated if you use `gated_derive(serde::Serialize)`.
+//!
+//! ### 4. Order of Operations
+//! `gated_derive` runs before the actual derive macros it injects. However, it effectively replaces
+//! itself with `#[cfg_attr(..., derive(...))]`.
+
 use proc_macro::TokenStream;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{ToTokens, format_ident, quote};
+use quote::quote;
 use std::collections::{HashMap, HashSet};
 use syn::{
-    Attribute, DeriveInput, Ident, Meta, Path, Token,
+    Attribute, DeriveInput, Ident, Path, Token,
     parse::{Parse, ParseStream},
     parse_macro_input, parse_quote,
     punctuated::Punctuated,
@@ -69,13 +175,7 @@ impl VisitMut for GatedVisitor {
         // but we mainly care about replacing the attribute itself.
 
         // We only care about outer attributes (#[...]) generally used for derives/serde
-        if let Meta::Path(path) = &attr.meta {
-            self.try_gate(attr, path);
-        } else if let Meta::List(list) = &attr.meta {
-            self.try_gate(attr, &list.path);
-        } else if let Meta::NameValue(nv) = &attr.meta {
-            self.try_gate(attr, &nv.path);
-        }
+        self.try_gate(attr);
 
         // Continue visiting recursively (though for attributes, usually not deep)
         visit_mut::visit_attribute_mut(self, attr);
@@ -83,14 +183,17 @@ impl VisitMut for GatedVisitor {
 }
 
 impl GatedVisitor {
-    fn try_gate(&self, attr: &mut Attribute, path: &Path) {
+    fn try_gate(&self, attr: &mut Attribute) {
         // Check if the attribute name (e.g., "serde", "can_id") is in our map
-        if let Some(ident) = path.get_ident() {
+        if let Some(ident) = attr.meta.path().get_ident() {
             let ident_str = ident.to_string();
             if let Some(features) = self.attr_map.get(&ident_str) {
                 // Determine the condition
                 let condition = if features.len() == 1 {
-                    let feat = features.iter().next().unwrap();
+                    let feat = features
+                        .iter()
+                        .next()
+                        .expect("if condition ensures exactly one element");
                     quote! { feature = #feat }
                 } else {
                     // Sort for deterministic output
@@ -132,7 +235,7 @@ pub fn gated_derive(args: TokenStream, input: TokenStream) -> TokenStream {
             Some(seg) => &seg.ident,
             None => continue, // Should not happen for valid paths
         };
-        let feature_name = format!("derive_{}", first_segment);
+        let feature_name = format!("derive_{first_segment}");
         let path = &entry.derive_path;
 
         // Create the `#[cfg_attr(feature = "...", derive(...))]`
