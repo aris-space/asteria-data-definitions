@@ -1,0 +1,12 @@
+[package]
+name = "dp-flight-computer"
+version = "0.3.0"
+edition = "2024"
+
+[dependencies]
+data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
+datatypes = { version = "0.1.0", path = "../../datatypes" }
+bincode = "2.0.1"
+
+[lints]
+workspace = true

@@ -1,0 +1,11 @@
+[package]
+name = "dp-communication-board"
+version = "0.3.0"
+edition = "2024"
+
+[dependencies]
+data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
+datatypes = { version = "0.1.0", path = "../../datatypes" }
+
+[lints]
+workspace = true

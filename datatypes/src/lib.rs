@@ -1,61 +1,33 @@
 use bincode::{Decode, Encode};
-
-// FIXME: replace all these imports with fully qualified types
-use mavlink_hal::description::{DescribeEnum, Enum, EnumVariant};
-use mavlink_hal::typing::MavScalarType;
-
 use serde::{Deserialize, Serialize};
+
+/// The ID of a board in the rocket.
+#[repr(u8)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
+pub enum BoardId {
+    FlightComputer = 0,
+    RfsComputer = 1,
+    SensorCarrier = 2,
+    CommunicationBoard = 3,
+    EngineControlBoard = 4,
+    PowerBoard = 5,
+    RecoveryBoard = 6,
+    FuelControlBoard = 7,
+    OxidizerControlBoard = 8,
+}
+
+/// UTC timestamp given in microseconds since the Unix epoch (`1970-01-01T00:00:00Z`).
+///
+/// This value is derived from the GPS time sensors and is therefore highly accurate.
+#[derive(bincode::Encode, bincode::Decode)]
+pub struct UTCTime(pub u64);
 
 /// A temperature in degrees Celsius.
 ///
 /// Is `NAN` by default.
-// #[derive(MavlinkFieldSet) // A newtype can be a fieldset with a single field
-// #[unit("°C")]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
 pub struct Celsius(pub f32);
-
-// generated: then `DescribeFieldSet` needs to be derived
-impl mavlink_hal::description::DescribeFieldSet for Celsius {
-    const FIELDS: &[mavlink_hal::description::MessageField] =
-        &[mavlink_hal::description::MessageField {
-            type_: <f32 as mavlink_hal::typing::Typeable>::TYPE, // from inner type
-            name: "celsius",  // by default from the type name. Should be changeable.
-            unit: Some("°C"), // from the optional `unit` attribute (note that this will also be needed by the CSV macros probably).
-            description: "A temperature in degrees Celsius ...", // from doc comment
-            enum_: <f32 as mavlink_hal::typing::Typeable>::ENUM, // inner type must be Typeable
-        }];
-}
-
-/// This example shows how I imagine recursive fieldsets to work.
-// #[derive(MavlinkFieldSet) // a struct with named fields can also be a fieldset
-pub struct OSSTemperatures {
-    /// This description and field name would be overwritten by the ones of `Celsius`.
-    /// In this case not useful, but with other nested structures it should be.
-    // #[mavlink(flatten)] // Either flatten
-    pub tank: Celsius,
-    /// This description and name would overide the generic one in `Celsius`,
-    /// which would require exactly one field in the fieldset.
-    // #[mavlink(refine)] // Or refine a newtypes documentation
-    pub runline: Celsius,
-}
-
-// generated
-impl mavlink_hal::description::DescribeFieldSet for OSSTemperatures {
-    const FIELDS: &[mavlink_hal::description::MessageField] =
-        &mavlink_hal::macro_util::concat_slices::<
-            _,
-            { <Celsius as mavlink_hal::description::DescribeFieldSet>::FIELDS.len() + 1 },
-        >(&[
-            Celsius::FIELDS,
-            &[mavlink_hal::macro_util::refine_field(
-                Celsius::FIELDS,
-                "runline",
-                "This description ...",
-            )],
-        ]);
-}
-// TODO: derive also the recursive en/decode.
 
 /// A pressure in bar relative to atmospheric pressure (`barg`).
 ///
@@ -64,135 +36,25 @@ impl mavlink_hal::description::DescribeFieldSet for OSSTemperatures {
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
 pub struct BarG(pub f32);
 
+/// Atmospheric pressure in hPa.
+///
+/// Is `NAN` by default.
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
+pub struct HPa(pub f32);
+
+/// Pressurization Proportional Gain in [barg/ms]
+/// opening_time = kp * (target_pressure - current_pressure), in milliseconds
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
+pub struct PressurizationGain(pub f32);
+
 /// The state of a valve that is normally open.
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Encode, Decode)]
-// #[derive(MavlinkEnum) // A numeric enum (requires `= _` syntax for clarity) can be turned into a Enum.
-// #[derive(MavlinkFieldSet) // and it should also be able to be a field set directly, so you can refine it
-#[repr(u8)]
 pub enum NormallyOpenValve {
     #[default]
-    Open = 0,
-    Closed = 1,
-}
-
-// generated: describes the possible variants
-impl DescribeEnum for NormallyOpenValve {
-    const ENUM: &'static Enum = &Enum {
-        name: "NORMALLY_OPEN_VALVE",
-        description: "The state of a valve that is normally open. ...",
-        variants: &[
-            EnumVariant {
-                value: 0,
-                name: "OPEN",
-                description: "",
-            },
-            EnumVariant {
-                value: 1,
-                name: "CLOSED",
-                description: "",
-            },
-        ],
-    };
-}
-// also implement it as a type, that way the other macros can use this.
-impl mavlink_hal::typing::ScalarTypeable for NormallyOpenValve {
-    const SCALAR_TYPE: MavScalarType = <u8 as mavlink_hal::typing::ScalarTypeable>::SCALAR_TYPE;
-    const SCALAR_ENUM: Option<&'static Enum> = Some(<NormallyOpenValve as DescribeEnum>::ENUM);
-}
-// generated with MavlinkFieldSet
-impl mavlink_hal::description::DescribeFieldSet for NormallyOpenValve {
-    const FIELDS: &[mavlink_hal::description::MessageField] =
-        &[mavlink_hal::description::MessageField {
-            type_: <NormallyOpenValve as mavlink_hal::typing::Typeable>::TYPE,
-            name: "normally_open_valve", // by default from the type name. Should be changeable.
-            unit: None,                  // probably not needed for enum
-            description: "The state of a valve that is normally open. ...", // from doc comment
-            enum_: <NormallyOpenValve as mavlink_hal::typing::Typeable>::ENUM,
-        }];
-}
-// generated: Encode/Decode so you can use it as a fully functional message body or refine/flatten it.
-impl mavlink_hal::codec::Encode for NormallyOpenValve {
-    #[inline]
-    fn encode_1_aligned(
-        &self,
-        writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
-            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
-        >,
-    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
-        writer.write(*self as u8)
-    }
-}
-impl mavlink_hal::codec::Decode for NormallyOpenValve {
-    #[inline]
-    fn decode(
-        _reader_8_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-        _reader_4_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-        _reader_2_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-        reader_1_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-    ) -> Result<Self, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        use mavlink_hal::codec::tbytes::TBytesReaderFor as _;
-        reader_1_aligned.read()
-    }
-}
-// generated: "primitive" reading of enums without flatten/refine
-impl<B: mavlink_hal::codec::tbytes::TBytesReaderBackend>
-    mavlink_hal::codec::tbytes::TBytesReaderFor<NormallyOpenValve>
-    for mavlink_hal::codec::tbytes::TBytesReader<B>
-{
-    #[inline]
-    fn read(&self) -> Result<NormallyOpenValve, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        let variant_id: u8 = self.read()?;
-        match variant_id {
-            0 => Ok(NormallyOpenValve::Open),
-            1 => Ok(NormallyOpenValve::Closed),
-            _ => Err(mavlink_hal::codec::tbytes::errors::TBytesError::OutOfBounds),
-        }
-    }
-    #[inline]
-    fn read_array<const N: usize>(
-        &self,
-    ) -> Result<[NormallyOpenValve; N], mavlink_hal::codec::tbytes::errors::TBytesError> {
-        let mut res = [NormallyOpenValve::Closed; N]; // any value, will be overridden.
-        for item in &mut res {
-            *item = self.read()?;
-        }
-        Ok(res)
-    }
-}
-// generated: "primitive" writing of enums without flatten/refine
-impl<B: mavlink_hal::codec::tbytes::TBytesWriterBackend>
-    mavlink_hal::codec::tbytes::TBytesWriterFor<NormallyOpenValve>
-    for mavlink_hal::codec::tbytes::TBytesWriter<B>
-where
-    NormallyOpenValve: Copy, // required for functionality
-{
-    #[inline]
-    fn write(
-        &mut self,
-        value: NormallyOpenValve,
-    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        self.write(value as u8)
-    }
-    #[inline]
-    fn write_slice(
-        &mut self,
-        values: &[NormallyOpenValve],
-    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        let mut written = 0;
-        for value in values {
-            written += self.write(*value)?;
-        }
-        Ok(written)
-    }
+    Open,
+    Closed,
 }
 
 /// The state of a valve that is normally closed.
@@ -204,83 +66,11 @@ pub enum NormallyClosedValve {
 }
 
 #[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
-// #[derive(MavlinkFieldSet)
 pub struct StatusCommonMessage {
     /// Number of errors encountered since startup.
     pub errors: u32,
     /// Number of microseconds since the last board restart.
     pub micros_since_restart: u64,
-}
-
-// generated: track the fields, used for `DescribeFieldSet` trait and ultimately XMl generation.
-impl mavlink_hal::description::DescribeFieldSet for StatusCommonMessage {
-    const FIELDS: &[mavlink_hal::description::MessageField] = &[
-        mavlink_hal::description::MessageField {
-            type_: <u32 as mavlink_hal::typing::Typeable>::TYPE,
-            name: "errors",
-            unit: None,
-            description: "Number of errors encountered since startup.",
-            enum_: <u32 as mavlink_hal::typing::Typeable>::ENUM,
-        },
-        mavlink_hal::description::MessageField {
-            type_: <u64 as mavlink_hal::typing::Typeable>::TYPE,
-            name: "micros_since_restart",
-            unit: None,
-            description: "Number of microseconds since the last board restart.",
-            enum_: <u64 as mavlink_hal::typing::Typeable>::ENUM,
-        },
-    ];
-}
-// generated: provide a alignment reordering compliant encode implementation
-impl mavlink_hal::codec::Encode for StatusCommonMessage {
-    #[inline]
-    fn encode_8_aligned(
-        &self,
-        writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
-            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
-        >,
-    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
-        let mut written = 0;
-        written += writer.write(self.micros_since_restart)?;
-        Ok(written)
-    }
-    #[inline]
-    fn encode_4_aligned(
-        &self,
-        writer: &mut mavlink_hal::codec::tbytes::TBytesWriter<
-            impl mavlink_hal::codec::tbytes::TBytesWriterBackend,
-        >,
-    ) -> Result<usize, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        use mavlink_hal::codec::tbytes::TBytesWriterFor as _;
-        let mut written = 0;
-        written += writer.write(self.errors)?;
-        Ok(written)
-    }
-}
-// generated: provide alignment-reordering compliant recursive trait implementation
-impl mavlink_hal::codec::Decode for StatusCommonMessage {
-    #[inline]
-    fn decode(
-        reader_8_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-        reader_4_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-        _reader_2_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-        _reader_1_aligned: &mut mavlink_hal::codec::tbytes::TBytesReader<
-            impl mavlink_hal::codec::tbytes::TBytesReaderBackend,
-        >,
-    ) -> Result<Self, mavlink_hal::codec::tbytes::errors::TBytesError> {
-        use mavlink_hal::codec::tbytes::TBytesReaderFor as _;
-        Ok(Self {
-            errors: reader_4_aligned.read()?,
-            micros_since_restart: reader_8_aligned.read()?,
-        })
-    }
 }
 
 /// Shared firmware build information used by all boards.
@@ -305,7 +95,7 @@ pub struct BuildInformationCommon {
 }
 
 #[derive(Clone, Debug, PartialEq, Encode, Decode)]
-pub struct CameraPower {
+pub struct CameraPowerStatus {
     /// Whether the recording camera(s) should be powered on (true=on, false=off).
     pub recording_pwr_enabled: bool,
     /// Whether the livestream camera(s) should be powered on (true=on, false=off).
@@ -321,4 +111,46 @@ pub struct RailStatus {
     pub current: f32,
     /// Power in watts.
     pub power: f32,
+}
+
+/// Enum representing the status of a sensor.
+#[repr(u8)]
+#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+pub enum SensorStatus {
+    /// Sensor is not providing data or is not responding.
+    #[default]
+    Offline = 0,
+    /// Sensor is generating data and responding.
+    Online = 1,
+}
+
+/// Enum representing the state of a valve.
+#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+pub enum ValveState {
+    /// Power should be enabled for the valve
+    Active,
+    /// Power should not be disabled for the valve
+    #[default]
+    Inactive,
+}
+
+/// Represents the current arming state of the subsystem
+#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+pub enum ArmingState {
+    /// System is safe to approach, arming action is necessary to use the system.
+    /// This can mean for example that actuators do not have power.
+    #[default]
+    Safe,
+    /// System is not safe to approach anymore. System can be used to its full capacity
+    /// This can mean for example that previously unpowered actuators now have power.
+    Armed,
+}
+
+#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+pub enum DprState {
+    /// Enabled with pressure setpoint in Barg. 0-60.
+    Enabled(f32),
+    /// Disabled
+    #[default]
+    Disabled,
 }
