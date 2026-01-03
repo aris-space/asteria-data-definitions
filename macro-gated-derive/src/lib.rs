@@ -10,7 +10,7 @@
 //!
 //! ```rust,ignore
 //! #[gated_derive(
-//!     // 1. Simple Case: Uses registry defaults (if any) or gates only the derive.
+//!     // 1. Simple Case: Uses registry defaults (if any) to gate attributes or gates only the derive.
 //!     serde::Serialize,
 //!
 //!     // 2. Override Feature:
@@ -21,9 +21,9 @@
 //!     // Gates `#[clap]`, `#[arg]`, `#[command]`.
 //!     clap::Parser(gated_attrs(clap, arg, command)),
 //!
-//!     // 4. Opt-Out of Attributes:
-//!     // Gates the derive, but leaves attributes ungated.
-//!     other::Macro(gated_attrs())
+//!     // 4. Opt-Out of gating attributes:
+//!     // Gates the derive, but leaves known associated attributes ungated.
+//!     Default(gated_attrs())
 //! )]
 //! struct MyStruct { ... }
 //! ```
@@ -33,44 +33,28 @@
 //! ### 1. Feature Naming
 //! Unless overridden via `feature = "..."`, the feature name is derived from the **first segment**
 //! of the path.
-//! *   `serde::Serialize` $\rightarrow$ `derive_serde`
-//! *   `my_lib::Macro` $\rightarrow$ `derive_my_lib`
-//!
-//! *Note: This means `json::Error` and `toml::Error` would both trigger `derive_json` and `derive_toml` respectively, preventing collision.*
+//! *   `serde::Serialize` -> `derive_serde`
+//! *   `my_lib::Macro` -> `derive_my_lib`
 //!
 //! ### 2. Hardcoded Registry
-//! The macro contains an internal registry for common crates to provide sensible defaults.
+//! The macro contains an internal registry for common crates to provide sensible known values for associated attributes.
 //!
 //! | Path | Default Gated Attributes |
 //! |------|--------------------------|
 //! | `serde::Serialize` | `serde` |
 //! | `serde::Deserialize` | `serde` |
 //! | `schemars::JsonSchema` | `schemars`, `serde` |
+//! | `Default` | `default` |
 //!
-//! *Note: Path matching is exact. `Serialize` (without `serde::`) will **not** trigger the registry.*
-//!
-//! ### 3. Attribute Resolution
-//! 1.  **Explicit**: If `gated_attrs(...)` is provided, those attributes are used (replacing defaults).
-//! 2.  **Registry**: If no explicit attrs are given, the registry is checked.
-//! 3.  **Fallback**: If neither, no helper attributes are gated; only the `derive` itself is gated.
-//!
-//! ### 4. Shared Attributes (Union Logic)
+//! ### 3. Shared Attributes (Union Logic)
 //! If multiple derives claim the same attribute, an `any(...)` condition is generated.
 //!
 //! **Example**: `schemars` generates JSON schemas but respects `serde` attributes.
 //!
 //! ```rust,ignore
-//! // Cargo.toml:
-//! // [features]
-//! // derive_serde = ["dep:serde"]
-//! // derive_schemars = ["dep:schemars"]
-//!
-//! #[gated_derive(
-//!     serde::Serialize,      // Defaults: feature="derive_serde", attrs=[serde]
-//!     schemars::JsonSchema   // Defaults: feature="derive_schemars", attrs=[schemars, serde]
-//! )]
+//! #[gated_derive(serde::Serialize, schemars::JsonSchema)]
 //! struct User {
-//!     // This attribute is active if EITHER feature is enabled.
+//!     // Active if EITHER feature is enabled.
 //!     // Generates: #[cfg_attr(any(feature = "derive_serde", feature = "derive_schemars"), serde(rename = "id"))]
 //!     #[serde(rename = "id")]
 //!     user_id: i32,
@@ -79,15 +63,40 @@
 
 use darling::{FromMeta, ast::NestedMeta, util::PathList};
 use proc_macro::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 use std::collections::{HashMap, HashSet};
 use syn::{
-    Attribute, AttributeArgs, DeriveInput, Ident, Meta, Path, parse_macro_input, parse_quote,
-    spanned::Spanned,
+    Attribute, DeriveInput, Ident, Meta, Path, Token,
+    parse::{Parse, ParseStream},
+    parse_macro_input, parse_quote,
+    punctuated::Punctuated,
+    spanned::Spanned as _,
     visit_mut::{self, VisitMut},
 };
 
+// -----------------------------------------------------------------------------
+// Configuration Constants
+// -----------------------------------------------------------------------------
+
+/// Registry mapping Derive Paths to their standard helper attributes.
+/// Matching is exact string equality on the path provided by the user.
+const REGISTRY: &[(&str, &[&str])] = &[
+    ("serde::Serialize", &["serde"]),
+    ("serde::Deserialize", &["serde"]),
+    ("schemars::JsonSchema", &["schemars", "serde"]),
+    // Stdlib: #[default] is used on enum variants
+    ("Default", &["default"]),
+    ("std::default::Default", &["default"]),
+];
+
+// -----------------------------------------------------------------------------
+// Data Structures
+// -----------------------------------------------------------------------------
+
 /// Configuration options for a single derive entry.
+///
+/// This struct parses the content *inside* the parentheses of a configured derive.
+/// e.g. `path(feature = "...", gated_attrs(...))`
 #[derive(Debug, Default, FromMeta)]
 struct DeriveConfig {
     /// Override the default feature name.
@@ -100,6 +109,21 @@ struct DeriveConfig {
     /// - `Some([a, b])`: Gate specific attributes.
     #[darling(default, rename = "gated_attrs")]
     gated_attrs: Option<PathList>,
+}
+
+/// A wrapper to parse the comma-separated list of arguments to the macro.
+///
+/// In Syn 2, `AttributeArgs` is removed, so we parse `Punctuated<Meta, Comma>`.
+struct MacroArgs {
+    items: Punctuated<Meta, Token![,]>,
+}
+
+impl Parse for MacroArgs {
+    fn parse(input: ParseStream) -> syn::Result<Self> {
+        Ok(MacroArgs {
+            items: Punctuated::parse_terminated(input)?,
+        })
+    }
 }
 
 /// Visitor that traverses the AST and wraps target attributes in `cfg_attr`.
@@ -140,7 +164,11 @@ impl GatedVisitor {
     }
 }
 
-/// Returns the hardcoded default attributes for a given path.
+// -----------------------------------------------------------------------------
+// Logic
+// -----------------------------------------------------------------------------
+
+/// Returns the hardcoded default attributes for a given path from the REGISTRY.
 fn get_registry_defaults(path: &Path) -> Option<Vec<Ident>> {
     // Convert path to string "path::to::Item" for comparison
     let path_str = path
@@ -150,44 +178,60 @@ fn get_registry_defaults(path: &Path) -> Option<Vec<Ident>> {
         .collect::<Vec<_>>()
         .join("::");
 
-    let attrs = match path_str.as_str() {
-        "serde::Serialize" | "serde::Deserialize" => vec!["serde"],
-        // schemars uses its own attribute, but also respects serde attributes
-        "schemars::JsonSchema" => vec!["schemars", "serde"],
-        _ => return None,
-    };
-
-    Some(
-        attrs
-            .into_iter()
-            .map(|s| Ident::new(s, path.span()))
-            .collect(),
-    )
+    for (reg_path, attrs) in REGISTRY {
+        if *reg_path == path_str {
+            return Some(attrs.iter().map(|s| Ident::new(s, path.span())).collect());
+        }
+    }
+    None
 }
 
 #[proc_macro_attribute]
 pub fn gated_derive(args: TokenStream, input: TokenStream) -> TokenStream {
-    let args = parse_macro_input!(args as AttributeArgs);
+    let args_parser = parse_macro_input!(args as MacroArgs);
     let mut item = parse_macro_input!(input as DeriveInput);
 
     let mut new_derives = Vec::new();
     let mut attr_feature_map: HashMap<String, HashSet<String>> = HashMap::new();
 
-    for arg in args {
-        // 1. Parse outer arguments (Path vs List)
+    // Iterate over the arguments: `path` or `path(...)`
+    for arg in args_parser.items {
+        // 1. Parse outer arguments and inner config
         let (derive_path, config) = match arg {
             // Case: `serde::Serialize`
-            NestedMeta::Meta(Meta::Path(path)) => (path, DeriveConfig::default()),
+            Meta::Path(path) => (path, DeriveConfig::default()),
 
             // Case: `serde::Serialize(...)`
-            NestedMeta::Meta(Meta::List(list)) => {
-                let path = list.path;
-                let cfg = DeriveConfig::from_list(&list.nested)
-                    .expect("Failed to parse gated_derive configuration");
-                (path, cfg)
+            Meta::List(list) => {
+                let path = &list.path;
+                // Parse the tokens inside the parentheses as a list of NestedMeta
+                // Syn 2 removed `nested`, so we parse `tokens` using darling's helper
+                let nested_meta = match list
+                    .parse_args_with(Punctuated::<NestedMeta, Token![,]>::parse_terminated)
+                {
+                    Ok(nm) => nm,
+                    Err(e) => return e.into_compile_error().into(),
+                };
+
+                // Convert list to Struct using darling
+                let cfg =
+                    match DeriveConfig::from_list(&nested_meta.into_iter().collect::<Vec<_>>()) {
+                        Ok(c) => c,
+                        Err(e) => return e.write_errors().into(),
+                    };
+
+                (path.clone(), cfg)
             }
 
-            _ => panic!("Unsupported syntax in gated_derive. Expected Path or Path(...)"),
+            // NameValue (`key = "val"`) is not supported at the top level
+            Meta::NameValue(nv) => {
+                return syn::Error::new_spanned(
+                    nv,
+                    "Name-Value arguments are not supported here. Use `Path` or `Path(config)`.",
+                )
+                .into_compile_error()
+                .into();
+            }
         };
 
         // 2. Determine Feature Name
