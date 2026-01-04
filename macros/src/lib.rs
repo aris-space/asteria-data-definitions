@@ -32,6 +32,9 @@ mod message;
 /// **Important**: You can only derive this macro on a single enum per module. The reason for this is that the type aliases
 /// are written to the [`message::MESSAGE_META_TYPES_IDENT`] module, which does not contain the enum name in it's name.
 ///
+/// Additionally, the newtype type name must not match any other variants name
+/// (for the same variant, we handle this internal name collision).
+///
 /// # Usage
 /// ```rust,ignore
 /// #[derive(Message)]
