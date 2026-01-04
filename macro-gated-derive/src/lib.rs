@@ -32,12 +32,13 @@
 //!
 //! ### 1. Feature Naming
 //! Unless overridden via `feature = "..."`, the feature name is derived from the **first segment**
-//! of the path.
+//! of the path, turned into ascii lowercase, and prefixed with `derive_`.
 //! *   `serde::Serialize` -> `derive_serde`
 //! *   `my_lib::Macro` -> `derive_my_lib`
+//! *   `Deserialize` -> `derive_deserialize`
 //!
-//! ### 2. Hardcoded Registry
-//! The macro contains an internal registry for common crates to provide sensible known values for associated attributes.
+//! ### 2. Default Gated Attribute Registry
+//! The macro contains an internal hardcoded registry for common crates to provide sensible known values for associated attributes.
 //!
 //! | Path | Default Gated Attributes |
 //! |------|--------------------------|
@@ -84,7 +85,6 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("serde::Serialize", &["serde"]),
     ("serde::Deserialize", &["serde"]),
     ("schemars::JsonSchema", &["schemars", "serde"]),
-    // Stdlib: #[default] is used on enum variants
     ("Default", &["default"]),
     ("std::default::Default", &["default"]),
 ];
@@ -145,7 +145,7 @@ impl GatedVisitor {
         if let Some(ident) = attr.meta.path().get_ident() {
             let ident_str = ident.to_string();
             if let Some(features) = self.attr_map.get(&ident_str) {
-                // Construct the condition
+                // Construct the `cfg` condition
                 let condition = if features.len() == 1 {
                     let feat = features.iter().next().expect("Set known to be non-empty");
                     quote! { feature = #feat }
@@ -186,6 +186,7 @@ fn get_registry_defaults(path: &Path) -> Option<Vec<Ident>> {
     None
 }
 
+/// The main proc macro function, see the module docs [`self`].
 #[proc_macro_attribute]
 pub fn gated_derive(args: TokenStream, input: TokenStream) -> TokenStream {
     let args_parser = parse_macro_input!(args as MacroArgs);
@@ -239,12 +240,13 @@ pub fn gated_derive(args: TokenStream, input: TokenStream) -> TokenStream {
             feat
         } else {
             // Default: "derive_" + first segment
-            let first = derive_path
+            let mut first = derive_path
                 .segments
                 .first()
                 .expect("Derive path must have at least one segment")
                 .ident
                 .to_string();
+            first.make_ascii_lowercase();
             format!("derive_{first}")
         };
 
@@ -264,7 +266,7 @@ pub fn gated_derive(args: TokenStream, input: TokenStream) -> TokenStream {
             get_registry_defaults(&derive_path).unwrap_or_default()
         };
 
-        // 4. Register Dependencies
+        // 4. Register Attribute Dependencies
         for attr in attrs_to_gate {
             attr_feature_map
                 .entry(attr.to_string())
