@@ -38,7 +38,8 @@
 //! *   `Deserialize` -> `derive_deserialize`
 //!
 //! ### 2. Default Gated Attribute Registry
-//! The macro contains an internal hardcoded registry for common crates to provide sensible known values for associated attributes.
+//! The macro contains an internal hardcoded registry for common crates to provide sensible known values of associated attributes.
+//! It can be overriden with `gated_attrs(attr1, attr2)`.
 //!
 //! | Path | Default Gated Attributes |
 //! |------|--------------------------|
