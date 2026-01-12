@@ -1,12 +1,10 @@
-use bincode::{Decode, Encode};
-use datatypes::{SensorStatus, StatusCommonMessage};
+use datatypes::status::{SensorStatus, StatusCommonMessage};
+use gated_derive::gated_derive;
 
 /// Represents the online/offline status of all sensors on the Sensor Carrier board.
 /// Each field corresponds to a specific sensor instance.
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
-#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct SensorsHealth {
     /// Status of barometer on I2C2 (bus 1: PA9 = SCL, PA8 = SDA)
     pub barometer_bus_1: SensorStatus,
@@ -30,13 +28,15 @@ pub struct SensorsHealth {
     pub gps_2: SensorStatus,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct SensorCarrierStatus {
     pub common: StatusCommonMessage,
     pub sensor_health: SensorsHealth,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct PositionData {
     /// Latitude in degrees (WGS84). Range: -90.0° to +90.0°
     pub location_latitude: f64,
@@ -50,7 +50,8 @@ pub struct PositionData {
     pub vertical_accuracy: f32,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct ImuData {
     // --- Body-fixed NED frame (X: forward, Y: right, Z: down) ---
     /// Acceleration along body X-axis (forward) in m/s². Range: ±78.48 m/s² (±8g)
@@ -83,7 +84,8 @@ pub struct ImuData {
     pub angular_velocity_down: f32,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct VelocityData {
     // --- Body-fixed frame (X: forward, Y: right, Z: down) ---
     /// Velocity along body X-axis (forward) in m/s. Range: ±500 m/s
@@ -102,7 +104,8 @@ pub struct VelocityData {
     pub velocity_down: f32,
 }
 
-#[derive(Clone, Debug, PartialEq, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct OrientationData {
     /// Normalised quaternion scalar component of the rotation from inertial NED to body-fixed frame.
     pub orientation_w: f32,
@@ -126,7 +129,8 @@ impl Default for OrientationData {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct EnvironmentalData {
     /// Temperature in Celsius.
     pub temperature: f32,
@@ -140,7 +144,8 @@ pub struct EnvironmentalData {
     pub pressure: f32,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct MagnetometerData {
     // --- Body-fixed NED frame (X: forward, Y: right, Z: down) ---
     /// Magnetic field along body X-axis (forward) in μT. Range: ±4915.2 μT

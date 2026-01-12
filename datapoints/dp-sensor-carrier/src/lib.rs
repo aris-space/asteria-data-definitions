@@ -1,5 +1,6 @@
 use data_core::{CanMessage, Message};
-use datatypes::{BuildInformationCommon, HPa};
+use datatypes::status::BuildInformationCommon;
+use datatypes::units::HPa;
 mod dptypes;
 pub use dptypes::*;
 

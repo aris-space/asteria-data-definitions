@@ -1,5 +1,4 @@
-use data_core::{CanMessage, Message};
-use datatypes::{BoardId, UTCTime};
+use datatypes::status::{BoardId, InstantUs};
 
 #[derive(Message, CanMessage)]
 pub enum Message {
@@ -23,7 +22,7 @@ pub enum Message {
     /// be used to correct for drift, this may result in non-monotonic timekeeping
     /// and is therefore discouraged.
     #[can(id = 0x30)]
-    UTCTimeUpdate(UTCTime),
+    UTCTimeUpdate(InstantUs),
 
     /// # `ResetSpecific`
     /// Instructs a specific board to reset.

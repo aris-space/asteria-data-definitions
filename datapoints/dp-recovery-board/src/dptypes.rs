@@ -1,15 +1,13 @@
-use bincode::{Decode, Encode};
-use datatypes::{ArmingState, StatusCommonMessage};
+use datatypes::status::{ArmingState, StatusCommonMessage};
+use gated_derive::gated_derive;
 
 /// Represents the current state of an actuator as detected by a board.
 ///
 /// ## Notes
 /// Detection of actuator presence is only possible before power is applied to the actuator.
 /// Once powered, actuator detection is no longer possible.
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
-#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub enum ActuatorStatus {
     /// Actuator is not connected (e.g. unplugged or circuit open).
     #[default]
@@ -21,10 +19,8 @@ pub enum ActuatorStatus {
 }
 
 /// Represents the current state of a watchdog timer.
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
-#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub enum WatchdogState {
     /// Watchdog is not active. No steering signal has been received since startup.
     #[default]
@@ -35,7 +31,8 @@ pub enum WatchdogState {
     Expired,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct SteeringPositions {
     /// Current position of the left steering motor in steps (4096 steps = 1 revolution) from the
     /// startup position (0).
@@ -45,7 +42,8 @@ pub struct SteeringPositions {
     right_pos: i32,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct RecoveryPowerConfig {
     /// Whether power to the separation actuators should be enabled. Physically,
     /// actuator power is only provided after hardware electrical arming of the system.
@@ -58,7 +56,8 @@ pub struct RecoveryPowerConfig {
     steering_enabled: bool,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct RecoveryBoardStatus {
     pub common: StatusCommonMessage,
     /// Detected state of separation actuator 1.

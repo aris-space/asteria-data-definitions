@@ -1,5 +1,7 @@
 use data_core::{CanMessage, Message};
-use datatypes::{BuildInformationCommon, CameraPowerStatus, RailStatus, StatusCommonMessage};
+use datatypes::actuator::CameraPowerStatus;
+use datatypes::status::{BuildInformationCommon, StatusCommonMessage};
+use datatypes::units::RailStatus;
 
 #[derive(Message, CanMessage)]
 pub enum Message {

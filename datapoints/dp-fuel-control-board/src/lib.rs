@@ -1,5 +1,7 @@
 use data_core::{CanMessage, Message};
-use datatypes::{BarG, BuildInformationCommon, DprState, PressurizationGain, ValveState};
+use datatypes::actuator::{DprState, PressurizationGain};
+use datatypes::status::{BuildInformationCommon, ValveState};
+use datatypes::units::BarG;
 mod dptypes;
 pub use dptypes::*;
 

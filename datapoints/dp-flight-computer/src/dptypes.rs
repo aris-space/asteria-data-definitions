@@ -1,7 +1,8 @@
-use bincode::{Decode, Encode};
-use datatypes::{ArmingState, StatusCommonMessage};
+use gated_derive::gated_derive;
+use datatypes::status::{ArmingState, StatusCommonMessage};
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct FlightComputerStatus {
     pub common: StatusCommonMessage,
     /// `true` if the flight computer asserts control over the PSS valves via CAN.

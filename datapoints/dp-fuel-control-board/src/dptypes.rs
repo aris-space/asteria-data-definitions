@@ -1,7 +1,9 @@
-use bincode::{Decode, Encode};
-use datatypes::{DprState, SensorStatus, StatusCommonMessage, ValveState};
+use gated_derive::gated_derive;
+use datatypes::actuator::DprState;
+use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct FuelControlBoardStatus {
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
@@ -10,7 +12,8 @@ pub struct FuelControlBoardStatus {
     pub pressure_bus: SensorStatus,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct FuelControlBoardValveStates {
     /// Fuel DPR Control loop state
     pub fss_dpr: DprState,

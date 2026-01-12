@@ -1,7 +1,8 @@
-use bincode::{Decode, Encode};
-use datatypes::{ArmingState, StatusCommonMessage, ValveState};
+use gated_derive::gated_derive;
+use datatypes::status::{ArmingState, StatusCommonMessage, ValveState};
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct RfsComputerStatus {
     pub common: StatusCommonMessage,
     /// `true` if the remote filling station asserts control over the PSS valves via CAN.
@@ -12,7 +13,8 @@ pub struct RfsComputerStatus {
     pub is_ignition_armed: ArmingState,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct RfsComputerValveStates {
     /// The current active state of the normally closed GOX igniter valve.
     pub gox_ign_vlv: ValveState,

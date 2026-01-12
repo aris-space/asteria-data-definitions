@@ -1,7 +1,9 @@
-use bincode::{Decode, Encode};
-use datatypes::{ArmingState, BarG, Celsius, SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::status::{ArmingState, SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::units::{BarG, Celsius};
+use gated_derive::gated_derive;
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct EngineControlBoardStatus {
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
@@ -12,7 +14,8 @@ pub struct EngineControlBoardStatus {
     pub armed: ArmingState,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct EngineControlBoardValveStates {
     /// Fuel Main Valve state
     pub fss_mnl_vlv: ValveState,
@@ -20,7 +23,8 @@ pub struct EngineControlBoardValveStates {
     pub oss_mnl_vlv: ValveState,
 }
 
-#[derive(Clone, Debug, PartialEq, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct EnginePressure {
     /// Engine Chamber pressure in barg.
     pub eng_cc_p: BarG,
@@ -30,7 +34,8 @@ pub struct EnginePressure {
     pub oss_inj_p: BarG,
 }
 
-#[derive(Clone, Debug, PartialEq, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct EngineBayTemperature {
     /// Oxidizer Runline temperature in °C.
     pub oss_rnl_t: Celsius,
@@ -38,10 +43,8 @@ pub struct EngineBayTemperature {
     pub oss_tnk_t: Celsius,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Default, Encode, Decode, Hash)]
-#[cfg_attr(feature = "arbitrary", derive(arbitrary::Arbitrary))]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Copy, Clone, Debug, PartialEq, Default, Hash)]
 pub struct ThrustPoint {
     /// Thrust level in percentage (0-100).
     pub thrust: u8,
@@ -49,7 +52,8 @@ pub struct ThrustPoint {
     pub time: u8,
 }
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(bincode::Encode, bincode::Decode)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct ThrustCurveConfig {
     /// The thrust curve, consisting of 25 points.
     pub thrust_curve: [ThrustPoint; 25],

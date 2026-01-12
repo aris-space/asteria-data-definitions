@@ -1,5 +1,6 @@
 use data_core::{CanMessage, Message};
-use datatypes::{BuildInformationCommon, CameraPowerStatus};
+use datatypes::actuator::CameraPowerStatus;
+use datatypes::status::BuildInformationCommon;
 mod dptypes;
 pub use dptypes::*;
 

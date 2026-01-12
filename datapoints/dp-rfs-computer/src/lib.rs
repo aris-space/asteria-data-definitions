@@ -1,5 +1,5 @@
 use data_core::{CanMessage, Message};
-use datatypes::{BuildInformationCommon, ValveState};
+use datatypes::status::{BuildInformationCommon, ValveState};
 mod dptypes;
 pub use dptypes::*;
 
