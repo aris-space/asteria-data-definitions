@@ -1,10 +1,11 @@
 //! Actuator control types and configurations.
 
-use bincode::{Decode, Encode};
-use serde::{Deserialize, Serialize};
+use gated_derive::gated_derive;
 
 /// The state of a valve that is normally open.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Encode, Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum NormallyOpenValve {
     #[default]
     Open,
@@ -12,7 +13,9 @@ pub enum NormallyOpenValve {
 }
 
 /// The state of a valve that is normally closed.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Encode, Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 pub enum NormallyClosedValve {
     Open,
     #[default]
@@ -21,11 +24,15 @@ pub enum NormallyClosedValve {
 
 /// Pressurization Proportional Gain in [barg/ms]
 /// opening_time = kp * (target_pressure - current_pressure), in milliseconds
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize, Deserialize, Encode, Decode)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct PressurizationGain(pub f32);
 
-#[derive(Clone, Debug, PartialEq, Default, Encode, Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub enum DprState {
     /// Enabled with pressure setpoint in Barg. 0-60.
     Enabled(f32),
@@ -34,7 +41,9 @@ pub enum DprState {
     Disabled,
 }
 
-#[derive(Clone, Debug, PartialEq, Encode, Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct CameraPowerStatus {
     /// Whether the recording camera(s) should be powered on (true=on, false=off).
     pub recording_pwr_enabled: bool,
