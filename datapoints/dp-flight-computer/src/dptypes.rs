@@ -1,7 +1,8 @@
-use gated_derive::gated_derive;
 use datatypes::status::{ArmingState, StatusCommonMessage};
+use gated_derive::gated_derive;
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct FlightComputerStatus {
     pub common: StatusCommonMessage,

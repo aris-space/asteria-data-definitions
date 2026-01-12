@@ -1,10 +1,13 @@
-use data_core::{CanMessage, Message};
+use data_core::Message;
 use datatypes::status::BuildInformationCommon;
 use datatypes::units::HPa;
+use gated_derive::gated_derive;
+
 mod dptypes;
 pub use dptypes::*;
 
-#[derive(Message, CanMessage)]
+#[derive(Message)]
+#[gated_derive(data_core::CanMessage(feature = "can"))]
 pub enum Message {
     // ======================== TX ========================
     /// # `SensorCarrierBuildInfo`

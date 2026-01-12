@@ -1,8 +1,9 @@
-use gated_derive::gated_derive;
 use datatypes::actuator::DprState;
 use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
+use gated_derive::gated_derive;
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct OxidizerControlBoardStatus {
     pub common: StatusCommonMessage,
@@ -12,7 +13,8 @@ pub struct OxidizerControlBoardStatus {
     pub pressure_bus: SensorStatus,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct OxidizerControlBoardValveStates {
     /// Oxidizer DPR Control loop state

@@ -3,9 +3,14 @@ name = "dp-power-board"
 version = "0.3.0"
 edition = "2024"
 
-[dependencies]
-datatypes = { version = "0.1.0", path = "../../datatypes" }
-data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
-
 [lints]
 workspace = true
+
+[dependencies]
+datatypes = { version = "0.1.0", path = "../../datatypes" }
+data-core = { version = "0.1.0", path = "../../core" }
+gated-derive = { path = "../../macro-gated-derive" }
+
+[features]
+can = ["data-core/can"]
+std = ["datatypes/std"]

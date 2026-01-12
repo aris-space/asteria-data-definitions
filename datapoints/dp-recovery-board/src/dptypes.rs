@@ -6,7 +6,8 @@ use gated_derive::gated_derive;
 /// ## Notes
 /// Detection of actuator presence is only possible before power is applied to the actuator.
 /// Once powered, actuator detection is no longer possible.
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub enum ActuatorStatus {
     /// Actuator is not connected (e.g. unplugged or circuit open).
@@ -19,7 +20,8 @@ pub enum ActuatorStatus {
 }
 
 /// Represents the current state of a watchdog timer.
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub enum WatchdogState {
     /// Watchdog is not active. No steering signal has been received since startup.
@@ -31,7 +33,8 @@ pub enum WatchdogState {
     Expired,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct SteeringPositions {
     /// Current position of the left steering motor in steps (4096 steps = 1 revolution) from the
@@ -42,7 +45,8 @@ pub struct SteeringPositions {
     right_pos: i32,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct RecoveryPowerConfig {
     /// Whether power to the separation actuators should be enabled. Physically,
@@ -56,7 +60,8 @@ pub struct RecoveryPowerConfig {
     steering_enabled: bool,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct RecoveryBoardStatus {
     pub common: StatusCommonMessage,

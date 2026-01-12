@@ -1,7 +1,8 @@
-use gated_derive::gated_derive;
 use datatypes::status::{ArmingState, StatusCommonMessage, ValveState};
+use gated_derive::gated_derive;
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct RfsComputerStatus {
     pub common: StatusCommonMessage,
@@ -13,7 +14,8 @@ pub struct RfsComputerStatus {
     pub is_ignition_armed: ArmingState,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct RfsComputerValveStates {
     /// The current active state of the normally closed GOX igniter valve.

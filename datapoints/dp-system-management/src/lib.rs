@@ -1,6 +1,9 @@
+use data_core::Message;
 use datatypes::status::{BoardId, InstantUs};
+use gated_derive::gated_derive;
 
-#[derive(Message, CanMessage)]
+#[derive(Message)]
+#[gated_derive(data_core::CanMessage(feature = "can"))]
 pub enum Message {
     // ======================== TX ========================
     /// # `UTCTimeUpdate`

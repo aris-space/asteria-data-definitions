@@ -1,9 +1,12 @@
-use data_core::{CanMessage, Message};
+use data_core::Message;
 use datatypes::actuator::CameraPowerStatus;
 use datatypes::status::{BuildInformationCommon, StatusCommonMessage};
 use datatypes::units::RailStatus;
 
-#[derive(Message, CanMessage)]
+use gated_derive::gated_derive;
+
+#[derive(Message)]
+#[gated_derive(data_core::CanMessage(feature = "can"))]
 pub enum Message {
     // ======================== TX ========================
     /// # `PowerBoardBuildInfo`

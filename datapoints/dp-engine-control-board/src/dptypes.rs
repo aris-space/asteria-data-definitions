@@ -2,7 +2,8 @@ use datatypes::status::{ArmingState, SensorStatus, StatusCommonMessage, ValveSta
 use datatypes::units::{BarG, Celsius};
 use gated_derive::gated_derive;
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct EngineControlBoardStatus {
     pub common: StatusCommonMessage,
@@ -14,7 +15,8 @@ pub struct EngineControlBoardStatus {
     pub armed: ArmingState,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct EngineControlBoardValveStates {
     /// Fuel Main Valve state
@@ -23,7 +25,8 @@ pub struct EngineControlBoardValveStates {
     pub oss_mnl_vlv: ValveState,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct EnginePressure {
     /// Engine Chamber pressure in barg.
@@ -34,7 +37,8 @@ pub struct EnginePressure {
     pub oss_inj_p: BarG,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq)]
 pub struct EngineBayTemperature {
     /// Oxidizer Runline temperature in °C.
@@ -43,7 +47,8 @@ pub struct EngineBayTemperature {
     pub oss_tnk_t: Celsius,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Copy, Clone, Debug, PartialEq, Default, Hash)]
 pub struct ThrustPoint {
     /// Thrust level in percentage (0-100).
@@ -52,7 +57,8 @@ pub struct ThrustPoint {
     pub time: u8,
 }
 
-#[gated_derive(bincode::Encode, bincode::Decode)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct ThrustCurveConfig {
     /// The thrust curve, consisting of 25 points.
