@@ -4,7 +4,7 @@ use gated_derive::gated_derive;
 
 /// The ID of a board in the rocket.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(arbitrary::Arbitrary)]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum BoardId {
@@ -76,7 +76,7 @@ pub struct BuildInformationCommon {
 
 /// Enum representing the status of a sensor.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(arbitrary::Arbitrary)]
 #[repr(u8)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub enum SensorStatus {
@@ -89,7 +89,7 @@ pub enum SensorStatus {
 
 /// Enum representing the state of a valve.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(arbitrary::Arbitrary)]
 #[derive(Clone, Debug, PartialEq, Default)]
 pub enum ValveState {
     /// Power should be enabled for the valve
@@ -97,4 +97,117 @@ pub enum ValveState {
     /// Power should not be disabled for the valve
     #[default]
     Inactive,
+}
+
+#[cfg(feature = "derive_bincode")]
+/// We implement these traits manually, otherwise bincode uses a u32 for the enum ¯\_(ツ)_/¯
+mod encoding_impls {
+    use crate::status::{BoardId, SensorStatus, ValveState};
+
+    impl ::bincode::Encode for BoardId {
+        fn encode<__E: ::bincode::enc::Encoder>(
+            &self,
+            encoder: &mut __E,
+        ) -> Result<(), ::bincode::error::EncodeError> {
+            <u8 as ::bincode::Encode>::encode(&(*self as u8), encoder)?;
+            Ok(())
+        }
+    }
+
+    impl<__Context> ::bincode::Decode<__Context> for BoardId {
+        fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
+            decoder: &mut __D,
+        ) -> Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => Ok(Self::FlightComputer {}),
+                1u8 => Ok(Self::RfsComputer {}),
+                2u8 => Ok(Self::SensorCarrier {}),
+                3u8 => Ok(Self::CommunicationBoard {}),
+                4u8 => Ok(Self::EngineControlBoard {}),
+                5u8 => Ok(Self::PowerBoard {}),
+                6u8 => Ok(Self::RecoveryBoard {}),
+                7u8 => Ok(Self::FuelControlBoard {}),
+                8u8 => Ok(Self::OxidizerControlBoard {}),
+                variant => Err(::bincode::error::DecodeError::UnexpectedVariant {
+                    found: u32::from(variant),
+                    type_name: "BoardId",
+                    allowed: &::bincode::error::AllowedEnumVariants::Allowed(&[
+                        0u32, 1u32, 2u32, 3u32, 4u32, 5u32, 6u32, 7u32, 8u32,
+                    ]),
+                }),
+            }
+        }
+    }
+
+    impl ::bincode::Encode for SensorStatus {
+        fn encode<__E: ::bincode::enc::Encoder>(
+            &self,
+            encoder: &mut __E,
+        ) -> Result<(), ::bincode::error::EncodeError> {
+            match self {
+                Self::Offline => {
+                    <u8 as ::bincode::Encode>::encode(&(0u8), encoder)?;
+                    Ok(())
+                }
+                Self::Online => {
+                    <u8 as ::bincode::Encode>::encode(&(1u8), encoder)?;
+                    Ok(())
+                }
+            }
+        }
+    }
+    impl<__Context> ::bincode::Decode<__Context> for SensorStatus {
+        fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
+            decoder: &mut __D,
+        ) -> Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => Ok(Self::Offline {}),
+                1u8 => Ok(Self::Online {}),
+                variant => Err(::bincode::error::DecodeError::UnexpectedVariant {
+                    found: u32::from(variant),
+                    type_name: "SensorStatus",
+                    allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 1 },
+                }),
+            }
+        }
+    }
+
+    impl ::bincode::Encode for ValveState {
+        fn encode<__E: ::bincode::enc::Encoder>(
+            &self,
+            encoder: &mut __E,
+        ) -> core::result::Result<(), ::bincode::error::EncodeError> {
+            match self {
+                Self::Active => {
+                    <u8 as ::bincode::Encode>::encode(&(0u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+                Self::Inactive => {
+                    <u8 as ::bincode::Encode>::encode(&(1u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+            }
+        }
+    }
+
+    impl<__Context> ::bincode::Decode<__Context> for ValveState {
+        fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
+            decoder: &mut __D,
+        ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => core::result::Result::Ok(Self::Active {}),
+                1u8 => core::result::Result::Ok(Self::Inactive {}),
+                variant => {
+                    core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
+                        found: u32::from(variant),
+                        type_name: "ValveState",
+                        allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 1 },
+                    })
+                }
+            }
+        }
+    }
 }
