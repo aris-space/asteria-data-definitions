@@ -27,7 +27,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x618)]
-    OxidizerControlBoardBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `OxidizerControlBoardStatus`
     /// Periodic status message emitted by the Oxidizer Control Board.
@@ -45,7 +45,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x321)]
-    OxidizerControlBoardStatusMsg(OxidizerControlBoardStatus),
+    BoardStatus(OxidizerControlBoardStatus),
 
     /// # `OxidizerControlBoardValveStates`
     /// Periodic status message emitted by the Oxidizer Control Board.
@@ -63,7 +63,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
-    OxidizerControlBoardValveStatesMsg(OxidizerControlBoardValveStates),
+    ValveStates(OxidizerControlBoardValveStates),
 
     /// # `OxidizerPressurizationCompleted`
     /// Event message sent by the OxidizerControlBoard
@@ -138,6 +138,9 @@ pub enum Message {
     #[can(id = 0x128)]
     OxidizerPressurizationAbort,
 
+    // ======================== RX (cont.) ========================
+    // The following 3 sets of messages have the same meaning, but are separate messages
+    // sent from different systems such they can never collide.
     /// # `OxidizerDprConfigFC`
     /// Event message sent by the FC.
     ///

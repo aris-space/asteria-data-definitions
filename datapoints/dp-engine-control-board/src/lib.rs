@@ -25,7 +25,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x614)]
-    EngineControlBoardBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `EngineControlBoardStatus`
     /// Periodic status message emitted by the Engine Control Board.
@@ -43,7 +43,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x314)]
-    EngineControlBoardStatusMsg(EngineControlBoardStatus),
+    BoardStatus(EngineControlBoardStatus),
 
     /// # `EngineControlBoardValveStates`
     /// Periodic status message emitted by the Engine Control Board.
@@ -61,7 +61,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
-    EngineControlBoardValveStatesMsg(EngineControlBoardValveStates),
+    ValveStates(EngineControlBoardValveStates),
 
     /// # `EnginePressure`
     /// Periodic telemetry message emitted by the Engine Control Board.
@@ -84,7 +84,7 @@ pub enum Message {
     /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
     /// The value will be `NaN` if reading the sensor fails.
     #[can(id = 0x460)]
-    EnginePressureMsg(EnginePressure),
+    EnginePressure(EnginePressure),
 
     /// # `EngineBayTemperature`
     /// Periodic telemetry message emitted by the Engine Control Board.
@@ -109,7 +109,7 @@ pub enum Message {
     /// If the value read in firmware is outside the specific temperature range of [-200.0, 200.0] °C,
     /// the value will be set to `NaN`.
     #[can(id = 0x461)]
-    EngineBayTemperatureMsg(EngineBayTemperature),
+    EngineBayTemperature(EngineBayTemperature),
 
     /// # `FiringAborted`
     /// Event message sent by the ECU.
@@ -218,7 +218,7 @@ pub enum Message {
     /// ## Reaction
     ///
     #[can(id = 0x240)]
-    ThrustCurveConfigMsg(ThrustCurveConfig),
+    ThrustCurveConfig(ThrustCurveConfig),
 
     /// # `FiringAbortInitiation`
     /// Event message sent by the FC.
@@ -256,6 +256,9 @@ pub enum Message {
     #[can(id = 0x122)]
     FiringInitiation,
 
+    // ======================== RX (cont.) ========================
+    // The following 2 sets of messages have the same meaning, but are separate messages
+    // sent from different systems such they can never collide.
     /// # `OxidizerMainControlFC`
     /// Event message sent by the FC.
     ///
@@ -294,7 +297,49 @@ pub enum Message {
     /// The Engine Control Board shall change the Oxidizer Main Valve position accordingly
     /// ## Note
     /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// /// The Valve is Normally Closed
+    /// The Valve is Normally Closed
     #[can(id = 0x227)]
     OxidizerMainControlRFS(ValveState),
+
+    /// # `FuelMainControlFC`
+    /// Event message sent by the FC.
+    ///
+    /// ## Type
+    /// - `Event`: sent by the FC to control the Fuel Main Valve
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `EngineControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the Fuel Main valve to be active or inactive.
+    ///
+    /// ## Reaction
+    /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
+    /// ## Note
+    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
+    /// The Valve is Normally Closed
+    #[can(id = 0x226)]
+    FuelMainControlFC(ValveState),
+
+    /// # `FuelMainControlRFS`
+    /// Event message sent by the RFS.
+    ///
+    /// ## Type
+    /// - `Event`: sent by the RFS to control the Fuel Main Valve
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RemoteFillingStation`
+    /// - **Received by:** `EngineControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the Fuel Main valve to be active or inactive.
+    ///
+    /// ## Reaction
+    /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
+    /// ## Note
+    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
+    /// The Valve is Normally Closed
+    #[can(id = 0x228)]
+    FuelMainControlRFS(ValveState),
 }

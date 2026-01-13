@@ -27,7 +27,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x617)]
-    FuelControlBoardBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `FuelControlBoardStatus`
     /// Periodic status message emitted by the Fuel Control Board.
@@ -45,7 +45,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x320)]
-    FuelControlBoardStatusMsg(FuelControlBoardStatus),
+    BoardStatus(FuelControlBoardStatus),
 
     /// # `FuelControlBoardValveStates`
     /// Periodic status message emitted by the Fuel Control Board.
@@ -63,7 +63,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
-    FuelControlBoardValveStatesMsg(FuelControlBoardValveStates),
+    ValveStates(FuelControlBoardValveStates),
 
     /// # `FuelPressurizationCompleted`
     /// Event message sent by the FuelControlBoard.
@@ -138,6 +138,9 @@ pub enum Message {
     #[can(id = 0x129)]
     FuelPressurizationAbort,
 
+    // ======================== RX (cont.) ========================
+    // The following 3 sets of messages have the same meaning, but are separate messages
+    // sent from different systems such they can never collide.
     /// # `FuelDprConfigFC`
     /// Event message sent by the FC.
     ///
@@ -301,47 +304,4 @@ pub enum Message {
     /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
     #[can(id = 0x21d)]
     FuelVentControlRFS(ValveState),
-
-    // ========= NOT SURE  =============
-    /// # `FuelMainControlFC`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to control the Fuel Main Valve
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `EngineControlBoard`
-    ///
-    /// ## Purpose
-    /// Sets the Fuel Main valve to be active or inactive.
-    ///
-    /// ## Reaction
-    /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// /// The Valve is Normally Closed
-    #[can(id = 0x226)]
-    FuelMainControlFC(ValveState),
-
-    /// # `FuelMainControlRFS`
-    /// Event message sent by the RFS.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the RFS to control the Fuel Main Valve
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RemoteFillingStation`
-    /// - **Received by:** `EngineControlBoard`
-    ///
-    /// ## Purpose
-    /// Sets the Fuel Main valve to be active or inactive.
-    ///
-    /// ## Reaction
-    /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// /// The Valve is Normally Closed
-    #[can(id = 0x228)]
-    FuelMainControlRFS(ValveState),
 }

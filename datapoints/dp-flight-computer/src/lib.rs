@@ -25,7 +25,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x610)]
-    FlightComputerBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `FlightComputerStatus`
     /// Periodic status message emitted by the Flight Computer.
@@ -44,6 +44,6 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     /// It is also used to only arm the RFS if the FC is armed and ensure exclusive PSS control.
     #[can(id = 0x310)]
-    FlightComputerStatusMsg(FlightComputerStatus),
+    Status(FlightComputerStatus),
     // ======================== RX ========================
 }

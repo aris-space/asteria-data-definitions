@@ -25,7 +25,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x611)]
-    RfsComputerBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `RfsComputerStatus`
     /// Periodic status message emitted by the RFS Computer.
@@ -44,7 +44,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     /// It is also used to only ingite if the RFS is armed and ensure exclusive PSS control.
     #[can(id = 0x311)]
-    RfsComputerStatusMsg(RfsComputerStatus),
+    Status(RfsComputerStatus),
 
     /// # `RfsComputerValveStates`
     /// Periodic status message emitted by the Remote Filling Station Computer.
@@ -62,7 +62,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x325)]
-    RfsComputerValveStatesMsg(RfsComputerValveStates),
+    ValveStates(RfsComputerValveStates),
 
     // ======================== RX ========================
     /// # `GoxIgniterValveControl`

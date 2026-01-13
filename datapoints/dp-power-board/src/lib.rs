@@ -25,7 +25,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x615)]
-    PowerBoardBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `PowerBoardStatus`
     /// Periodic status message emitted by the Power Board.
@@ -43,7 +43,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x315)]
-    PowerBoardStatus(StatusCommonMessage),
+    BoardStatus(StatusCommonMessage),
 
     /// # `RailStatus5V`
     /// Periodic telemetry message reporting the 5V rail parameters.
@@ -99,4 +99,22 @@ pub enum Message {
     /// The Power Board sets the respective output pins according to the fields.
     #[can(id = 0x201)]
     CameraPowerControl(CameraPowerStatus),
+
+    /// # `CameraPowerStatus`
+    /// Periodic camera power status message emitted by the Power Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 5 Hz`, and instantly when the status changes.
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `PowerBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Communicates what the power state of the cameras should be as set by the power board.
+    ///
+    /// ## Reaction
+    /// No action required.
+    #[can(id = 0x330)]
+    CameraPowerStatus(CameraPowerStatus),
 }

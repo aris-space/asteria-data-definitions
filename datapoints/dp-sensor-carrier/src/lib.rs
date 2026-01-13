@@ -26,7 +26,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x612)]
-    SensorCarrierBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `SensorCarrierStatus`
     /// Periodic status message emitted by the Sensor Carrier.
@@ -44,7 +44,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x312)]
-    SensorCarrierStatusMsg(SensorCarrierStatus),
+    BoardStatus(SensorCarrierStatus),
 
     /// # `PositionData`
     /// Periodic telemetry message emitted by the Sensor Carrier.
@@ -85,7 +85,7 @@ pub enum Message {
     /// Barometer-based altitude is relative to the initialization pressure and is sensitive to weather.
     /// GNSS height is referred to mean sea level (HAMSL).
     #[can(id = 0x420)]
-    PositionDataMsg(PositionData),
+    PositionData(PositionData),
 
     /// # `ImuData`
     /// Periodic telemetry message emitted by the Sensor Carrier.
@@ -124,7 +124,7 @@ pub enum Message {
     /// Note that `acceleration_down` and `angular_velocity_down` are not affected by errors in
     /// inertial yaw.
     #[can(id = 0x421)]
-    ImuDataMsg(ImuData),
+    ImuData(ImuData),
 
     /// # `VelocityData`
     /// Periodic telemetry message emitted by the Sensor Carrier.
@@ -163,7 +163,7 @@ pub enum Message {
     ///
     /// The vertical component (`velocity_z`) is not affected by errors in inertial yaw.
     #[can(id = 0x422)]
-    VelocityDataMsg(VelocityData),
+    VelocityData(VelocityData),
 
     /// # `OrientationData`
     /// Periodic telemetry message emitted by the Sensor Carrier.
@@ -206,7 +206,7 @@ pub enum Message {
     ///
     /// The emitted quaternion is always **normalised**.
     #[can(id = 0x423)]
-    OrientationDataMsg(OrientationData),
+    OrientationData(OrientationData),
 
     /// # `EnvironmentalData`
     /// Periodic telemetry message emitted by the Sensor Carrier.
@@ -225,7 +225,7 @@ pub enum Message {
     /// ## Reaction
     /// No action required.
     #[can(id = 0x510)]
-    EnvironmentalDataMsg(EnvironmentalData),
+    EnvironmentalData(EnvironmentalData),
 
     /// # `MagnetometerData`
     /// Periodic telemetry message emitted by the Sensor Carrier.
@@ -260,7 +260,7 @@ pub enum Message {
     ///
     /// Note that `magnetic_field_down` is not affected by errors in inertial yaw.
     #[can(id = 0x520)]
-    MagnetometerDataMsg(MagnetometerData),
+    MagnetometerData(MagnetometerData),
 
     /// # `PressureData`
     /// Periodic telemetry message emitted by the Sensor Carrier.

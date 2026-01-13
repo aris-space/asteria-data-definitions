@@ -1,5 +1,4 @@
 use data_core::Message;
-use datatypes::actuator::CameraPowerStatus;
 use datatypes::status::BuildInformationCommon;
 use gated_derive::gated_derive;
 
@@ -26,7 +25,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x616)]
-    RecoveryBoardBuildInfo(BuildInformationCommon),
+    BuildInfo(BuildInformationCommon),
 
     /// # `RecoveryBoardStatus`
     /// Periodic status message emitted by the Recovery Board.
@@ -44,25 +43,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x316)]
-    RecoveryBoardStatusMsg(RecoveryBoardStatus),
-
-    /// # `CameraPowerStatus`
-    /// Periodic camera power status message emitted by the Recovery Board.
-    ///
-    /// ## Type
-    /// - `Periodic @ 5 Hz`, and instantly when the status changes.
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RecoveryBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Communicates what the power state of the cameras should be as set by the recovery board.
-    ///
-    /// ## Reaction
-    /// No action required.
-    #[can(id = 0x330)]
-    CameraPowerStatusMsg(CameraPowerStatus),
+    BoardStatus(RecoveryBoardStatus),
 
     /// # `SteeringActualPositions`
     /// Periodic event message emitted by the Recovery Board.
@@ -159,7 +140,7 @@ pub enum Message {
     /// ## Reaction
     /// The Recovery Board shall switch power to the actuators as specified in the message.
     #[can(id = 0x200)]
-    RecoveryPowerConfigMsg(RecoveryPowerConfig),
+    RecoveryPowerConfig(RecoveryPowerConfig),
 
     /// # `SeparationTrigger`
     /// Event message indicating that separation shall be initiated.
