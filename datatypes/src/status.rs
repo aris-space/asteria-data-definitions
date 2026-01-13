@@ -113,9 +113,33 @@ mod encoding_impls {
             Ok(())
         }
     }
-
     impl<__Context> ::bincode::Decode<__Context> for BoardId {
         fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
+            decoder: &mut __D,
+        ) -> Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => Ok(Self::FlightComputer {}),
+                1u8 => Ok(Self::RfsComputer {}),
+                2u8 => Ok(Self::SensorCarrier {}),
+                3u8 => Ok(Self::CommunicationBoard {}),
+                4u8 => Ok(Self::EngineControlBoard {}),
+                5u8 => Ok(Self::PowerBoard {}),
+                6u8 => Ok(Self::RecoveryBoard {}),
+                7u8 => Ok(Self::FuelControlBoard {}),
+                8u8 => Ok(Self::OxidizerControlBoard {}),
+                variant => Err(::bincode::error::DecodeError::UnexpectedVariant {
+                    found: u32::from(variant),
+                    type_name: "BoardId",
+                    allowed: &::bincode::error::AllowedEnumVariants::Allowed(&[
+                        0u32, 1u32, 2u32, 3u32, 4u32, 5u32, 6u32, 7u32, 8u32,
+                    ]),
+                }),
+            }
+        }
+    }
+    impl<'__de, __Context> ::bincode::BorrowDecode<'__de, __Context> for BoardId {
+        fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de, Context = __Context>>(
             decoder: &mut __D,
         ) -> Result<Self, ::bincode::error::DecodeError> {
             let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
@@ -173,6 +197,22 @@ mod encoding_impls {
             }
         }
     }
+    impl<'__de, __Context> ::bincode::BorrowDecode<'__de, __Context> for SensorStatus {
+        fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de, Context = __Context>>(
+            decoder: &mut __D,
+        ) -> Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => Ok(Self::Offline {}),
+                1u8 => Ok(Self::Online {}),
+                variant => Err(::bincode::error::DecodeError::UnexpectedVariant {
+                    found: u32::from(variant),
+                    type_name: "SensorStatus",
+                    allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 1 },
+                }),
+            }
+        }
+    }
 
     impl ::bincode::Encode for ValveState {
         fn encode<__E: ::bincode::enc::Encoder>(
@@ -191,9 +231,26 @@ mod encoding_impls {
             }
         }
     }
-
     impl<__Context> ::bincode::Decode<__Context> for ValveState {
         fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
+            decoder: &mut __D,
+        ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => core::result::Result::Ok(Self::Active {}),
+                1u8 => core::result::Result::Ok(Self::Inactive {}),
+                variant => {
+                    core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
+                        found: u32::from(variant),
+                        type_name: "ValveState",
+                        allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 1 },
+                    })
+                }
+            }
+        }
+    }
+    impl<'__de, __Context> ::bincode::BorrowDecode<'__de, __Context> for ValveState {
+        fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de, Context = __Context>>(
             decoder: &mut __D,
         ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
             let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
