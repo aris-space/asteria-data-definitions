@@ -1,4 +1,5 @@
 use datatypes::status::{SensorStatus, StatusCommonMessage};
+use datatypes::units::{Celsius, HPa};
 use gated_derive::gated_derive;
 
 /// Represents the online/offline status of all sensors on the Sensor Carrier board.
@@ -140,7 +141,7 @@ impl Default for OrientationData {
 #[derive(Clone, Debug, PartialEq, Default)]
 pub struct EnvironmentalData {
     /// Temperature in Celsius.
-    pub temperature: f32,
+    pub temperature: Celsius,
     /// Relative humidity in percent (0–100%).
     pub humidity: f32,
     /// Atmospheric pressure in hPa.
@@ -148,7 +149,7 @@ pub struct EnvironmentalData {
     /// **Note:** This data may differ from the `PressureData` message, which reports data
     /// at a much higher rate and with less filtering to improve timeliness.
     /// This data point should only be used for low-frequency applications.
-    pub pressure: f32,
+    pub pressure: HPa,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]

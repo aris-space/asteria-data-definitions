@@ -2,32 +2,54 @@
 
 use gated_derive::gated_derive;
 
-/// A temperature in degrees Celsius.
+/// Macro to generate unit newtype structs with standard derives and Default implementation.
 ///
-/// Is `NAN` by default.
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-#[repr(transparent)]
-pub struct Celsius(pub f32);
+/// # Usage
+/// ```ignore
+/// unit_newtypes! {
+///     /// Documentation for the first unit type.
+///     FirstType(f32),
+///
+///     /// Documentation for the second unit type.
+///     SecondType(f64),
+/// }
+/// ```
+macro_rules! unit_newtypes {
+    (
+        $(
+            $(#[$meta:meta])*
+            $name:ident($ty:ty)
+        ),* $(,)?
+    ) => {
+        $(
+            $(#[$meta])*
+            ///
+            /// Is `NAN` by default.
+            #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+            #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+            #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+            #[repr(transparent)]
+            pub struct $name(pub $ty);
 
-/// A pressure in bar relative to atmospheric pressure (`barg`).
-///
-/// Is `NAN` by default.
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub struct BarG(pub f32);
+            impl Default for $name {
+                fn default() -> Self {
+                    Self(<$ty>::NAN)
+                }
+            }
+        )*
+    };
+}
 
-/// Atmospheric pressure in hPa.
-///
-/// Is `NAN` by default.
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[repr(transparent)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-pub struct HPa(pub f32);
+unit_newtypes! {
+    /// A temperature in degrees Celsius.
+    Celsius(f32),
+
+    /// A pressure in bar relative to atmospheric pressure (`barg`).
+    BarG(f32),
+
+    /// Atmospheric pressure in hPa.
+    HPa(f32),
+}
 
 /// Shared rail status structure for both 5V and 24V power rails.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
