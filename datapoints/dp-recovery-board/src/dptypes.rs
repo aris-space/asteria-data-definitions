@@ -39,10 +39,10 @@ pub enum WatchdogState {
 pub struct SteeringPositions {
     /// Current position of the left steering motor in steps (4096 steps = 1 revolution) from the
     /// startup position (0).
-    left_pos: i32,
+    pub left_pos: i32,
     /// Current position of the right steering motor in steps (4096 steps = 1 revolution) from the
     /// startup position (0).
-    right_pos: i32,
+    pub right_pos: i32,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -51,13 +51,13 @@ pub struct SteeringPositions {
 pub struct RecoveryPowerConfig {
     /// Whether power to the separation actuators should be enabled. Physically,
     /// actuator power is only provided after hardware electrical arming of the system.
-    separation_enabled: bool,
+    pub separation_enabled: bool,
     /// Whether power to the deployment actuators should be enabled. Physically,
     /// actuator power is only provided after hardware electrical arming of the system.
-    deployment_enabled: bool,
+    pub deployment_enabled: bool,
     /// Whether power to the steering actuators should be enabled.
     /// Steering power is not affected by arming.
-    steering_enabled: bool,
+    pub steering_enabled: bool,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
