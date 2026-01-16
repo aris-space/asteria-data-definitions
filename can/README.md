@@ -1,3 +1,9 @@
+# Deprecated ⚠️
+
+Note that this library is deprecated and replace by the new systemf of datapoints and `can-hal`.
+
+This still exists in the repository as the recovery board, sensor carrier and power board retain binary compatiblity in the `0.3.*` version. This is checked using some unit tests, for which this library is used.
+
 # HERMES CAN library
 
 The HERMES CAN library provides a framework for defining and encoding messages for the HERMES CAN bus.

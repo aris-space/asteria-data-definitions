@@ -1,3 +1,5 @@
+//! These tests check binary compatiblity with the hermes-can library 0.3.0.
+//! They can be removed once a new major version is released
 #![cfg(feature = "can")]
 #![allow(clippy::bool_assert_comparison)] // nicer to read here
 #![allow(clippy::float_cmp)] // we want binary compatiblity here
