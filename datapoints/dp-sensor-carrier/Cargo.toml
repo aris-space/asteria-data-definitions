@@ -22,6 +22,9 @@ bincode = { version = "2.0.1", features = [
 defmt = { version = "0.3.10", optional = true }
 arbitrary = { version = "1.4.1", features = ["derive"], optional = true }
 
+[dev-dependencies]
+hermes-can = { version = "0.3.2", path = "../../can", features = ["all"] }
+
 [features]
 can = ["derive_bincode", "data-core/can"]
 std = ["bincode/std", "datatypes/std"]
