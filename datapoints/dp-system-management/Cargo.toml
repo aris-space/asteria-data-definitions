@@ -11,6 +11,9 @@ datatypes = { version = "0.1.0", path = "../../datatypes" }
 data-core = { version = "0.1.0", path = "../../core" }
 gated-derive = { path = "../../macro-gated-derive" }
 
+[dev-dependencies]
+hermes-can = { version = "0.3.2", path = "../../can", features = ["all"] }
+
 [features]
 can = ["data-core/can"]
 std = ["datatypes/std"]
