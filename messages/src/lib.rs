@@ -1,3 +1,10 @@
+//! This crate proves [`Message`], an enum with all the messages in the system.
+//!
+//! It is also used to check IDs are unique and to generate the full mavlink dialect.
+//!
+//! Like other crates, various cargo features can enable certain components,
+//! currently `can` (and in the near future `mavlink`).
+
 /// All messages in the full system
 #[gated_derive::gated_derive(
     data_core::CanDecode(feature = "can"),
