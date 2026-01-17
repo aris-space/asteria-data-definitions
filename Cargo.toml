@@ -14,7 +14,6 @@ members = [
     "macros",
     "mavlink",
     "mavlink-hal",
-    "mavlink-dialect",
     "messages",
 ]
 

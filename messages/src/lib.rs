@@ -3,6 +3,8 @@
     data_core::CanDecode(feature = "can"),
     data_core::CanEncode(feature = "can")
 )]
+// #[derive(MavlinkDialect)] // TODO
+// #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
 #[can(dispatch)]
 pub enum Message {
     FlightComputer(dp_flight_computer::Message),
@@ -16,9 +18,10 @@ pub enum Message {
     EngineControlBoard(dp_engine_control_board::Message),
 }
 
+/// Test to assert that all CAN IDs are unique
 #[cfg(feature = "can")]
 #[test]
-fn unique_ids() {
+fn unique_can_ids() {
     let mut all_ids = [
         &dp_flight_computer::Message::ALL_CAN_IDS[..],
         &dp_rfs_computer::Message::ALL_CAN_IDS[..],
@@ -37,3 +40,8 @@ fn unique_ids() {
     all_ids.dedup();
     assert_eq!(nr_msg, all_ids.len(), "contains duplicate IDs!");
 }
+
+// TODO
+// const _: () = mavlink_hal::macro_util::check_unique_ids(
+//     <AnyMessage as mavlink_hal::description::DescribeMessages>::MESSAGES,
+// );
