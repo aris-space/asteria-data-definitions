@@ -15,6 +15,7 @@ members = [
     "mavlink",
     "mavlink-hal",
     "mavlink-dialect",
+    "messages",
 ]
 
 [workspace.lints.clippy]
