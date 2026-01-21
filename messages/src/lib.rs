@@ -1,4 +1,4 @@
-//! This crate proves [`Message`], an enum with all the messages in the system.
+//! This crate provides [`Message`], an enum with all the messages in the system.
 //!
 //! It is also used to check IDs are unique and to generate the full mavlink dialect.
 //!
