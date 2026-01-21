@@ -5,7 +5,7 @@ use mavio::io::{StdIoReader, StdIoWriter};
 use mavio::prelude::V2;
 use mavio::{Endpoint, MavLinkId, Receiver, Sender};
 
-use mavlink_dialect::AnyMessage;
+use messages::AnyMessage;
 
 fn main() {
     let receiver = std::thread::spawn(|| {
