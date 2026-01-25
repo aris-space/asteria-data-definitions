@@ -14,7 +14,7 @@ pub mod sparse_decode {
     use crate::sparse_decodable_can_message;
     sparse_decodable_can_message! {
         enum ReceivedMessage {
-            ResetPowerBoard(dp_power_board::Message::ResetBoard),
+            PowerBoardBuildInfo(dp_power_board::Message::BuildInfo),
             PowerBoardStatus(dp_power_board::Message::BoardStatus),
             OxidizerControlBoardStatus(dp_oxidizer_control_board::Message::BoardStatus)
         }

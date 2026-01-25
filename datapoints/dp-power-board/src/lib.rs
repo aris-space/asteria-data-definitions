@@ -1,148 +1,120 @@
-use data_core::{CanMessage, Message};
-use datatypes::{BuildInformationCommon, CameraPower, RailStatus, StatusCommonMessage};
+use data_core::Message;
+use datatypes::actuator::CameraPowerStatus;
+use datatypes::status::{BuildInformationCommon, StatusCommonMessage};
+use datatypes::units::RailStatus;
 
-#[derive(Message, CanMessage)]
+use gated_derive::gated_derive;
+
+#[derive(Message)]
+#[gated_derive(data_core::CanMessage(feature = "can"))]
 pub enum Message {
-    /// Tells the board that it should reset itself.
+    // ======================== TX ========================
+    /// # `PowerBoardBuildInfo`
+    /// Firmware build metadata emitted by the Power Board.
     ///
-    /// # CAN
-    /// - **Kind**: Event message
-    /// - **Sent by**: Flight computer
-    #[can(id = 0x001)]
-    ResetBoard,
+    /// ## Type
+    /// - `Periodic @ 0.2 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `PowerBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Allows version tracking and verification of the Power Board firmware.
+    ///
+    /// ## Reaction
+    /// Receivers may log or display the firmware version and build metadata.
+    #[can(id = 0x615)]
+    BuildInfo(BuildInformationCommon),
 
-    /// Sent by the power board to give its current health status.
+    /// # `PowerBoardStatus`
+    /// Periodic status message emitted by the Power Board.
     ///
-    /// # CAN
-    /// - **Kind**: Periodic at 1Hz
-    /// - **Sent by**: Power Board
-    #[can(id = 0x002)]
-    // #[mavlink_id(1_000_002)]
-    // #[mavlink_name("POWERBOARD_STATUS")]
+    /// ## Type
+    /// - `Periodic @ 1 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `PowerBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Communicates the runtime health of the Power Board.
+    ///
+    /// ## Reaction
+    /// Receivers may log the data or use it for diagnostics and system health checks.
+    #[can(id = 0x315)]
     BoardStatus(StatusCommonMessage),
 
-    #[can(id = 0x003)]
-    // #[mavlink_id(2_000_003)]
-    CameraPowerStatus(CameraPower),
-    #[can(id = 0x004)]
-    // #[mavlink_id(1_000_004)]
+    /// # `RailStatus5V`
+    /// Periodic telemetry message reporting the 5V rail parameters.
+    ///
+    /// ## Type
+    /// - Periodic @ 10Hz
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `PowerBoard`
+    /// - **Received by:** unspecified
+    ///
+    /// ## Purpose
+    /// Reports the measured voltage, current, and power on the 5V power rail.
+    ///
+    /// ## Reaction
+    /// Receivers may log, display, or track these values. They may trigger warnings if any measurement is out of nominal range.
+    #[can(id = 0x500)]
     RailStatus5V(RailStatus),
-    #[can(id = 0x005)]
-    // #[mavlink_id(1_000_005)]
+
+    /// # `RailStatus24V`
+    /// Periodic telemetry message reporting the 24V rail parameters.
+    ///
+    /// ## Type
+    /// - Periodic @ 10Hz
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `PowerBoard`
+    /// - **Received by:** unspecified
+    ///
+    /// ## Purpose
+    /// Reports the measured voltage, current, and power on the 24V power rail.
+    ///
+    /// ## Reaction
+    /// Receivers may log, display, or track these values. They may trigger warnings if any measurement is out of nominal range.
+    #[can(id = 0x501)]
     RailStatus24V(RailStatus),
-    #[can(id = 0x006)]
-    // #[mavlink_id(1_000_006)]
-    BoardBuildInfo(BuildInformationCommon),
-}
-// }
-/// generated
-#[allow(non_upper_case_globals)]
-pub mod __message_meta_mavlink {
-    use datatypes::StatusCommonMessage;
-    use mavlink_hal::description::{DescribeFieldSet, DescribeMessages};
 
-    // generated: specify which messages exist.
-    impl DescribeMessages for super::Message {
-        const MESSAGES: &[mavlink_hal::description::Message] = &[
-            mavlink_hal::description::Message {
-                id: mavlink_hal::macro_util::sanitize_id(1_000_002),
-                name: "POWERBOARD_STATUS", // defaults to the uppercased variant name unless overriden with `mavlink_name` attr.
-                description: "Sent by the power board to give its current health status ...", // from doc comment
-                fields: StatusCommonMessage::FIELDS, // because inner must derive `DescribeFieldSet`
-            },
-            //...
-        ];
-    }
-    const _: () = mavlink_hal::macro_util::check_unique_ids(super::Message::MESSAGES);
-    impl mavio::protocol::MessageSpec for super::Message {
-        fn id(&self) -> mavio::protocol::MessageId {
-            match self {
-                crate::Message::ResetBoard => {
-                    panic!("ResetBoard is not a mavlink compatible variant") // FIXME: a non-panicky way would also be nice
-                }
-                crate::Message::BoardStatus(_) => 1_000_002,
-                _ => todo!(),
-            }
-        }
-        #[inline]
-        fn min_supported_mavlink_version(&self) -> mavio::prelude::MavLinkVersion {
-            mavio::prelude::MavLinkVersion::V2
-        }
-        fn crc_extra(&self) -> mavio::protocol::CrcExtra {
-            match self {
-                crate::Message::ResetBoard => {
-                    panic!("ResetBoard is not a mavlink compatible variant")
-                }
-                crate::Message::BoardStatus(_) => mavlink_hal::macro_util::calc_extra_crc(
-                    "POWERBOARD_STATUS",
-                    StatusCommonMessage::FIELDS,
-                ),
-                _ => todo!(),
-            }
-        }
-    }
-    impl mavio::protocol::IntoPayload for super::Message {
-        #[inline]
-        fn encode(
-            &self,
-            version: mavio::prelude::MavLinkVersion,
-        ) -> Result<mavio::protocol::Payload, mavio::prelude::SpecError> {
-            if version != mavio::prelude::MavLinkVersion::V2 {
-                return Err(mavio::prelude::SpecError::UnsupportedMavLinkVersion {
-                    actual: version,
-                    minimal: mavio::prelude::MavLinkVersion::V2,
-                });
-            }
-            match self {
-                crate::Message::ResetBoard => Err(mavio::prelude::SpecError::NotInDialect(0)), // somewhat scuffed error
-                crate::Message::BoardStatus(value) => {
-                    let buffer = mavlink_hal::codec::encode_body::<
-                        _,
-                        { mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS) },
-                    >(value)
-                    .map_err(|_e| mavio::prelude::SpecError::V2PayloadIsTooLong {
-                        actual: 0,
-                        maximum: 0,
-                    })?;
-                    // somewhat scuffed error, but there are no better ones. Mavio just panics.
+    // ======================== RX ========================
+    /// # `CameraPowerControl`
+    /// Controls the camera power lines.
+    ///
+    /// ## Type
+    /// - `Event`: triggered to toggle camera power outputs
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `PowerBoard`
+    ///
+    /// ## Purpose
+    /// Allows remote enabling/disabling of camera recording and live feed.
+    ///
+    /// ## Reaction
+    /// The Power Board sets the respective output pins according to the fields.
+    #[can(id = 0x201)]
+    CameraPowerControl(CameraPowerStatus),
 
-                    Ok(mavio::protocol::Payload::new(
-                        1_000_002,
-                        &buffer,
-                        mavio::prelude::MavLinkVersion::V2,
-                    ))
-                }
-                _ => todo!("has to also be generated"),
-            }
-        }
-    }
-    impl TryFrom<&mavio::protocol::Payload> for super::Message {
-        type Error = mavio::prelude::SpecError;
-        #[inline]
-        fn try_from(payload: &mavio::protocol::Payload) -> Result<Self, Self::Error> {
-            if payload.version() != mavio::prelude::MavLinkVersion::V2 {
-                return Err(mavio::prelude::SpecError::UnsupportedMavLinkVersion {
-                    actual: payload.version(),
-                    minimal: mavio::prelude::MavLinkVersion::V2,
-                });
-            }
-            match payload.id() {
-                1_000_002 => mavlink_hal::codec::decode_body::<
-                    _,
-                    { mavlink_hal::macro_util::total_size(StatusCommonMessage::FIELDS) },
-                >(payload.bytes())
-                .map(Self::BoardStatus)
-                .map_err(|_e| mavio::prelude::SpecError::V2PayloadIsTooLong {
-                    actual: 0,
-                    maximum: 0,
-                }), // there are no good fitting errors :/
-                2_000_003 => todo!(),
-                1_000_004 => todo!(),
-                1_000_005 => todo!(),
-                1_000_006 => todo!(),
-                id => Err(mavio::prelude::SpecError::NotInDialect(id)),
-            }
-        }
-    }
-    impl mavio::Message for super::Message {}
+    /// # `CameraPowerStatus`
+    /// Periodic camera power status message emitted by the Power Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 5 Hz`, and instantly when the status changes.
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `PowerBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Communicates what the power state of the cameras should be as set by the power board.
+    ///
+    /// ## Reaction
+    /// No action required.
+    #[can(id = 0x330)]
+    CameraPowerStatus(CameraPowerStatus),
 }

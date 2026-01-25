@@ -1,0 +1,38 @@
+[package]
+name = "messages"
+version = "0.3.0"
+edition = "2024"
+
+[dependencies]
+dp-engine-control-board = { version = "0.3.0", path = "../datapoints/dp-engine-control-board" }
+dp-fuel-control-board = { version = "0.3.0", path = "../datapoints/dp-fuel-control-board" }
+dp-power-board = { version = "0.3.0", path = "../datapoints/dp-power-board" }
+dp-rfs-computer = { version = "0.3.0", path = "../datapoints/dp-rfs-computer" }
+dp-system-management = { version = "0.3.0", path = "../datapoints/dp-system-management" }
+dp-flight-computer = { version = "0.3.0", path = "../datapoints/dp-flight-computer" }
+dp-oxidizer-control-board = { version = "0.3.0", path = "../datapoints/dp-oxidizer-control-board" }
+dp-recovery-board = { version = "0.3.0", path = "../datapoints/dp-recovery-board" }
+dp-sensor-carrier = { version = "0.3.0", path = "../datapoints/dp-sensor-carrier" }
+
+data-core = { version = "0.1.0", path = "../core" }
+gated-derive = { path = "../macro-gated-derive" }
+thiserror = { version = "2.0.17", optional = true }
+
+[features]
+default = ["can"]
+can = [
+    "dp-engine-control-board/can",
+    "dp-fuel-control-board/can",
+    "dp-power-board/can",
+    "dp-rfs-computer/can",
+    "dp-system-management/can",
+    "dp-flight-computer/can",
+    "dp-oxidizer-control-board/can",
+    "dp-recovery-board/can",
+    "dp-sensor-carrier/can",
+    "data-core/can",
+    "dep:thiserror",                 # required for CAN message macro
+]
+
+[lints]
+workspace = true

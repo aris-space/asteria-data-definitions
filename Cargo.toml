@@ -4,14 +4,17 @@ resolver = "3"
 members = [
     "can",
     "can-hal",
-    "can/hermes-can-derive", "core",
+    "can/hermes-can-derive",
+    "core",
     "datapoints/*",
     "datatypes",
-    "example-nostd-client", "macros",
+    "example-nostd-client",
+    "fuzz",
+    "macro-gated-derive",
+    "macros",
     "mavlink",
     "mavlink-hal",
-    "mavlink-dialect",
-    "macro-gated-derive",
+    "messages",
 ]
 
 [workspace.lints.clippy]

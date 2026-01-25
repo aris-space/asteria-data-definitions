@@ -88,6 +88,8 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("schemars::JsonSchema", &["schemars", "serde"]),
     ("Default", &["default"]),
     ("std::default::Default", &["default"]),
+    ("data_core::CanMessage", &["can"]),
+    ("CanMessage", &["can"]),
 ];
 
 // -----------------------------------------------------------------------------

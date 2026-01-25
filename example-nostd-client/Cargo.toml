@@ -5,8 +5,12 @@ edition = "2024"
 
 [dependencies]
 datatypes = { version = "0.1.0", path = "../datatypes" }
-dp-oxidizer-control-board = { version = "0.1.0", path = "../datapoints/dp-oxidizer-control-board" }
-dp-power-board = { version = "0.1.0", path = "../datapoints/dp-power-board" }
+dp-oxidizer-control-board = { version = "0.3.0", path = "../datapoints/dp-oxidizer-control-board", features = [
+    "can",
+] }
+dp-power-board = { version = "0.3.0", path = "../datapoints/dp-power-board", features = [
+    "can",
+] }
 
 data-core = { version = "0.1.0", path = "../core", features = ["can"] }
 thiserror = "2.0.17"
