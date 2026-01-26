@@ -4,12 +4,8 @@ use gated_derive::gated_derive;
 
 /// A trait for an actuator, such as a valve, that can be set by a single float value.
 /// The value usually is the openness for valves, in the 0-1 range.
-pub trait Settable: TryFrom<f32, Error = OutOfRange> + Into<f32> {
-    #[inline]
-    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
-        *self = Self::try_from(value)?;
-        Ok(())
-    }
+pub trait Settable {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange>;
 }
 
 /// Error for [`Settable`].
@@ -63,25 +59,16 @@ impl Energizable for NormallyOpenValve {
         if is_active { Self::Closed } else { Self::Open }
     }
 }
-impl TryFrom<f32> for NormallyOpenValve {
-    type Error = OutOfRange;
-    fn try_from(value: f32) -> Result<Self, Self::Error> {
-        match value {
+impl Settable for NormallyOpenValve {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
+        *self = match value {
             0.0 => Ok(NormallyOpenValve::Closed),
             1.0 => Ok(NormallyOpenValve::Open),
             _ => Err(OutOfRange),
-        }
+        }?;
+        Ok(())
     }
 }
-impl From<NormallyOpenValve> for f32 {
-    fn from(value: NormallyOpenValve) -> f32 {
-        match value {
-            NormallyOpenValve::Open => 1.0,
-            NormallyOpenValve::Closed => 0.0,
-        }
-    }
-}
-impl Settable for NormallyOpenValve {}
 
 /// The state of a valve that is normally closed.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -111,25 +98,16 @@ impl Energizable for NormallyClosedValve {
         if is_active { Self::Open } else { Self::Closed }
     }
 }
-impl TryFrom<f32> for NormallyClosedValve {
-    type Error = OutOfRange;
-    fn try_from(value: f32) -> Result<Self, Self::Error> {
-        match value {
+impl Settable for NormallyClosedValve {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
+        *self = match value {
             0.0 => Ok(NormallyClosedValve::Closed),
             1.0 => Ok(NormallyClosedValve::Open),
             _ => Err(OutOfRange),
-        }
+        }?;
+        Ok(())
     }
 }
-impl From<NormallyClosedValve> for f32 {
-    fn from(value: NormallyClosedValve) -> f32 {
-        match value {
-            NormallyClosedValve::Open => 1.0,
-            NormallyClosedValve::Closed => 0.0,
-        }
-    }
-}
-impl Settable for NormallyClosedValve {}
 
 // TODO: remove
 /// Pressurization Proportional Gain in [barg/ms]
@@ -182,7 +160,12 @@ impl From<DPRValve> for f32 {
     }
 }
 /// Set setpoint of DPRValve
-impl Settable for DPRValve {}
+impl Settable for DPRValve {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
+        *self = Self::try_from(value)?;
+        Ok(())
+    }
+}
 
 /// The state of a throttleable valve.
 /// This is a [`Settable`] with the value being 0.0 for fully closed up to 1.0 for fully open.
@@ -219,7 +202,12 @@ impl From<ThrottleableValve> for f32 {
     }
 }
 /// Set openness of throttleable valve
-impl Settable for ThrottleableValve {}
+impl Settable for ThrottleableValve {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
+        *self = Self::try_from(value)?;
+        Ok(())
+    }
+}
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
