@@ -14,13 +14,13 @@ pub trait Settable {
 #[error("The supplied value is out of range for this settable")]
 pub struct OutOfRange;
 
-// TODO:
-// /// Allows boxing a Watchable of a settable for a boxed trait object.
-// impl<T: Settable> Settable for watchable::Watchable<T> {
-//     fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
-//         self.write().set_value(value)
-//     }
-// }
+/// Allows boxing a Watchable of a settable for a boxed trait object.
+#[cfg(feature = "watchable_settable")]
+impl<T: Settable> Settable for watchable::Watchable<T> {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
+        self.write().set_value(value)
+    }
+}
 
 /// A trait for an actuator, which can be energized using a binary signal.
 pub trait Energizable {
