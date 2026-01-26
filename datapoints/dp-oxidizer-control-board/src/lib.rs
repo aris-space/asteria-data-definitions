@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use data_core::Message;
-use datatypes::actuator::{DprState, PressurizationGain};
+use datatypes::actuator::{DPRValve, PressurizationGain};
 use datatypes::status::{BuildInformationCommon, ValveState};
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
@@ -163,7 +163,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x210)]
-    OxidizerDprConfigFC(DprState),
+    OxidizerDprConfigFC(DPRValve),
 
     /// # `OxidizerVentControlFC`
     /// Event message sent by the FC.
@@ -200,7 +200,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x215)]
-    OxidizerDprConfigECU(DprState),
+    OxidizerDprConfigECU(DPRValve),
 
     /// # `OxidizerVentControlECU`
     /// Event message sent by the ECU.
@@ -236,7 +236,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x21a)]
-    OxidizerDprConfigRFS(DprState),
+    OxidizerDprConfigRFS(DPRValve),
 
     /// # `OxidizerVentControlRFS`
     /// Event message sent by the RFS.

@@ -1,4 +1,4 @@
-use datatypes::actuator::DprState;
+use datatypes::actuator::DPRValve;
 use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
 use gated_derive::gated_derive;
 
@@ -22,7 +22,7 @@ pub struct FuelControlBoardStatus {
 #[serde(rename_all = "camelCase")]
 pub struct FuelControlBoardValveStates {
     /// Fuel DPR Control loop state
-    pub fss_dpr: DprState,
+    pub fss_dpr: DPRValve,
     /// Pressurization Valve state
     pub prz_vnt_vlv: ValveState,
     /// Fuel Vent Valve state
