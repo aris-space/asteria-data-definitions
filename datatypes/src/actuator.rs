@@ -184,6 +184,43 @@ impl From<DPRValve> for f32 {
 /// Set setpoint of DPRValve
 impl Settable for DPRValve {}
 
+/// The state of a throttleable valve.
+/// This is a [`Settable`] with the value being 0.0 for fully closed up to 1.0 for fully open.
+///
+/// Note that the default behaviour is a bit weird here, as the valves don't reset on powerloss,
+/// but they start closed (`Default` gives a closed state).
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[derive(Debug, Default, Clone, Copy, PartialEq)] // defaults to 0 (closed).
+pub struct ThrottleableValve {
+    /// The openness in percent (0 being fully closed, 100 being fully open)
+    pub openness_percent: u8,
+}
+
+/// Canonical mapping from f32 to [`ThrottleableValve`]
+impl TryFrom<f32> for ThrottleableValve {
+    type Error = OutOfRange;
+    fn try_from(value: f32) -> Result<Self, Self::Error> {
+        #[allow(clippy::cast_possible_truncation)] // checked by the branch condition
+        #[allow(clippy::cast_sign_loss)] // checked by the branch condition
+        if (0.0..=1.0).contains(&value) {
+            Ok(Self {
+                openness_percent: (value * 100.).round() as u8,
+            })
+        } else {
+            Err(OutOfRange)
+        }
+    }
+}
+/// Used for csv serialization
+impl From<ThrottleableValve> for f32 {
+    fn from(value: ThrottleableValve) -> f32 {
+        f32::from(value.openness_percent) / 100.
+    }
+}
+/// Set openness of throttleable valve
+impl Settable for ThrottleableValve {}
+
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(utoipa::ToSchema)]
@@ -226,6 +263,31 @@ mod tests {
         // Test out of range errors
         assert!(valve.set_value(-0.1).is_err());
         assert!(valve.set_value(60.1).is_err());
+    }
+
+    #[test]
+    fn test_throttleable_valve_settable() {
+        let mut valve = ThrottleableValve::default();
+
+        // Test valid values
+        valve.set_value(0.0).expect("is valid value");
+        assert_eq!(valve.openness_percent, 0);
+        valve.set_value(0.5).expect("is valid value");
+        assert_eq!(valve.openness_percent, 50);
+        valve.set_value(1.0).expect("is valid value");
+        assert_eq!(valve.openness_percent, 100);
+
+        // Test rounding
+        valve.set_value(0.258).expect("is valid value");
+        assert_eq!(valve.openness_percent, 26);
+        valve.set_value(0.251).expect("is valid value");
+        assert_eq!(valve.openness_percent, 25);
+        valve.set_value(0.269).expect("is valid value");
+        assert_eq!(valve.openness_percent, 27);
+
+        // Test out of range errors
+        assert!(valve.set_value(-0.1).is_err());
+        assert!(valve.set_value(1.1).is_err());
     }
 
     mod normally_open_valve {
