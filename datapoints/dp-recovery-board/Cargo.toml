@@ -8,7 +8,7 @@ workspace = true
 
 [dependencies]
 datatypes = { version = "0.1.0", path = "../../datatypes" }
-data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
+data-core = { version = "0.1.0", path = "../../core" }
 gated-derive = { path = "../../macro-gated-derive" }
 
 # for types:
