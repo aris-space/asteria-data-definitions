@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 use data_core::Message;
 use datatypes::status::BuildInformationCommon;
 use gated_derive::gated_derive;

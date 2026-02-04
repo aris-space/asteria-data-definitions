@@ -12,9 +12,7 @@ data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
 gated-derive = { path = "../../macro-gated-derive" }
 
 # for types:
-serde = { version = "1.0.228", features = [
-    "derive",
-], default-features = false, optional = true }
+serde = { version = "1.0.228", features = ["derive"], default-features = false, optional = true }
 bincode = { version = "2.0.1", features = [
     "derive",
     "serde",

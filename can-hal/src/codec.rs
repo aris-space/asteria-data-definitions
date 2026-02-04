@@ -18,10 +18,10 @@ pub const BINCODE_CONFIG: bincode::config::Configuration<
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Encoding CAN message failed: {0}")]
-    Encode(#[from] bincode::error::EncodeError),
+    Encode(bincode::error::EncodeError),
 
     #[error("Decoding CAN message failed: {0}")]
-    Decode(#[from] bincode::error::DecodeError),
+    Decode(bincode::error::DecodeError),
 
     #[error("Invalid frame or Id sent/received")]
     Other,
@@ -36,7 +36,7 @@ pub enum Error {
 /// Encodes a type as a can message into `buf` and returns the amount of bytes written,
 /// st `buf[..result]` is a valid can message.
 pub fn encode<T: bincode::Encode>(val: &T, buf: &mut [u8; 64]) -> Result<u8, Error> {
-    let len = bincode::encode_into_slice(val, buf, BINCODE_CONFIG)?;
+    let len = bincode::encode_into_slice(val, buf, BINCODE_CONFIG).map_err(Error::Encode)?;
     next_valid_length(len).ok_or(Error::Other)
 }
 

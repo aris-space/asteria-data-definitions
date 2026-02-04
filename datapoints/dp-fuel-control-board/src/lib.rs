@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 use data_core::Message;
 use datatypes::actuator::{DprState, PressurizationGain};
 use datatypes::status::{BuildInformationCommon, ValveState};

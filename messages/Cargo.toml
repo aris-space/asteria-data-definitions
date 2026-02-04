@@ -16,7 +16,7 @@ dp-sensor-carrier = { version = "0.3.0", path = "../datapoints/dp-sensor-carrier
 
 data-core = { version = "0.1.0", path = "../core" }
 gated-derive = { path = "../macro-gated-derive" }
-thiserror = { version = "2.0.17", optional = true }
+thiserror = { version = "2.0.17", optional = true, default-features = false }
 
 [features]
 default = ["can"]

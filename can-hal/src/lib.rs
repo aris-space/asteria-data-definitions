@@ -1,3 +1,5 @@
+#![no_std]
+
 pub use embedded_can::StandardId;
 
 pub mod codec;
@@ -25,7 +27,7 @@ pub const fn next_valid_length(length: usize) -> Option<u8> {
 
 /// Trait for types that can transmit CAN messages asynchronously.
 pub trait TypedCanTransmit {
-    type Error: std::error::Error;
+    type Error: core::error::Error;
 
     /// Transmit a CAN message.
     ///
@@ -36,7 +38,7 @@ pub trait TypedCanTransmit {
 
 /// Trait for types that can receive CAN messages asynchronously.
 pub trait TypedCanReceive {
-    type Error: std::error::Error;
+    type Error: core::error::Error;
 
     /// Receive the next CAN message and its timestamp.
     ///
@@ -47,7 +49,7 @@ pub trait TypedCanReceive {
 
 /// Implementors of this trait can be created from a CAN id and raw data.
 pub trait CanDecode: Sized {
-    type Error: std::error::Error;
+    type Error: core::error::Error;
 
     /// Tries to decode an instance of `Self` from the provided byte slice.
     ///
@@ -59,7 +61,7 @@ pub trait CanDecode: Sized {
 
 /// Implementors of this trait can be turned into a CAN frame.
 pub trait CanEncode {
-    type Error: std::error::Error;
+    type Error: core::error::Error;
 
     /// Tries to encode a message `self` into `buf`, returning the id and the number of bytes written.
     ///
