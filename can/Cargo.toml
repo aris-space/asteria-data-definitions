@@ -21,7 +21,7 @@ const_panic = { version = "0.2.12", features = ["rust_1_82"] }
 [lints.clippy]
 unwrap_used = "deny"
 pedantic = { level = "warn", priority = -1 }
-doc_markdown = "allow"                       # Too many false positives for acronymes I can't bother to whitelist
+doc_markdown = "allow"  # Too many false positives for acronymes I can't bother to whitelist
 
 [[example]]
 name = "usage"
