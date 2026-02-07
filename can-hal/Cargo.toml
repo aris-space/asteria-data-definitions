@@ -5,8 +5,8 @@ edition = "2024"
 
 [dependencies]
 embedded-can = "0.4.1"
-thiserror = "2.0.17"
-bincode = "2.0.1"
+thiserror = { version = "2.0.17", default-features = false }
+bincode = { version = "2.0.1", default-features = false }
 
 [lints]
 workspace = true

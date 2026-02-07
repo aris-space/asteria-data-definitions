@@ -12,5 +12,9 @@ data-core = { version = "0.1.0", path = "../../core" }
 gated-derive = { path = "../../macro-gated-derive" }
 
 [features]
-can = ["data-core/can"]
-std = ["datatypes/std"]
+can = ["data-core/can", "datatypes/derive_bincode"]
+std = ["datatypes/std", "data-core/std"]
+derive_serde = ["datatypes/derive_serde"]
+derive_defmt = ["datatypes/derive_defmt"]
+derive_bincode = ["datatypes/derive_bincode"]
+derive_arbitrary = ["datatypes/derive_arbitrary"]

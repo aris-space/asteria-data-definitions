@@ -10,13 +10,8 @@ doctest = false
 
 [dependencies]
 embedded-can = { version = "0.4.1" }
-serde = { version = "1.0.218", features = [
-    "derive",
-], default-features = false, optional = true }
-bincode = { version = "2.0.0-rc.3", features = [
-    "derive",
-    "serde",
-], default-features = false }
+serde = { version = "1.0.218", features = ["derive"], default-features = false, optional = true }
+bincode = { version = "2.0.0-rc.3", features = ["derive", "serde"], default-features = false }
 thiserror = { version = "2.0.11", default-features = false }
 defmt = { version = "0.3.10", optional = true }
 arbitrary = { version = "1.4.1", features = ["derive"], optional = true }

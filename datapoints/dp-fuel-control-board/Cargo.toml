@@ -8,13 +8,11 @@ workspace = true
 
 [dependencies]
 datatypes = { version = "0.1.0", path = "../../datatypes" }
-data-core = { version = "0.1.0", path = "../../core", features = ["can"] }
+data-core = { version = "0.1.0", path = "../../core" }
 gated-derive = { path = "../../macro-gated-derive" }
 
 # for types:
-serde = { version = "1.0.228", features = [
-    "derive",
-], default-features = false, optional = true }
+serde = { version = "1.0.228", features = ["derive"], default-features = false, optional = true }
 bincode = { version = "2.0.1", features = [
     "derive",
     "serde",
@@ -24,7 +22,7 @@ arbitrary = { version = "1.4.1", features = ["derive"], optional = true }
 
 [features]
 can = ["derive_bincode", "data-core/can"]
-std = ["bincode/std", "datatypes/std"]
+std = ["bincode/std", "datatypes/std", "data-core/std"]
 derive_serde = ["dep:serde", "datatypes/derive_serde"]
 derive_defmt = ["dep:defmt", "datatypes/derive_defmt"]
 derive_bincode = ["dep:bincode", "datatypes/derive_bincode"]
