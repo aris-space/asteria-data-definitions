@@ -5,6 +5,19 @@
 //! Like other crates, various cargo features can enable certain components,
 //! currently `can` (and in the near future `mavlink`).
 
+/// Reexport all datapoints to simplify imports
+pub mod datapoints {
+    pub use dp_engine_control_board;
+    pub use dp_flight_computer;
+    pub use dp_fuel_control_board;
+    pub use dp_oxidizer_control_board;
+    pub use dp_power_board;
+    pub use dp_recovery_board;
+    pub use dp_rfs_computer;
+    pub use dp_sensor_carrier;
+    pub use dp_system_management;
+}
+
 /// All messages in the full system
 #[gated_derive::gated_derive(
     data_core::CanDecode(feature = "can"),
