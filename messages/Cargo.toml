@@ -33,7 +33,17 @@ can = [
     "data-core/can",
     "dep:thiserror",                 # required for CAN message macro
 ]
-derive_debug = []
+derive_debug = [
+    "dp-engine-control-board/derive_debug",
+    "dp-fuel-control-board/derive_debug",
+    "dp-power-board/derive_debug",
+    "dp-rfs-computer/derive_debug",
+    "dp-system-management/derive_debug",
+    "dp-flight-computer/derive_debug",
+    "dp-oxidizer-control-board/derive_debug",
+    "dp-recovery-board/derive_debug",
+    "dp-sensor-carrier/derive_debug",
+]
 
 [lints]
 workspace = true
