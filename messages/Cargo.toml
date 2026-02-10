@@ -33,6 +33,7 @@ can = [
     "data-core/can",
     "dep:thiserror",                 # required for CAN message macro
 ]
+derive_debug = []
 
 [lints]
 workspace = true

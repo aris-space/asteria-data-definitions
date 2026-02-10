@@ -8,7 +8,8 @@
 /// All messages in the full system
 #[gated_derive::gated_derive(
     data_core::CanDecode(feature = "can"),
-    data_core::CanEncode(feature = "can")
+    data_core::CanEncode(feature = "can"),
+    Debug
 )]
 // #[derive(MavlinkDialect)] // TODO
 // #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
