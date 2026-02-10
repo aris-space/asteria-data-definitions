@@ -20,6 +20,7 @@ thiserror = { version = "2.0.17", optional = true, default-features = false }
 
 [features]
 default = ["can"]
+# Derive the can related traits for all datapoints and datapoint specific types
 can = [
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
@@ -33,6 +34,43 @@ can = [
     "data-core/can",
     "dep:thiserror",                 # required for CAN message macro
 ]
+# Derive the serde for all datapoint specific types
+derive_serde = [
+    "dp-engine-control-board/derive_serde",
+    "dp-fuel-control-board/derive_serde",
+    # "dp-power-board/derive_serde",
+    "dp-rfs-computer/derive_serde",
+    # "dp-system-management/derive_serde",
+    "dp-flight-computer/derive_serde",
+    "dp-oxidizer-control-board/derive_serde",
+    "dp-recovery-board/derive_serde",
+    "dp-sensor-carrier/derive_serde",
+]
+# Derive the defmt for all datapoint specific types
+derive_defmt = [
+    "dp-engine-control-board/derive_defmt",
+    "dp-fuel-control-board/derive_defmt",
+    # "dp-power-board/derive_defmt",
+    "dp-rfs-computer/derive_defmt",
+    # "dp-system-management/derive_defmt",
+    "dp-flight-computer/derive_defmt",
+    "dp-oxidizer-control-board/derive_defmt",
+    "dp-recovery-board/derive_defmt",
+    "dp-sensor-carrier/derive_defmt",
+]
+# Derive the arbitrary for all datapoint specific types
+derive_arbitrary = [
+    "dp-engine-control-board/derive_arbitrary",
+    "dp-fuel-control-board/derive_arbitrary",
+    # "dp-power-board/derive_arbitrary",
+    "dp-rfs-computer/derive_arbitrary",
+    # "dp-system-management/derive_arbitrary",
+    "dp-flight-computer/derive_arbitrary",
+    "dp-oxidizer-control-board/derive_arbitrary",
+    "dp-recovery-board/derive_arbitrary",
+    "dp-sensor-carrier/derive_arbitrary",
+]
+# Derive the Debug for the message enum, all datapoints and datapoint specific types
 derive_debug = [
     "dp-engine-control-board/derive_debug",
     "dp-fuel-control-board/derive_debug",
