@@ -8,7 +8,7 @@ mod dptypes;
 pub use dptypes::*;
 
 #[derive(Message)]
-#[gated_derive(data_core::CanMessage(feature = "can"))]
+#[gated_derive(data_core::CanMessage(feature = "can"), Debug)]
 pub enum Message {
     // ======================== TX ========================
     /// # `EngineControlBoardBuildInfo`

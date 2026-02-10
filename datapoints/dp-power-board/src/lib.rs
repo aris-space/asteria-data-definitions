@@ -8,7 +8,7 @@ use datatypes::units::RailStatus;
 use gated_derive::gated_derive;
 
 #[derive(Message)]
-#[gated_derive(data_core::CanMessage(feature = "can"))]
+#[gated_derive(data_core::CanMessage(feature = "can"), Debug)]
 pub enum Message {
     // ======================== TX ========================
     /// # `PowerBoardBuildInfo`
