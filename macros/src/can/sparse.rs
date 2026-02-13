@@ -123,7 +123,7 @@ impl SparseCanMessage {
 pub fn handle_encode(message: &SparseCanMessage) -> TokenStream {
     let enum_stream = message.as_enum();
     quote! {
-        #[derive(::data_core::CanEncode)]
+        #[derive(::data_core::can::Encode)]
         #[can(sparse)]
         #enum_stream
     }
@@ -132,7 +132,7 @@ pub fn handle_encode(message: &SparseCanMessage) -> TokenStream {
 pub fn handle_decode(message: &SparseCanMessage) -> TokenStream {
     let enum_stream = message.as_enum();
     quote! {
-        #[derive(::data_core::CanDecode)]
+        #[derive(::data_core::can::Decode)]
         #[can(sparse)]
         #enum_stream
     }
