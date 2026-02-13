@@ -9,25 +9,19 @@ pub use data_macros::Message;
 pub mod can {
     pub use can_hal as hal;
     pub use data_macros::{
-        CanEncode as Encode,
-        CanDecode as Decode,
-        CanMessage as Message,
-        sparse_encodable_can_message,
-        sparse_decodable_can_message,
+        CanDecode as Decode, CanEncode as Encode, CanMessage as Message,
+        sparse_decodable_can_message, sparse_encodable_can_message,
     };
 }
 
 #[cfg(feature = "mavlink")]
 pub mod mavlink {
+    pub use data_macros::{
+        MavlinkDecode as Decode, MavlinkEncode as Encode, MavlinkEnum as Enum,
+        MavlinkFieldSet as FieldSet, MavlinkMessage as Message,
+    };
     pub use mavio;
     pub use mavlink_hal as hal;
-    pub use data_macros::{
-        MavlinkEncode as Encode,
-        MavlinkDecode as Decode,
-        MavlinkMessage as Message,
-        MavlinkEnum as Enum,
-        MavlinkFieldSet as FieldSet
-    };
 }
 
 #[cfg(feature = "bincode")]
