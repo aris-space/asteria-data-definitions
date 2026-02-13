@@ -1,6 +1,6 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use data_core::Message;
+use data_core::{Message, can};
 use datatypes::actuator::{DPRValve, PressurizationGain};
 use datatypes::status::{BuildInformationCommon, ValveState};
 use datatypes::units::BarG;
@@ -10,7 +10,7 @@ mod dptypes;
 pub use dptypes::*;
 
 #[derive(Message)]
-#[gated_derive(data_core::CanMessage(feature = "can"), Debug)]
+#[gated_derive(can::Message, Debug)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = OxidizerControlBoardMessage)]

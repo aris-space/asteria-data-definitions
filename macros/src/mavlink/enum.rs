@@ -53,7 +53,7 @@ pub fn handle(mavlink_enum: MavlinkEnum) -> TokenStream {
             let discriminant = variant.discriminant;
 
             quote! {
-                ::data_core::mavlink_hal::description::EnumVariant {
+                ::data_core::mavlink::hal::description::EnumVariant {
                     value: #discriminant,
                     name: #name_lit,
                     description: #description_lit
@@ -63,17 +63,17 @@ pub fn handle(mavlink_enum: MavlinkEnum) -> TokenStream {
         .collect::<Vec<_>>();
 
     quote! {
-        impl ::data_core::mavlink_hal::description::DescribeEnum for #ident {
-            const ENUM: &'static ::data_core::mavlink_hal::description::Enum = &::data_core::mavlink_hal::description::Enum {
+        impl ::data_core::mavlink::hal::description::DescribeEnum for #ident {
+            const ENUM: &'static ::data_core::mavlink::hal::description::Enum = &::data_core::mavlink::hal::description::Enum {
                 name: #name_lit,
                 description: #description_lit,
                 variants: &[#(#variants),*]
             };
         }
 
-        impl ::data_core::mavlink_hal::typing::ScalarTypeable for #ident {
-            const SCALAR_TYPE: ::data_core::mavlink_hal::typing::MavScalarType = <u8 as ::data_core::mavlink_hal::typing::ScalarTypeable>::SCALAR_TYPE;
-            const SCALAR_ENUM: Option<&'static ::data_core::mavlink_hal::description::Enum> = Some(<#ident as ::data_core::mavlink_hal::description::DescribeEnum>::ENUM);
+        impl ::data_core::mavlink::hal::typing::ScalarTypeable for #ident {
+            const SCALAR_TYPE: ::data_core::mavlink::hal::typing::MavScalarType = <u8 as ::data_core::mavlink::hal::typing::ScalarTypeable>::SCALAR_TYPE;
+            const SCALAR_ENUM: Option<&'static ::data_core::mavlink::hal::description::Enum> = Some(<#ident as ::data_core::mavlink::hal::description::DescribeEnum>::ENUM);
         }
     }
 }

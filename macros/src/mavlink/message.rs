@@ -20,7 +20,7 @@ pub struct MavlinkMessageVariant {
     id: Option<u32>,
     /// Optional name override for the mavlink message
     ///
-    /// **Note**: The name override will be converted to a screaming snake case string
+    /// **Note**: The name override will be converted to a upper snake case string
     name: Option<String>,
 
     ident: Ident,
@@ -36,27 +36,49 @@ pub struct MavlinkMessage {
 }
 
 pub fn handle(mavlink_message: MavlinkMessage) -> TokenStream {
+    let mut error = darling::Error::accumulator();
     let variants = mavlink_message
         .data
         .take_enum()
         .unwrap_or_default()
         .into_iter()
-        .filter(|variant| variant.id.is_some())
+        .filter(|variant| {
+            if variant.id.is_some() {
+                if !variant.fields.is_newtype() {
+                    error.push(
+                        darling::Error::custom(
+                            "Only newtype variants can be used as MavLink messages",
+                        )
+                        .with_span(&variant.ident.span()),
+                    );
+                }
+                true
+            } else {
+                false
+            }
+        })
         .collect::<Vec<_>>();
+
+    if let Err(err) = error.finish() {
+        return err.write_errors();
+    }
+
     let ident = mavlink_message.ident;
 
     let meta_mavlink_mod = Ident::new(MAVLINK_MESSAGE_META_IDENT, Span::call_site());
 
     let mavlink_describe = generate_mavlink_describe(&ident, &variants);
     let mavlink_message_spec = generate_mavlink_message_spec(&ident, &variants);
+    let mavlink_payload_encode = generate_mavlink_payload_encode(&ident, &variants);
+    let mavlink_payload_decode = generate_mavlink_payload_decode(&ident, &variants);
 
     quote! {
         #[allow(non_upper_case_globals)]
         pub mod #meta_mavlink_mod {
             use super::#ident;
             use ::datatypes as datatypes;
-            use ::data_core::{
-                mavlink_hal::{macro_util, description},
+            use ::data_core::mavlink::{
+                hal::{macro_util, description, codec},
                 mavio::{protocol, prelude, self}
             };
 
@@ -67,6 +89,9 @@ pub fn handle(mavlink_message: MavlinkMessage) -> TokenStream {
             const _: () = macro_util::check_unique_ids(<#ident as description::DescribeMessages>::MESSAGES);
 
             #mavlink_message_spec
+
+            #mavlink_payload_encode
+            #mavlink_payload_decode
         }
     }
 }
@@ -75,11 +100,8 @@ fn generate_mavlink_describe(ident: &Ident, variants: &[MavlinkMessageVariant]) 
     let (ids, names, descriptions) = variants
         .iter()
         .map(|variant| {
-            let name = match &variant.name {
-                Some(name) => snake_case(name).to_uppercase(),
-                None => snake_case(&variant.ident.to_string()).to_uppercase(),
-            };
-
+            let name = snake_case(&variant.name.clone().unwrap_or(variant.ident.to_string()))
+                .to_uppercase();
             let name_lit = LitStr::new(&name, Span::call_site());
             let description_lit = LitStr::new(&variant.attrs.get_docs_str(), Span::call_site());
 
@@ -107,23 +129,11 @@ fn generate_mavlink_message_spec(ident: &Ident, variants: &[MavlinkMessageVarian
     let (variants, ids, names) = variants
         .iter()
         .map(|variant| {
-            let variant_ident = &variant.ident;
-            let variant_case = if variant.fields.is_tuple() {
-                quote! { #variant_ident(_) }
-            } else if variant.fields.is_struct() {
-                quote! { #variant_ident { .. } }
-            } else {
-                quote! { #variant_ident }
-            };
-
-            let name = match &variant.name {
-                Some(name) => snake_case(name).to_uppercase(),
-                None => snake_case(&variant.ident.to_string()).to_uppercase(),
-            };
-
+            let name = snake_case(&variant.name.clone().unwrap_or(variant.ident.to_string()))
+                .to_uppercase();
             let name_lit = LitStr::new(&name, Span::call_site());
 
-            (variant_case, variant.id, name_lit)
+            (&variant.ident, variant.id, name_lit)
         })
         .collect::<(Vec<_>, Vec<_>, Vec<_>)>();
 
@@ -131,7 +141,7 @@ fn generate_mavlink_message_spec(ident: &Ident, variants: &[MavlinkMessageVarian
         impl protocol::MessageSpec for #ident {
             fn id(&self) -> protocol::MessageId {
                 match self {
-                    #(#ident::#variants => #ids),*,
+                    #(#ident::#variants(_) => #ids),*,
                     _ => panic!("variant is not mavlink compatible")
                 }
             }
@@ -144,7 +154,7 @@ fn generate_mavlink_message_spec(ident: &Ident, variants: &[MavlinkMessageVarian
             fn crc_extra(&self) -> protocol::CrcExtra {
                 match self {
                     #(
-                        #ident::#variants => macro_util::calc_extra_crc(
+                        #ident::#variants(_) => macro_util::calc_extra_crc(
                             #names,
                             <datatypes::StatusCommonMessage as description::DescribeFieldSet>::FIELDS
                         )
@@ -156,10 +166,23 @@ fn generate_mavlink_message_spec(ident: &Ident, variants: &[MavlinkMessageVarian
     }
 }
 
-fn generate_mavlink_message_encode(
+fn generate_mavlink_payload_encode(
     ident: &Ident,
     variants: &[MavlinkMessageVariant],
 ) -> TokenStream {
+    let (variants, ids, types) = variants
+        .iter()
+        .map(|variant| {
+            let ty = &variant
+                .fields
+                .fields
+                .first()
+                .expect("should be newtype variant")
+                .ty;
+            (&variant.ident, variant.id, ty)
+        })
+        .collect::<(Vec<_>, Vec<_>, Vec<_>)>();
+
     quote! {
         impl protocol::IntoPayload for #ident {
             #[inline]
@@ -175,6 +198,20 @@ fn generate_mavlink_message_encode(
                 }
 
                 match self {
+                    #(
+                        #ident::#variants(value) => {
+                            let buffer = codec::encode_body::<
+                                _, { macro_util::total_size(<#types as description::DescribeFieldSet>::FIELDS) }
+                            >(value)
+                            .map_err(|_| prelude::SpecError::V2PayloadIsTooLong { actual: 0, maximum: 0 })?;
+
+                            Ok(protocol::Payload::new(
+                                #ids,
+                                &buffer,
+                                prelude::MavLinkVersion::V2
+                            ))
+                        },
+                    )*
                     // FIXME: Is this 0 a magic value or what does it represent?
                     //        If it's a magic value, why don't also return this value
                     //        in `protocol::MessageSpec::id` for unsupported variants
@@ -186,9 +223,48 @@ fn generate_mavlink_message_encode(
     }
 }
 
-fn generate_mavlink_message_decode(
+fn generate_mavlink_payload_decode(
     ident: &Ident,
     variants: &[MavlinkMessageVariant],
 ) -> TokenStream {
-    quote! {}
+    let (variants, ids, types) = variants
+        .iter()
+        .map(|variant| {
+            let ty = &variant
+                .fields
+                .fields
+                .first()
+                .expect("should be newtype variant")
+                .ty;
+            (&variant.ident, variant.id, ty)
+        })
+        .collect::<(Vec<_>, Vec<_>, Vec<_>)>();
+
+    quote! {
+        impl TryFrom<&protocol::Payload> for #ident {
+            type Error = prelude::SpecError;
+
+            #[inline]
+            fn try_from(payload: &protocol::Payload) -> Result<Self, Self::Error> {
+                if payload.version() != prelude::MavLinkVersion::V2 {
+                    return Err(prelude::SpecError::UnsupportedMavLinkVersion {
+                        actual: payload.version(),
+                        minimal: prelude::MavLinkVersion::V2,
+                    });
+                }
+
+                match payload.id() {
+                    #(
+                        #ids => codec::decode_body::<
+                            _, { macro_util::total_size(<#types as description::DescribeFieldSet>::FIELDS) }
+                        >(payload.bytes())
+                        .map(#ident::#variants)
+                        .map_err(|_| prelude::SpecError::V2PayloadIsTooLong { actual: 0, maximum: 0 }),
+                    )*
+                    id => Err(prelude::SpecError::NotInDialect(id))
+                }
+            }
+        }
+
+    }
 }
