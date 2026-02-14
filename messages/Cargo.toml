@@ -17,6 +17,8 @@ dp-sensor-carrier = { version = "0.3.0", path = "../datapoints/dp-sensor-carrier
 data-core = { version = "0.1.0", path = "../core" }
 gated-derive = { path = "../macro-gated-derive" }
 thiserror = { version = "2.0.17", optional = true, default-features = false }
+utoipa = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
 
 [features]
 default = ["can"]
@@ -33,6 +35,21 @@ can = [
     "data-core/can",
     "dep:thiserror",                 # required for CAN message macro
 ]
+mission-control = [
+    "dp-engine-control-board/mission-control",
+    "dp-fuel-control-board/mission-control",
+    "dp-power-board/mission-control",
+    "dp-rfs-computer/mission-control",
+    "dp-system-management/mission-control",
+    "dp-flight-computer/mission-control",
+    "dp-oxidizer-control-board/mission-control",
+    "dp-recovery-board/mission-control",
+    "dp-sensor-carrier/mission-control",
+    "derive_utoipa",
+    "derive_serde"
+]
+derive_serde = ["dep:serde"]
+derive_utoipa = ["dep:utoipa"]
 derive_debug = []
 
 [lints]

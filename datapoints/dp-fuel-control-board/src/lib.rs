@@ -11,6 +11,9 @@ pub use dptypes::*;
 
 #[derive(Message)]
 #[gated_derive(data_core::CanMessage(feature = "can"), Debug)]
+#[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[serde(tag = "type", content = "content")]
+#[schema(as = FueldControlBoardMessage)]
 pub enum Message {
     // ======================== TX ========================
     /// # `FuelControlBoardBuildInfo`

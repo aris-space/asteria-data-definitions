@@ -9,11 +9,15 @@
 #[gated_derive::gated_derive(
     data_core::CanDecode(feature = "can"),
     data_core::CanEncode(feature = "can"),
+    utoipa::ToSchema,
+    serde::Deserialize,
+    serde::Serialize,
     Debug
 )]
 // #[derive(MavlinkDialect)] // TODO
 // #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
 #[can(dispatch)]
+#[serde(tag = "board", content = "message")]
 pub enum Message {
     FlightComputer(dp_flight_computer::Message),
     RfsComputer(dp_rfs_computer::Message),

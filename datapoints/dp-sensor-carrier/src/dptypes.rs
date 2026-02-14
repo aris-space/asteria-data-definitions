@@ -6,7 +6,9 @@ use gated_derive::gated_derive;
 /// Each field corresponds to a specific sensor instance.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct SensorsHealth {
     /// Status of barometer on I2C2 (bus 1: PA9 = SCL, PA8 = SDA)
     pub barometer_bus_1: SensorStatus,
@@ -32,7 +34,9 @@ pub struct SensorsHealth {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct SensorCarrierStatus {
     pub common: StatusCommonMessage,
     pub sensor_health: SensorsHealth,
@@ -40,7 +44,9 @@ pub struct SensorCarrierStatus {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct PositionData {
     /// Latitude in degrees (WGS84). Range: -90.0° to +90.0°
     pub location_latitude: f64,
@@ -56,7 +62,9 @@ pub struct PositionData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct ImuData {
     // --- Body-fixed NED frame (X: forward, Y: right, Z: down) ---
     /// Acceleration along body X-axis (forward) in m/s². Range: ±78.48 m/s² (±8g)
@@ -91,7 +99,9 @@ pub struct ImuData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct VelocityData {
     // --- Body-fixed frame (X: forward, Y: right, Z: down) ---
     /// Velocity along body X-axis (forward) in m/s. Range: ±500 m/s
@@ -112,7 +122,9 @@ pub struct VelocityData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct OrientationData {
     /// Normalised quaternion scalar component of the rotation from inertial NED to body-fixed frame.
     pub orientation_w: f32,
@@ -138,7 +150,9 @@ impl Default for OrientationData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct EnvironmentalData {
     /// Temperature in Celsius.
     pub temperature: Celsius,
@@ -154,7 +168,9 @@ pub struct EnvironmentalData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct MagnetometerData {
     // --- Body-fixed NED frame (X: forward, Y: right, Z: down) ---
     /// Magnetic field along body X-axis (forward) in μT. Range: ±4915.2 μT
