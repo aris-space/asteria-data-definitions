@@ -95,7 +95,7 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("data_core::CanDecode", &["can"]),
     ("CanMessage", &["can"]),
     ("CanEncode", &["can"]),
-    ("CanDecode", &["can"])
+    ("CanDecode", &["can"]),
 ];
 
 // -----------------------------------------------------------------------------
