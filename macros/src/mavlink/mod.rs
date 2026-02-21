@@ -1,4 +1,5 @@
 pub mod decode;
+pub mod dialect;
 pub mod encode;
 pub mod r#enum;
 pub mod fieldset;

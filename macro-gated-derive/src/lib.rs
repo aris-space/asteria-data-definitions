@@ -90,6 +90,7 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("utoipa::ToSchema", &["schema", "serde"]),
     ("Default", &["default"]),
     ("std::default::Default", &["default"]),
+    ("thiserror::Error", &["error"]),
     ("can::Message", &["can"]),
     ("can::Encode", &["can"]),
     ("can::Decode", &["can"]),
@@ -98,7 +99,7 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("mavlink::Encode", &["mavlink"]),
     ("mavlink::Decode", &["mavlink"]),
     ("mavlink::Enum", &["mavlink"]),
-    ("thiserror::Error", &["error"]),
+    ("mavlink::Dialect", &["dialect"]),
 ];
 
 // -----------------------------------------------------------------------------

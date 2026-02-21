@@ -3,10 +3,14 @@
 //! It is also used to check IDs are unique and to generate the full mavlink dialect.
 //!
 //! Like other crates, various cargo features can enable certain components,
-//! currently `can` (and in the near future `mavlink`).
+//! currently `can` and `mavlink`.
+
+use gated_derive::gated_derive;
 
 #[cfg(feature = "can")]
 use data_core::can;
+#[cfg(feature = "mavlink")]
+use data_core::mavlink;
 
 /// Reexport all datapoints to simplify imports
 pub mod datapoints {
@@ -22,16 +26,9 @@ pub mod datapoints {
 }
 
 /// All messages in the full system
-#[gated_derive::gated_derive(
-    can::Decode,
-    can::Encode,
-    utoipa::ToSchema,
-    serde::Deserialize,
-    serde::Serialize,
-    Debug
-)]
-// #[derive(MavlinkDialect)] // TODO
-// #[dialect(name = "ASTERIA", id = 900, version = 1)] // idk whether 900 is good
+#[gated_derive(can::Decode, can::Encode, mavlink::Dialect)]
+#[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize, Debug)]
+#[dialect(name = "ASTERIA", id = 900, version = 1)]
 #[can(dispatch)]
 #[serde(tag = "board", content = "message")]
 pub enum Message {
@@ -68,8 +65,3 @@ fn unique_can_ids() {
     all_ids.dedup();
     assert_eq!(nr_msg, all_ids.len(), "contains duplicate IDs!");
 }
-
-// TODO
-// const _: () = mavlink_hal::macro_util::check_unique_ids(
-//     <AnyMessage as mavlink_hal::description::DescribeMessages>::MESSAGES,
-// );

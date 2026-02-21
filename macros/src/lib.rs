@@ -354,3 +354,24 @@ pub fn derive_mavlink_decode(input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+/// Derive macro for implementing the [`mavio::Dialect`], [`mavio::protocol::MessageSpec`], [`mavio::protocol::IntoPayload`] and
+/// [`mavlink_hal::description::DescribeMessages`] traits for an enum.
+///
+/// The enum supports the following attribute:
+/// - `#[dialect(name = "...", id = <number>, version = <number>)]`: The name attribute is used as the MavLink dialect name, the id attribute
+///   is used as the MavLink dialect identifier and the version attribute is used as the version of the dialect
+///
+/// **Important**: This macro only works on newtype enums and every enum variant needs to implement [`mavlink_hal::description::DescribeMessages`]
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkDialect, attributes(dialect))]
+pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
+    use crate::mavlink::dialect::{MavlinkDialect, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkDialect::from_derive_input(&input) {
+        Ok(dialect) => handle(dialect),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
