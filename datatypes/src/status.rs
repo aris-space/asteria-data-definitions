@@ -5,8 +5,10 @@ use gated_derive::gated_derive;
 /// The ID of a board in the rocket.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[serde(rename_all = "camelCase")]
 pub enum BoardId {
     FlightComputer = 0,
     RfsComputer = 1,
@@ -24,13 +26,17 @@ pub enum BoardId {
 /// This value is derived from the GPS time sensors and is therefore highly accurate.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[serde(rename_all = "camelCase")]
 pub struct InstantUs(pub u64);
 
 /// Represents the current arming state of the subsystem
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub enum ArmingState {
     /// System is safe to approach, arming action is necessary to use the system.
     /// This can mean for example that actuators do not have power.
@@ -43,7 +49,9 @@ pub enum ArmingState {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct StatusCommonMessage {
     /// Number of errors encountered since startup.
     pub errors: u32,
@@ -54,7 +62,9 @@ pub struct StatusCommonMessage {
 /// Shared firmware build information used by all boards.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct BuildInformationCommon {
     /// Unix timestamp when the build was compiled, provided in seconds since
     /// the Unix epoch `(1970-01-01 00:00:00 UTC)`. While this is a 32-bit integer,
@@ -77,8 +87,10 @@ pub struct BuildInformationCommon {
 /// Enum representing the status of a sensor.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[repr(u8)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub enum SensorStatus {
     /// Sensor is not providing data or is not responding.
     #[default]
@@ -90,7 +102,9 @@ pub enum SensorStatus {
 /// Enum representing the state of a valve.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub enum ValveState {
     /// Power should be enabled for the valve
     Active,

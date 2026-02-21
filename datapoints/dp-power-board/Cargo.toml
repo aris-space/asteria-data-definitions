@@ -11,11 +11,17 @@ datatypes = { version = "0.1.0", path = "../../datatypes" }
 data-core = { version = "0.1.0", path = "../../core" }
 gated-derive = { path = "../../macro-gated-derive" }
 
+# for types
+serde = { workspace = true, optional = true }
+utoipa = { workspace = true, optional = true }
+
 [features]
 can = ["data-core/can", "datatypes/derive_bincode"]
 std = ["datatypes/std", "data-core/std"]
-derive_serde = ["datatypes/derive_serde"]
+mission-control = ["derive_serde", "derive_utoipa"]
+derive_serde = ["dep:serde", "datatypes/derive_serde"]
 derive_defmt = ["datatypes/derive_defmt"]
 derive_bincode = ["datatypes/derive_bincode"]
 derive_arbitrary = ["datatypes/derive_arbitrary"]
+derive_utoipa = ["dep:utoipa", "datatypes/derive_utoipa", "std"]
 derive_debug = []

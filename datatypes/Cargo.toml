@@ -8,16 +8,11 @@ workspace = true
 
 [dependencies]
 gated-derive = { path = "../macro-gated-derive" }
-serde = { version = "1.0.228", features = [
-    "derive",
-], default-features = false, optional = true }
-bincode = { version = "2.0.1", features = [
-    "derive",
-    "serde",
-], default-features = false, optional = true }
-defmt = { version = "1.0.1", optional = true }
-arbitrary = { version = "1.4.1", features = ["derive"], optional = true }
-
+serde = { workspace = true, optional = true }
+bincode = { workspace = true, optional = true }
+defmt = { workspace = true, optional = true }
+arbitrary = { workspace = true, optional = true }
+utoipa = { workspace = true, optional = true }
 
 [features]
 std = ["bincode/std"]
@@ -25,3 +20,4 @@ derive_serde = ["dep:serde"]
 derive_defmt = ["dep:defmt"]
 derive_bincode = ["dep:bincode"]
 derive_arbitrary = ["dep:arbitrary", "std"]
+derive_utoipa = ["dep:utoipa", "std"]

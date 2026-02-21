@@ -17,6 +17,16 @@ members = [
     "messages",
 ]
 
+[workspace.dependencies]
+serde = { version = "1.0.228", features = ["derive"], default-features = false }
+bincode = { version = "2.0.1", features = [
+    "derive",
+    "serde",
+], default-features = false }
+defmt = { version = "1.0.1" }
+arbitrary = { version = "1.4.1", features = ["derive"] }
+utoipa = { version = "5.4.0" }
+
 [workspace.lints.clippy]
 unwrap_used = "deny"
 pedantic = { level = "warn", priority = -1 }

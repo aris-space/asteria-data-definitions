@@ -8,7 +8,9 @@ use gated_derive::gated_derive;
 /// Once powered, actuator detection is no longer possible.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub enum ActuatorStatus {
     /// Actuator is not connected (e.g. unplugged or circuit open).
     #[default]
@@ -22,7 +24,9 @@ pub enum ActuatorStatus {
 /// Represents the current state of a watchdog timer.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub enum WatchdogState {
     /// Watchdog is not active. No steering signal has been received since startup.
     #[default]
@@ -35,7 +39,9 @@ pub enum WatchdogState {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct SteeringPositions {
     /// Current position of the left steering motor in steps (4096 steps = 1 revolution) from the
     /// startup position (0).
@@ -47,7 +53,9 @@ pub struct SteeringPositions {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct RecoveryPowerConfig {
     /// Whether power to the separation actuators should be enabled. Physically,
     /// actuator power is only provided after hardware electrical arming of the system.
@@ -62,7 +70,9 @@ pub struct RecoveryPowerConfig {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct RecoveryBoardStatus {
     pub common: StatusCommonMessage,
     /// Detected state of separation actuator 1.

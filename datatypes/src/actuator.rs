@@ -5,7 +5,9 @@ use gated_derive::gated_derive;
 /// The state of a valve that is normally open.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub enum NormallyOpenValve {
     #[default]
     Open,
@@ -15,7 +17,9 @@ pub enum NormallyOpenValve {
 /// The state of a valve that is normally closed.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub enum NormallyClosedValve {
     Open,
     #[default]
@@ -26,13 +30,17 @@ pub enum NormallyClosedValve {
 /// opening_time = kp * (target_pressure - current_pressure), in milliseconds
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[serde(rename_all = "camelCase")]
 pub struct PressurizationGain(pub f32);
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub enum DprState {
     /// Enabled with pressure setpoint in Barg. 0-60.
     Enabled(f32),
@@ -43,7 +51,9 @@ pub enum DprState {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct CameraPowerStatus {
     /// Whether the recording camera(s) should be powered on (true=on, false=off).
     pub recording_pwr_enabled: bool,

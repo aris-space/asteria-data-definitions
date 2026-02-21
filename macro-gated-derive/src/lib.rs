@@ -46,6 +46,7 @@
 //! | `serde::Serialize` | `serde` |
 //! | `serde::Deserialize` | `serde` |
 //! | `schemars::JsonSchema` | `schemars`, `serde` |
+//! | `utoipa::ToSchema` | `schema`, `serde` |
 //! | `Default` | `default` |
 //!
 //! ### 3. Shared Attributes (Union Logic)
@@ -86,10 +87,15 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("serde::Serialize", &["serde"]),
     ("serde::Deserialize", &["serde"]),
     ("schemars::JsonSchema", &["schemars", "serde"]),
+    ("utoipa::ToSchema", &["schema", "serde"]),
     ("Default", &["default"]),
     ("std::default::Default", &["default"]),
     ("data_core::CanMessage", &["can"]),
+    ("data_core::CanEncode", &["can"]),
+    ("data_core::CanDecode", &["can"]),
     ("CanMessage", &["can"]),
+    ("CanEncode", &["can"]),
+    ("CanDecode", &["can"]),
 ];
 
 // -----------------------------------------------------------------------------
