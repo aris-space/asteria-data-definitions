@@ -24,6 +24,7 @@ serde = { workspace = true, optional = true }
 default = ["can"]
 # Derive can related traits for all datapoints and datapoint specific types
 can = [
+    "derive_can",
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
     "dp-power-board/can",
@@ -112,6 +113,7 @@ derive_utoipa = [
     "dp-sensor-carrier/derive_utoipa",
     "dep:utoipa",
 ]
+derive_can = []
 
 [lints]
 workspace = true

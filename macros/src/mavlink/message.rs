@@ -97,17 +97,22 @@ pub fn handle(mavlink_message: MavlinkMessage) -> TokenStream {
 }
 
 fn generate_mavlink_describe(ident: &Ident, variants: &[MavlinkMessageVariant]) -> TokenStream {
-    let (ids, names, descriptions) = variants
+    let (ids, types, names, descriptions) = variants
         .iter()
         .map(|variant| {
             let name = snake_case(&variant.name.clone().unwrap_or(variant.ident.to_string()))
                 .to_uppercase();
             let name_lit = LitStr::new(&name, Span::call_site());
             let description_lit = LitStr::new(&variant.attrs.get_docs_str(), Span::call_site());
+            let field = variant
+                .fields
+                .fields
+                .first()
+                .expect("should have exactly one field as all variants are newtypes");
 
-            (variant.id, name_lit, description_lit)
+            (variant.id, &field.ty, name_lit, description_lit)
         })
-        .collect::<(Vec<_>, Vec<_>, Vec<_>)>();
+        .collect::<(Vec<_>, Vec<_>, Vec<_>, Vec<_>)>();
 
     quote! {
         impl description::DescribeMessages for #ident {
@@ -117,7 +122,7 @@ fn generate_mavlink_describe(ident: &Ident, variants: &[MavlinkMessageVariant]) 
                         id: macro_util::sanitize_id(#ids),
                         name: #names,
                         description: #descriptions,
-                        fields: <datatypes::StatusCommonMessage as description::DescribeFieldSet>::FIELDS,
+                        fields: <super::#types as description::DescribeFieldSet>::FIELDS,
                     }
                 ),*
             ];
@@ -126,22 +131,26 @@ fn generate_mavlink_describe(ident: &Ident, variants: &[MavlinkMessageVariant]) 
 }
 
 fn generate_mavlink_message_spec(ident: &Ident, variants: &[MavlinkMessageVariant]) -> TokenStream {
-    let (variants, ids, names) = variants
+    let (variants, types, ids, names) = variants
         .iter()
         .map(|variant| {
             let name = snake_case(&variant.name.clone().unwrap_or(variant.ident.to_string()))
                 .to_uppercase();
             let name_lit = LitStr::new(&name, Span::call_site());
-
-            (&variant.ident, variant.id, name_lit)
+            let field = variant
+                .fields
+                .fields
+                .first()
+                .expect("should have exactly one field as all variants are newtypes");
+            (&variant.ident, &field.ty, variant.id, name_lit)
         })
-        .collect::<(Vec<_>, Vec<_>, Vec<_>)>();
+        .collect::<(Vec<_>, Vec<_>, Vec<_>, Vec<_>)>();
 
     quote! {
         impl protocol::MessageSpec for #ident {
             fn id(&self) -> protocol::MessageId {
                 match self {
-                    #(#ident::#variants(_) => #ids),*,
+                    #(#ident::#variants(_) => #ids,)*
                     _ => panic!("variant is not mavlink compatible")
                 }
             }
@@ -156,9 +165,9 @@ fn generate_mavlink_message_spec(ident: &Ident, variants: &[MavlinkMessageVarian
                     #(
                         #ident::#variants(_) => macro_util::calc_extra_crc(
                             #names,
-                            <datatypes::StatusCommonMessage as description::DescribeFieldSet>::FIELDS
-                        )
-                    ),*,
+                            <super::#types as description::DescribeFieldSet>::FIELDS
+                        ),
+                    )*
                     _ => panic!("variant is not mavlink compatible")
                 }
             }
@@ -201,7 +210,7 @@ fn generate_mavlink_payload_encode(
                     #(
                         #ident::#variants(value) => {
                             let buffer = codec::encode_body::<
-                                _, { macro_util::total_size(<#types as description::DescribeFieldSet>::FIELDS) }
+                                _, { macro_util::total_size(<super::#types as description::DescribeFieldSet>::FIELDS) }
                             >(value)
                             .map_err(|_| prelude::SpecError::V2PayloadIsTooLong { actual: 0, maximum: 0 })?;
 
@@ -256,7 +265,7 @@ fn generate_mavlink_payload_decode(
                 match payload.id() {
                     #(
                         #ids => codec::decode_body::<
-                            _, { macro_util::total_size(<#types as description::DescribeFieldSet>::FIELDS) }
+                            _, { macro_util::total_size(<super::#types as description::DescribeFieldSet>::FIELDS) }
                         >(payload.bytes())
                         .map(#ident::#variants)
                         .map_err(|_| prelude::SpecError::V2PayloadIsTooLong { actual: 0, maximum: 0 }),

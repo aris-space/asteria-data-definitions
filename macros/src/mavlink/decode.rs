@@ -129,7 +129,7 @@ fn handle_struct(decode: MavlinkDecode) -> TokenStream {
             error.push(darling::Error::custom("The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used at the same time!").with_span(&field_ident.span()));
         } else if field.flatten.is_present() || field.refine.is_present() {
             let field_ty = &field.ty;
-            reads.push(quote! { #field_ty::decode(reader_8_aligned, reader_4_aligned, reader_2_aligned, reader_1_aligned)? });
+            reads.push(quote! { <#field_ty as ::data_core::mavlink::hal::codec::Decode>::decode(reader_8_aligned, reader_4_aligned, reader_2_aligned, reader_1_aligned)? });
         } else {
             let path = match &field.ty {
                 syn::Type::Array(syn::TypeArray { elem, .. }) => {

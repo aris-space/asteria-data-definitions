@@ -20,6 +20,7 @@ utoipa = { workspace = true, optional = true }
 
 [features]
 can = ["derive_bincode", "derive_can", "data-core/can"]
+mavlink = ["derive_mavlink", "data-core/mavlink", "datatypes/derive_mavlink"]
 std = ["bincode/std", "datatypes/std", "data-core/std"]
 mission-control = ["derive_serde", "derive_utoipa"]
 derive_serde = ["dep:serde", "datatypes/derive_serde"]
@@ -28,4 +29,5 @@ derive_bincode = ["dep:bincode", "datatypes/derive_bincode"]
 derive_arbitrary = ["dep:arbitrary", "datatypes/derive_arbitrary", "std"]
 derive_utoipa = ["dep:utoipa", "datatypes/derive_utoipa", "std"]
 derive_can = []
+derive_mavlink = []
 derive_debug = []

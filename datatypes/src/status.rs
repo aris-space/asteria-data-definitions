@@ -1,10 +1,13 @@
 //! System status, state information, and identifiers.
 
+#[cfg(feature = "derive_mavlink")]
+use data_core::mavlink;
 use gated_derive::gated_derive;
 
 /// The ID of a board in the rocket.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
 #[gated_derive(utoipa::ToSchema)]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
@@ -26,29 +29,34 @@ pub enum BoardId {
 /// This value is derived from the GPS time sensors and is therefore highly accurate.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 #[serde(rename_all = "camelCase")]
+#[unit("us")]
 pub struct InstantUs(pub u64);
 
 /// Represents the current arming state of the subsystem
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
 #[gated_derive(utoipa::ToSchema)]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub enum ArmingState {
     /// System is safe to approach, arming action is necessary to use the system.
     /// This can mean for example that actuators do not have power.
     #[default]
-    Safe,
+    Safe = 0,
     /// System is not safe to approach anymore. System can be used to its full capacity
     /// This can mean for example that previously unpowered actuators now have power.
-    Armed,
+    Armed = 1,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -62,6 +70,7 @@ pub struct StatusCommonMessage {
 /// Shared firmware build information used by all boards.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -87,9 +96,10 @@ pub struct BuildInformationCommon {
 /// Enum representing the status of a sensor.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
 #[gated_derive(utoipa::ToSchema)]
 #[repr(u8)]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub enum SensorStatus {
     /// Sensor is not providing data or is not responding.
@@ -102,15 +112,17 @@ pub enum SensorStatus {
 /// Enum representing the state of a valve.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
 #[gated_derive(utoipa::ToSchema)]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub enum ValveState {
     /// Power should be enabled for the valve
-    Active,
+    Active = 0,
     /// Power should not be disabled for the valve
     #[default]
-    Inactive,
+    Inactive = 1,
 }
 
 #[cfg(feature = "derive_bincode")]

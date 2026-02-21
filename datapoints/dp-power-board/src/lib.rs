@@ -1,6 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use data_core::{Message, can, mavlink};
+use data_core::Message;
+#[cfg(feature = "can")]
+use data_core::can;
+#[cfg(feature = "mavlink")]
+use data_core::mavlink;
 use datatypes::actuator::CameraPowerStatus;
 use datatypes::status::{BuildInformationCommon, StatusCommonMessage};
 use datatypes::units::RailStatus;
