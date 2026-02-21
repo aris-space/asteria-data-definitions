@@ -23,6 +23,7 @@ serde = { workspace = true, optional = true }
 [features]
 default = ["can"]
 can = [
+    "derive_can",
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
     "dp-power-board/can",
@@ -50,6 +51,7 @@ mission-control = [
 ]
 derive_serde = ["dep:serde"]
 derive_utoipa = ["dep:utoipa"]
+derive_can = []
 derive_debug = []
 
 [lints]

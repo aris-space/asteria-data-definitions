@@ -100,10 +100,10 @@ fn handle_struct(encode: MavlinkEncode) -> TokenStream {
         if field.flatten.is_present() && field.refine.is_present() {
             error.push(darling::Error::custom("The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used at the same time!").with_span(&field_ident.span()));
         } else if field.flatten.is_present() || field.refine.is_present() {
-            bytes1.push(quote! { self.#field_ident.encode_1_aligned(writer); });
-            bytes2.push(quote! { self.#field_ident.encode_2_aligned(writer); });
-            bytes4.push(quote! { self.#field_ident.encode_4_aligned(writer); });
-            bytes8.push(quote! { self.#field_ident.encode_8_aligned(writer); });
+            bytes1.push(quote! { ::data_core::mavlink::hal::codec::Encode::encode_1_aligned(&self.#field_ident, writer) });
+            bytes2.push(quote! { ::data_core::mavlink::hal::codec::Encode::encode_2_aligned(&self.#field_ident, writer) });
+            bytes4.push(quote! { ::data_core::mavlink::hal::codec::Encode::encode_4_aligned(&self.#field_ident, writer) });
+            bytes8.push(quote! { ::data_core::mavlink::hal::codec::Encode::encode_8_aligned(&self.#field_ident, writer) });
         } else {
             let path = match &field.ty {
                 syn::Type::Array(syn::TypeArray { elem, .. }) => {

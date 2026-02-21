@@ -1,5 +1,7 @@
 //! Physical measurement units and related types.
 
+#[cfg(feature = "derive_mavlink")]
+use data_core::mavlink;
 use gated_derive::gated_derive;
 
 /// Macro to generate unit newtype structs with standard derives and Default implementation.
@@ -22,16 +24,18 @@ macro_rules! unit_newtypes {
         ),* $(,)?
     ) => {
         $(
-            $(#[$meta])*
             ///
             /// Is `NAN` by default.
             #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
             #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-            #[gated_derive(mavlink::FieldSet)]
+            #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
             #[gated_derive(utoipa::ToSchema)]
             #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
             #[repr(transparent)]
             #[serde(rename_all = "camelCase")]
+            // Meta attributes need to come after all gated derives in order to ensure
+            // attributes are gated properly
+            $(#[$meta])*
             pub struct $name(pub $ty);
 
             impl Default for $name {
@@ -58,7 +62,7 @@ unit_newtypes! {
 /// Shared rail status structure for both 5V and 24V power rails.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::FieldSet, mavlink::Encode, mavlink::Decode)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]

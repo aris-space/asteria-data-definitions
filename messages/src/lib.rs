@@ -5,10 +5,13 @@
 //! Like other crates, various cargo features can enable certain components,
 //! currently `can` (and in the near future `mavlink`).
 
+#[cfg(feature = "can")]
+use data_core::can;
+
 /// All messages in the full system
 #[gated_derive::gated_derive(
-    data_core::CanDecode(feature = "can"),
-    data_core::CanEncode(feature = "can"),
+    can::Decode,
+    can::Encode,
     utoipa::ToSchema,
     serde::Deserialize,
     serde::Serialize,
