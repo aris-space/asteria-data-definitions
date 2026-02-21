@@ -98,6 +98,7 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("mavlink::Encode", &["mavlink"]),
     ("mavlink::Decode", &["mavlink"]),
     ("mavlink::Enum", &["mavlink"]),
+    ("mavlink::Dialect", &["dialect"]),
 ];
 
 // -----------------------------------------------------------------------------

@@ -17,8 +17,8 @@ pub mod can {
 #[cfg(feature = "mavlink")]
 pub mod mavlink {
     pub use data_macros::{
-        MavlinkDecode as Decode, MavlinkEncode as Encode, MavlinkEnum as Enum,
-        MavlinkFieldSet as FieldSet, MavlinkMessage as Message,
+        MavlinkDecode as Decode, MavlinkDialect as Dialect, MavlinkEncode as Encode,
+        MavlinkEnum as Enum, MavlinkFieldSet as FieldSet, MavlinkMessage as Message,
     };
     pub use mavio;
     pub use mavlink_hal as hal;

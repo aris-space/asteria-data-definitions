@@ -21,7 +21,7 @@ utoipa = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 
 [features]
-default = ["can"]
+default = ["can", "mavlink"]
 can = [
     "derive_can",
     "dp-engine-control-board/can",
@@ -35,6 +35,19 @@ can = [
     "dp-sensor-carrier/can",
     "data-core/can",
     "dep:thiserror",                 # required for CAN message macro
+]
+mavlink = [
+    "derive_mavlink",
+    "dp-engine-control-board/mavlink",
+    "dp-fuel-control-board/mavlink",
+    "dp-power-board/mavlink",
+    "dp-rfs-computer/mavlink",
+    "dp-system-management/mavlink",
+    "dp-flight-computer/mavlink",
+    "dp-oxidizer-control-board/mavlink",
+    "dp-recovery-board/mavlink",
+    "dp-sensor-carrier/mavlink",
+    "data-core/mavlink",
 ]
 mission-control = [
     "dp-engine-control-board/mission-control",
@@ -52,6 +65,7 @@ mission-control = [
 derive_serde = ["dep:serde"]
 derive_utoipa = ["dep:utoipa"]
 derive_can = []
+derive_mavlink = []
 derive_debug = []
 
 [lints]
