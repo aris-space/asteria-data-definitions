@@ -86,13 +86,11 @@ pub struct ThrustPoint {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-// #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ThrustCurveConfig {
     /// The thrust curve, consisting of 25 points.
-    // #[mavlink(flatten)]
     pub thrust_curve: [ThrustPoint; 25],
     /// The length of the thrust curve in points (0-25).
     pub thrust_curve_length: u8,
