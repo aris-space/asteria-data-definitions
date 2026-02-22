@@ -22,6 +22,7 @@ serde = { workspace = true, optional = true }
 
 [features]
 default = ["can"]
+# Derive can related traits for all datapoints and datapoint specific types
 can = [
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
@@ -35,6 +36,55 @@ can = [
     "data-core/can",
     "dep:thiserror",                 # required for CAN message macro
 ]
+# Derive serde for all datapoint specific types
+derive_serde = [
+    "dp-engine-control-board/derive_serde",
+    "dp-fuel-control-board/derive_serde",
+    # "dp-power-board/derive_serde",
+    "dp-rfs-computer/derive_serde",
+    # "dp-system-management/derive_serde",
+    "dp-flight-computer/derive_serde",
+    "dp-oxidizer-control-board/derive_serde",
+    "dp-recovery-board/derive_serde",
+    "dp-sensor-carrier/derive_serde",
+]
+# Derive defmt for all datapoint specific types
+derive_defmt = [
+    "dp-engine-control-board/derive_defmt",
+    "dp-fuel-control-board/derive_defmt",
+    # "dp-power-board/derive_defmt",
+    "dp-rfs-computer/derive_defmt",
+    # "dp-system-management/derive_defmt",
+    "dp-flight-computer/derive_defmt",
+    "dp-oxidizer-control-board/derive_defmt",
+    "dp-recovery-board/derive_defmt",
+    "dp-sensor-carrier/derive_defmt",
+]
+# Derive arbitrary for all datapoint specific types
+derive_arbitrary = [
+    "dp-engine-control-board/derive_arbitrary",
+    "dp-fuel-control-board/derive_arbitrary",
+    # "dp-power-board/derive_arbitrary",
+    "dp-rfs-computer/derive_arbitrary",
+    # "dp-system-management/derive_arbitrary",
+    "dp-flight-computer/derive_arbitrary",
+    "dp-oxidizer-control-board/derive_arbitrary",
+    "dp-recovery-board/derive_arbitrary",
+    "dp-sensor-carrier/derive_arbitrary",
+]
+# Derive Debug for the message enum, all datapoints and datapoint specific types
+derive_debug = [
+    "dp-engine-control-board/derive_debug",
+    "dp-fuel-control-board/derive_debug",
+    "dp-power-board/derive_debug",
+    "dp-rfs-computer/derive_debug",
+    "dp-system-management/derive_debug",
+    "dp-flight-computer/derive_debug",
+    "dp-oxidizer-control-board/derive_debug",
+    "dp-recovery-board/derive_debug",
+    "dp-sensor-carrier/derive_debug",
+]
+# Derive the Utoipa and Serde for the message enum and all dependencies.
 mission-control = [
     "dp-engine-control-board/mission-control",
     "dp-fuel-control-board/mission-control",
@@ -46,11 +96,21 @@ mission-control = [
     "dp-recovery-board/mission-control",
     "dp-sensor-carrier/mission-control",
     "derive_utoipa",
-    "derive_serde"
+    "derive_serde",
 ]
-derive_serde = ["dep:serde"]
-derive_utoipa = ["dep:utoipa"]
-derive_debug = []
+# Derive the Utoipa API schema generation for the message enum and all dependencies.
+derive_utoipa = [
+    "dp-engine-control-board/derive_utoipa",
+    "dp-fuel-control-board/derive_utoipa",
+    "dp-power-board/derive_utoipa",
+    "dp-rfs-computer/derive_utoipa",
+    "dp-system-management/derive_utoipa",
+    "dp-flight-computer/derive_utoipa",
+    "dp-oxidizer-control-board/derive_utoipa",
+    "dp-recovery-board/derive_utoipa",
+    "dp-sensor-carrier/derive_utoipa",
+    "dep:utoipa",
+]
 
 [lints]
 workspace = true
