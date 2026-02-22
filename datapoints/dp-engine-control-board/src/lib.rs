@@ -228,8 +228,7 @@ pub enum Message {
     /// ## Reaction
     ///
     #[can(id = 0x240)]
-    ThrustCurveConfig(u8),
-    // ThrustCurveConfig(ThrustCurveConfig),
+    ThrustCurveConfig(ThrustCurveConfig),
     /// # `FiringAbortInitiation`
     /// Event message sent by the FC.
     ///
