@@ -23,18 +23,23 @@ pub struct FuelControlBoardStatus {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-// #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FuelControlBoardValveStates {
     /// Fuel DPR Control loop state
+<<<<<<< HEAD
     // #[mavlink(flatten)]
     pub fss_dpr: DPRValve,
+=======
+    #[mavlink(flatten)]
+    pub fss_dpr: DprState,
+>>>>>>> 51a9d28 (feat: implement mavlink traits manually for DprState)
     /// Pressurization Valve state
-    // #[mavlink(flatten)]
+    #[mavlink(flatten)]
     pub prz_vnt_vlv: ValveState,
     /// Fuel Vent Valve state
-    // #[mavlink(flatten)]
+    #[mavlink(flatten)]
     pub fss_vnt_vlv: ValveState,
 }

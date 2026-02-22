@@ -129,8 +129,8 @@ pub struct PressurizationGain(pub f32);
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[derive(Debug, Default, Clone, Copy, PartialEq)]
 #[gated_derive(utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "f32", into = "f32")]
 pub enum DPRValve {
@@ -174,6 +174,57 @@ impl Settable for DPRValve {
     }
 }
 
+#[cfg(feature = "derive_mavlink")]
+mod dpr_state_mavlink_impl {
+    use core::f32;
+
+    use data_core::mavlink::hal::{
+        codec::{
+            Decode, Encode,
+            tbytes::{
+                TBytesReader, TBytesReaderBackend, TBytesWriter, TBytesWriterBackend,
+                errors::TBytesError,
+            },
+        },
+        description::{DescribeFieldSet, MessageField},
+        typing::Typeable,
+    };
+
+    impl DescribeFieldSet for super::DPRValve {
+        const FIELDS: &[MessageField] = &[MessageField {
+            type_: <f32 as Typeable>::TYPE,
+            name: "dpr_valve",
+            unit: None,
+            description: "",
+            enum_: <f32 as Typeable>::ENUM,
+        }];
+    }
+
+    impl Encode for super::DPRValve {
+        fn encode_4_aligned(
+            &self,
+            writer: &mut TBytesWriter<impl TBytesWriterBackend>,
+        ) -> Result<usize, TBytesError> {
+            use data_core::mavlink::hal::codec::tbytes::TBytesWriterFor as _;
+            let value: f32 = (*self).into();
+            writer.write(value)
+        }
+    }
+
+    impl Decode for super::DPRValve {
+        fn decode(
+            _: &mut TBytesReader<impl TBytesReaderBackend>,
+            reader_4_aligned: &mut TBytesReader<impl TBytesReaderBackend>,
+            _: &mut TBytesReader<impl TBytesReaderBackend>,
+            _: &mut TBytesReader<impl TBytesReaderBackend>,
+        ) -> Result<Self, TBytesError> {
+            use data_core::mavlink::hal::codec::tbytes::TBytesReaderFor as _;
+            let value: f32 = reader_4_aligned.read()?;
+            Self::try_from(value).map_err(|_| TBytesError::OutOfBounds)
+        }
+    }
+}
+
 /// The state of a throttleable valve.
 /// This is a [`Settable`] with the value being 0.0 for fully closed up to 1.0 for fully open.
 ///
@@ -181,6 +232,7 @@ impl Settable for DPRValve {
 /// but they start closed (`Default` gives a closed state).
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[derive(Debug, Default, Clone, Copy, PartialEq)] // defaults to 0 (closed).
 pub struct ThrottleableValve {
     /// The openness in percent (0 being fully closed, 100 being fully open)

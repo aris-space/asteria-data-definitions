@@ -23,15 +23,20 @@ pub struct OxidizerControlBoardStatus {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-// #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct OxidizerControlBoardValveStates {
     /// Oxidizer DPR Control loop state
+<<<<<<< HEAD
     // #[mavlink(flatten)]
     pub oss_dpr: DPRValve,
+=======
+    #[mavlink(flatten)]
+    pub oss_dpr: DprState,
+>>>>>>> 51a9d28 (feat: implement mavlink traits manually for DprState)
     /// Oxidizer Vent Valve state
-    // #[mavlink(flatten)]
+    #[mavlink(flatten)]
     pub oss_vnt_vlv: ValveState,
 }

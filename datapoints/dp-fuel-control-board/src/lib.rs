@@ -73,8 +73,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
-    ValveStates(u8),
-    // ValveStates(FuelControlBoardValveStates),
+    ValveStates(FuelControlBoardValveStates),
     /// # `FuelPressurizationCompleted`
     /// Event message sent by the FuelControlBoard.
     ///

@@ -73,8 +73,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
-    ValveStates(u8),
-    // ValveStates(OxidizerControlBoardValveStates),
+    ValveStates(OxidizerControlBoardValveStates),
     /// # `OxidizerPressurizationCompleted`
     /// Event message sent by the OxidizerControlBoard
     ///
