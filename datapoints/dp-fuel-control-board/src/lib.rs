@@ -1,6 +1,10 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use data_core::Message;
+#[cfg(feature = "can")]
+use data_core::can;
+#[cfg(feature = "mavlink")]
+use data_core::mavlink;
 use datatypes::actuator::{DprState, PressurizationGain};
 use datatypes::status::{BuildInformationCommon, ValveState};
 use datatypes::units::BarG;
@@ -10,7 +14,8 @@ mod dptypes;
 pub use dptypes::*;
 
 #[derive(Message)]
-#[gated_derive(data_core::CanMessage(feature = "can"), Debug)]
+#[gated_derive(can::Message, Debug)]
+#[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = FueldControlBoardMessage)]
@@ -69,7 +74,6 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
     ValveStates(FuelControlBoardValveStates),
-
     /// # `FuelPressurizationCompleted`
     /// Event message sent by the FuelControlBoard.
     ///

@@ -1,9 +1,9 @@
 #![no_std]
 #![allow(dead_code)]
 
-use data_core::{CanDecode, CanEncode, sparse_decodable_can_message};
+use data_core::can;
 
-#[derive(CanDecode, CanEncode)]
+#[derive(can::Decode, can::Encode)]
 #[can(dispatch)]
 enum AnyMessage {
     PowerBoard(dp_power_board::Message),
@@ -11,7 +11,7 @@ enum AnyMessage {
 }
 
 pub mod sparse_decode {
-    use crate::sparse_decodable_can_message;
+    use crate::can::sparse_decodable_can_message;
     sparse_decodable_can_message! {
         enum ReceivedMessage {
             PowerBoardBuildInfo(dp_power_board::Message::BuildInfo),
