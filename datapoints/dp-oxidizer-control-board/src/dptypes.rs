@@ -23,15 +23,15 @@ pub struct OxidizerControlBoardStatus {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-// #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct OxidizerControlBoardValveStates {
     /// Oxidizer DPR Control loop state
-    // #[mavlink(flatten)]
+    #[mavlink(flatten)]
     pub oss_dpr: DprState,
     /// Oxidizer Vent Valve state
-    // #[mavlink(flatten)]
+    #[mavlink(flatten)]
     pub oss_vnt_vlv: ValveState,
 }

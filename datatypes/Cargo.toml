@@ -16,6 +16,7 @@ arbitrary = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 
 [features]
+default = ["derive_mavlink"]
 std = ["bincode/std"]
 derive_mavlink = ["data-core/mavlink"]
 derive_serde = ["dep:serde"]
