@@ -22,7 +22,7 @@ serde = { workspace = true, optional = true }
 
 
 [dev-dependencies]
-criterion = { version = "0.5.1", optional = true }
+criterion = { version = "0.5.1" }
 
 [features]
 default = ["can", "mavlink"]
@@ -128,6 +128,8 @@ derive_utoipa = [
     "dp-sensor-carrier/derive_utoipa",
     "dep:utoipa",
 ]
+derive_can = []
+derive_mavlink = []
 
 
 [lints]
@@ -137,4 +139,4 @@ workspace = true
 [[bench]]
 name = "heartbeat_encode"
 harness = false
-features = ["dep:criterion"]
+required-features = ["mavlink"]
