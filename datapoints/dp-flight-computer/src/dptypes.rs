@@ -3,7 +3,9 @@ use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct FlightComputerStatus {
     pub common: StatusCommonMessage,
     /// `true` if the flight computer asserts control over the PSS valves via CAN.

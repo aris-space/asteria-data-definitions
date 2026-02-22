@@ -4,7 +4,9 @@ use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct OxidizerControlBoardStatus {
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
@@ -15,7 +17,9 @@ pub struct OxidizerControlBoardStatus {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct OxidizerControlBoardValveStates {
     /// Oxidizer DPR Control loop state
     pub oss_dpr: DprState,

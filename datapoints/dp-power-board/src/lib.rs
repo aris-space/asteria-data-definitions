@@ -9,6 +9,9 @@ use gated_derive::gated_derive;
 
 #[derive(Message)]
 #[gated_derive(data_core::CanMessage(feature = "can"), Debug)]
+#[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[serde(tag = "type", content = "content")]
+#[schema(as = PowerBoardMessage)]
 pub enum Message {
     // ======================== TX ========================
     /// # `PowerBoardBuildInfo`

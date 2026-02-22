@@ -17,6 +17,8 @@ dp-sensor-carrier = { version = "0.3.0", path = "../datapoints/dp-sensor-carrier
 data-core = { version = "0.1.0", path = "../core" }
 gated-derive = { path = "../macro-gated-derive" }
 thiserror = { version = "2.0.17", optional = true, default-features = false }
+utoipa = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
 
 [features]
 default = ["can"]
@@ -81,6 +83,33 @@ derive_debug = [
     "dp-oxidizer-control-board/derive_debug",
     "dp-recovery-board/derive_debug",
     "dp-sensor-carrier/derive_debug",
+]
+# Derive the Utoipa and Serde for the message enum and all dependencies.
+mission-control = [
+    "dp-engine-control-board/mission-control",
+    "dp-fuel-control-board/mission-control",
+    "dp-power-board/mission-control",
+    "dp-rfs-computer/mission-control",
+    "dp-system-management/mission-control",
+    "dp-flight-computer/mission-control",
+    "dp-oxidizer-control-board/mission-control",
+    "dp-recovery-board/mission-control",
+    "dp-sensor-carrier/mission-control",
+    "derive_utoipa",
+    "derive_serde",
+]
+# Derive the Utoipa API schema generation for the message enum and all dependencies.
+derive_utoipa = [
+    "dp-engine-control-board/derive_utoipa",
+    "dp-fuel-control-board/derive_utoipa",
+    "dp-power-board/derive_utoipa",
+    "dp-rfs-computer/derive_utoipa",
+    "dp-system-management/derive_utoipa",
+    "dp-flight-computer/derive_utoipa",
+    "dp-oxidizer-control-board/derive_utoipa",
+    "dp-recovery-board/derive_utoipa",
+    "dp-sensor-carrier/derive_utoipa",
+    "dep:utoipa",
 ]
 
 [lints]

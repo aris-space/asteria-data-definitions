@@ -3,7 +3,9 @@ use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct RfsComputerStatus {
     pub common: StatusCommonMessage,
     /// `true` if the remote filling station asserts control over the PSS valves via CAN.
@@ -16,7 +18,9 @@ pub struct RfsComputerStatus {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct RfsComputerValveStates {
     /// The current active state of the normally closed GOX igniter valve.
     pub gox_ign_vlv: ValveState,

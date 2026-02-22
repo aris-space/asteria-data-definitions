@@ -27,8 +27,10 @@ macro_rules! unit_newtypes {
             /// Is `NAN` by default.
             #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
             #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+            #[gated_derive(utoipa::ToSchema)]
             #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
             #[repr(transparent)]
+            #[serde(rename_all = "camelCase")]
             pub struct $name(pub $ty);
 
             impl Default for $name {
@@ -54,7 +56,9 @@ unit_newtypes! {
 /// Shared rail status structure for both 5V and 24V power rails.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct RailStatus {
     /// Voltage in volts.
     pub voltage: f32,
