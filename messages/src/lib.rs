@@ -73,3 +73,9 @@ fn unique_can_ids() {
     all_ids.dedup();
     assert_eq!(nr_msg, all_ids.len(), "contains duplicate IDs!");
 }
+
+#[cfg(feature = "mavlink")]
+#[test]
+fn export_xml() {
+    println!("{}", mavlink::hal::export::make_dialect_file::<Message>());
+}
