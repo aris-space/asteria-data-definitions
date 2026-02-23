@@ -218,6 +218,16 @@ pub fn sparse_encodable_can_message(input: TokenStream) -> TokenStream {
     handle_encode(&input).into()
 }
 
+/// Derive macro for implementing the [`mavio::Message`], [`mavio::protocol::MessageSpec`], [`mavio::protocol::IntoPayload`]
+/// and [`mavlink_hal::description::DescribeMessages`] traits for the message enum.
+///
+/// **Important**: This macro only concerns about variants which have a `#[mavlink(id = ...)]` attribute, calling some mavlink-specific
+/// methods (like `mavio::protocol::MessageSpec::id`) on a non-mavlink variant will cause a panic!
+///
+/// **Important**: You can only derive this macro on a single enum per module. The reason for this is that
+/// the trait implementations are done in the [`mavlink::message::MAVLINK_MESSAGE_META_IDENT`] module which doesn't
+/// contain the enum name in it's name.
+///
 #[cfg(feature = "mavlink")]
 #[proc_macro_derive(MavlinkMessage, attributes(mavlink))]
 pub fn derive_mavlink_message(input: TokenStream) -> TokenStream {
@@ -363,6 +373,7 @@ pub fn derive_mavlink_decode(input: TokenStream) -> TokenStream {
 ///   is used as the MavLink dialect identifier and the version attribute is used as the version of the dialect
 ///
 /// **Important**: This macro only works on newtype enums and every enum variant needs to implement [`mavlink_hal::description::DescribeMessages`]
+///
 #[cfg(feature = "mavlink")]
 #[proc_macro_derive(MavlinkDialect, attributes(dialect))]
 pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {

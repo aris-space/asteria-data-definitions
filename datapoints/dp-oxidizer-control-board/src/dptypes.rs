@@ -14,10 +14,10 @@ pub struct OxidizerControlBoardStatus {
     #[mavlink(flatten)]
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub thermocouple_status: SensorStatus,
     /// State of the Keller BUS used to read pressure, indicates whether a single sensor is online or not.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub pressure_bus: SensorStatus,
 }
 
@@ -29,14 +29,9 @@ pub struct OxidizerControlBoardStatus {
 #[serde(rename_all = "camelCase")]
 pub struct OxidizerControlBoardValveStates {
     /// Oxidizer DPR Control loop state
-<<<<<<< HEAD
-    // #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub oss_dpr: DPRValve,
-=======
-    #[mavlink(flatten)]
-    pub oss_dpr: DprState,
->>>>>>> 51a9d28 (feat: implement mavlink traits manually for DprState)
     /// Oxidizer Vent Valve state
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub oss_vnt_vlv: ValveState,
 }

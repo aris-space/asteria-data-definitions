@@ -14,34 +14,34 @@ use gated_derive::gated_derive;
 #[serde(rename_all = "camelCase")]
 pub struct SensorsHealth {
     /// Status of barometer on I2C2 (bus 1: PA9 = SCL, PA8 = SDA)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub barometer_bus_1: SensorStatus,
     /// Status of barometer on I2C3 (bus 2: PC8 = SCL, PC9 = SDA)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub barometer_bus_2: SensorStatus,
     /// Status of `SHT4x` temperature/humidity sensor on I2C2 (bus 1)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub dht_bus_1: SensorStatus,
     /// Status of `SHT4x` temperature/humidity sensor on I2C3 (bus 2)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub dht_bus_2: SensorStatus,
     /// Status of magnetometer on I2C2 (bus 1), INT on PA0
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub magnetometer_bus_1: SensorStatus,
     /// Status of magnetometer on I2C3 (bus 2), INT on PA1
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub magnetometer_bus_2: SensorStatus,
     /// Status of IMU (LSM6DSO32) on SPI3 (PB3–PB6, INT on PC13)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub imu_1: SensorStatus,
     /// Status of IMU (LSM6DSO32) on SPI1 (PA4–PA7, INT on PC14)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub imu_2: SensorStatus,
     /// Status of GPS module on USART1 (PC5 = TX, PC4 = RX)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub gps_1: SensorStatus,
     /// Status of GPS module on USART3 (PC11 = TX, PC10 = RX)
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub gps_2: SensorStatus,
 }
 

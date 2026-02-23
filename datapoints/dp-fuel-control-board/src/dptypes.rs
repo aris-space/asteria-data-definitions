@@ -29,13 +29,8 @@ pub struct FuelControlBoardStatus {
 #[serde(rename_all = "camelCase")]
 pub struct FuelControlBoardValveStates {
     /// Fuel DPR Control loop state
-<<<<<<< HEAD
-    // #[mavlink(flatten)]
-    pub fss_dpr: DPRValve,
-=======
     #[mavlink(flatten)]
-    pub fss_dpr: DprState,
->>>>>>> 51a9d28 (feat: implement mavlink traits manually for DprState)
+    pub fss_dpr: DPRValve,
     /// Pressurization Valve state
     #[mavlink(flatten)]
     pub prz_vnt_vlv: ValveState,
