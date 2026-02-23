@@ -17,7 +17,7 @@ pub struct RfsComputerStatus {
     pub has_pss_control: bool,
     /// `Armed` if the remote filling station is in a `Armed` state for ignition
     /// This is a software arming state of the RFS state machine that is part of the RFS hardware arming
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub is_ignition_armed: ArmingState,
 }
 
@@ -29,18 +29,18 @@ pub struct RfsComputerStatus {
 #[serde(rename_all = "camelCase")]
 pub struct RfsComputerValveStates {
     /// The current active state of the normally closed GOX igniter valve.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub gox_ign_vlv: ValveState,
     /// The current active state of the normally closed H2 igniter valve.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub h2_ign_vlv: ValveState,
     /// The current active state of the normally closed GOX purge valve.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub gox_prg_vlv: ValveState,
     /// The current active state of the normally closed H2 purge valve.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub h2_prg_vlv: ValveState,
     /// The current active state of the normally off spark plug.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub ign_spk_plg: ValveState,
 }

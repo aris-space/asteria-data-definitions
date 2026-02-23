@@ -86,19 +86,19 @@ pub struct RecoveryBoardStatus {
     #[mavlink(flatten)]
     pub common: StatusCommonMessage,
     /// Detected state of separation actuator 1.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub sep1_status: ActuatorStatus,
     /// Detected state of separation actuator 2.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub sep2_status: ActuatorStatus,
     /// Detected state of deployment actuator 1.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub depl1_status: ActuatorStatus,
     /// Detected state of deployment actuator 2.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub depl2_status: ActuatorStatus,
     /// General steering actuator state as observed from detection circuitry.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub steering_general: ActuatorStatus,
     /// True if left steering motor has correctly responded to ping.
     /// Will be false until the steering servos have power
@@ -107,9 +107,9 @@ pub struct RecoveryBoardStatus {
     /// Will be false until the steering servos have power
     pub steering_right_connected: bool,
     /// Current state of the steering watchdog.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub steering_watchdog_status: WatchdogState,
     /// `Armed` if the Recovery board is armed and the recovery actuators receive power, ie recovery arming Pin is pulled
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub arming_state: ArmingState,
 }
