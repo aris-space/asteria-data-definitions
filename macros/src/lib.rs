@@ -12,6 +12,26 @@
 //! Instead you should only use the reexported macros from the `data_core` crate.
 //! Using the `data_core` crate has the benefit that this crate also reexports
 //! all crates used by the macros.
+//!
+//! ## CAN
+//!
+//! The following macros can be used for generating CAN messages directly from code data structures
+//! - The [`CanMessage`] derive macro implements the logic for encoding and decoding CAN messages from/into rust enum variants
+//! - The [`CanDecode`] derive macro implements the logic for decoding CAN messages as rust enum variants
+//! - The [`CanEncode`] derive macro implements the logic for encoding rust enum variants as CAN messages
+//!
+//! Additionally, there are the [`sparse_decodable_can_message`] and [`sparse_decodable_can_message`] macros which allow creating
+//! a new sparse decodable/encodable CAN message enum using pseudo-rust syntax
+//!
+//! ## MavLink
+//!
+//! The following macros can be used for generating a MavLink dialect directly from code data structures
+//! - The [`MavlinkMessage`] derive macro turns newtype enum variants annotated with `#[mavlink(id = ...)]` into MavLink message variants
+//! - The [`MavlinkFieldSet`] derive macro can be used to turn a rust data structure into a MavLink representable data structure
+//! - The [`MavlinkEnum`] derive macro can be used to represent rust enums and MavLink enums
+//! - The [`MavlinkEncode`] derive macro implements the logic for encoding a MavLink fieldset as part of a MavLink message
+//! - The [`MavlinkDecode`] derive macro implements the logic for decoding a part of a MavLink message as a MavLink fieldset
+//! - The [`MavlinkDialect`] derive macro can be used on a toplevel message enum to generate the full MavLink dialect
 
 use darling::FromDeriveInput;
 use proc_macro::TokenStream;
@@ -59,6 +79,8 @@ pub fn derive_message(input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+// *------------ CAN MACROS ------------* //
 
 /// Derive macro for implementing the [`can_hal::Encode`] and [`can_hal::Decode`] traits for the message enum.
 ///
@@ -217,6 +239,8 @@ pub fn sparse_encodable_can_message(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as SparseCanMessage);
     handle_encode(&input).into()
 }
+
+// *------------ MAVLINK MACROS ------------* //
 
 /// Derive macro for implementing the [`mavio::Message`], [`mavio::protocol::MessageSpec`], [`mavio::protocol::IntoPayload`]
 /// and [`mavlink_hal::description::DescribeMessages`] traits for the message enum.
