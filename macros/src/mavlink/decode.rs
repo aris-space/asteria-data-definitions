@@ -69,7 +69,7 @@ fn handle_enum(decode: MavlinkDecode) -> TokenStream {
                 reader_1_aligned: &mut ::data_core::mavlink::hal::codec::tbytes::TBytesReader<
                     impl ::data_core::mavlink::hal::codec::tbytes::TBytesReaderBackend,
                 >,
-            ) -> Result<Self, mavlink::hal::codec::tbytes::errors::TBytesError> {
+            ) -> Result<Self, ::data_core::mavlink::hal::codec::tbytes::errors::TBytesError> {
                 use ::data_core::mavlink::hal::codec::tbytes::TBytesReaderFor as _;
                 reader_1_aligned.read()
             }
@@ -208,7 +208,7 @@ fn handle_struct(decode: MavlinkDecode) -> TokenStream {
                 reader_1_aligned: &mut ::data_core::mavlink::hal::codec::tbytes::TBytesReader<
                     impl ::data_core::mavlink::hal::codec::tbytes::TBytesReaderBackend,
                 >,
-            ) -> Result<Self, mavlink::hal::codec::tbytes::errors::TBytesError> {
+            ) -> Result<Self, ::data_core::mavlink::hal::codec::tbytes::errors::TBytesError> {
                 use ::data_core::mavlink::hal::codec::tbytes::TBytesReaderFor as _;
 
                 Ok(#instance)
