@@ -1,73 +1,74 @@
 //! This benchmark compares the Mavio encoding of a single message with ours.
 //!
-//! Honestly, since they use the same tbytes library and not much work is done, this isn't that interesting.
-//! But mavio by default allocates a Vec (iirc), while we can stay on the stack.
+//! Benchmarks can be run with `cargo bench`
 //!
-//! ## Results
+//! ## Results (just a raw message)
 //! - mavio: 88.3ns +- 0.3ns
 //! - ours: 32.0ns +- 0.2ns
 //! - bincode: approx 19.5ns +- 0.2ns
+//!
+//! Honestly, since they use the same tbytes library and not much work is done, this isn't that interesting.
+//! But mavio by default allocates a Vec (iirc), while we can stay on the stack.
+//!
+//! ## Results (dialect message)
+//! - mavio: 90ns
+//! - ours: 90ns
+//! - bincode: 20ns
+//!
+//! Now we see that the `Payload::new` from mavio will allocate also with our encoding in the background.
+//! No real difference.
+//!
 
 use criterion::{Criterion, criterion_group, criterion_main};
+use data_core::mavlink::mavio;
 use std::hint::black_box;
 
 fn encode_mavio(
-    heartbeat: &mavio::dialects::minimal::messages::Heartbeat,
+    msg: &mavio::dialects::Minimal,
 ) -> Result<mavio::protocol::Payload, mavio::mavspec::rust::spec::SpecError> {
     use mavio::protocol::IntoPayload as _;
-    heartbeat.encode(mavio::prelude::MavLinkVersion::V2)
+    msg.encode(mavio::prelude::MavLinkVersion::V2)
 }
 
 fn mavio_benchmark(c: &mut Criterion) {
-    let msg = mavio::dialects::minimal::messages::Heartbeat {
-        type_: mavio::default_dialect::enums::MavType::Rocket,
-        autopilot: mavio::default_dialect::enums::MavAutopilot::Invalid,
-        base_mode: mavio::default_dialect::enums::MavModeFlag::CUSTOM_MODE_ENABLED,
-        custom_mode: 42,
-        system_status: mavio::default_dialect::enums::MavState::Standby,
-        mavlink_version: 3, // minor version of minimal.xml
-    };
+    let msg = mavio::dialects::minimal::Minimal::Heartbeat(
+        mavio::dialects::minimal::messages::Heartbeat {
+            type_: mavio::default_dialect::enums::MavType::Rocket,
+            autopilot: mavio::default_dialect::enums::MavAutopilot::Invalid,
+            base_mode: mavio::default_dialect::enums::MavModeFlag::CUSTOM_MODE_ENABLED,
+            custom_mode: 42,
+            system_status: mavio::default_dialect::enums::MavState::Standby,
+            mavlink_version: 3, // minor version of minimal.xml
+        },
+    );
     c.bench_function("enc heartbeat mavio", |b| {
         b.iter(|| encode_mavio(black_box(&msg)));
     });
 }
 
 fn encode_ours(
-    heartbeat: &heartbeat::Heartbeat,
-) -> Result<[u8; heartbeat::MSG_SIZE], mavlink_hal::codec::tbytes::errors::TBytesError> {
-    mavlink_hal::codec::encode_body::<_, { heartbeat::MSG_SIZE }>(heartbeat)
+    msg: &heartbeat::Dialect,
+) -> Result<mavio::protocol::Payload, mavio::mavspec::rust::spec::SpecError> {
+    use mavio::protocol::IntoPayload as _;
+    msg.encode(mavio::prelude::MavLinkVersion::V2)
 }
 
 fn ours_benchmark(c: &mut Criterion) {
-    let msg = heartbeat::Heartbeat {
+    let msg = heartbeat::Dialect::Minimal(heartbeat::Minimal::Heartbeat(heartbeat::Heartbeat {
         type_: heartbeat::MavType::Rocket,
         autopilot: heartbeat::MavAutopilot::Invalid,
         base_mode: 1,
         custom_mode: 42,
         system_status: heartbeat::MavState::Standby,
         mavlink_version: 3, // minor version of minimal.xml
-    };
+    }));
     c.bench_function("enc heartbeat ours", |b| {
         b.iter(|| encode_ours(black_box(&msg)));
     });
 }
 
-fn encode_bincode(
-    heartbeat: &heartbeat::Heartbeat,
-) -> Result<[u8; 64], bincode::error::EncodeError> {
-    let mut msg = [0; 64];
-    let _len = bincode::encode_into_slice(
-        heartbeat,
-        &mut msg,
-        bincode::config::standard()
-            .with_fixed_int_encoding()
-            .with_limit::<64>(),
-    )?;
-    Ok(msg)
-}
-
-fn bincode_benchmark(c: &mut Criterion) {
-    let msg = heartbeat::Heartbeat {
+fn inlineable_ours_benchmark(c: &mut Criterion) {
+    let inner = heartbeat::Heartbeat {
         type_: heartbeat::MavType::Rocket,
         autopilot: heartbeat::MavAutopilot::Invalid,
         base_mode: 1,
@@ -75,21 +76,108 @@ fn bincode_benchmark(c: &mut Criterion) {
         system_status: heartbeat::MavState::Standby,
         mavlink_version: 3, // minor version of minimal.xml
     };
+    c.bench_function("enc heartbeat ours inlineable", |b| {
+        b.iter(|| {
+            encode_ours(&heartbeat::Dialect::Minimal(heartbeat::Minimal::Heartbeat(
+                black_box(inner),
+            )))
+        });
+    });
+}
+
+fn encode_bincode(msg: &heartbeat::Dialect) -> Result<[u8; 64], bincode::error::EncodeError> {
+    let mut pay = [0; 64];
+    let _len = bincode::encode_into_slice(
+        msg,
+        &mut pay,
+        bincode::config::standard()
+            .with_fixed_int_encoding()
+            .with_limit::<64>(),
+    )?;
+    Ok(pay)
+}
+
+fn bincode_benchmark(c: &mut Criterion) {
+    let msg = heartbeat::Dialect::Minimal(heartbeat::Minimal::Heartbeat(heartbeat::Heartbeat {
+        type_: heartbeat::MavType::Rocket,
+        autopilot: heartbeat::MavAutopilot::Invalid,
+        base_mode: 1,
+        custom_mode: 42,
+        system_status: heartbeat::MavState::Standby,
+        mavlink_version: 3, // minor version of minimal.xml
+    }));
     c.bench_function("enc heartbeat bincode", |b| {
         b.iter(|| encode_bincode(black_box(&msg)));
     });
 }
 
-criterion_group!(benches, mavio_benchmark, ours_benchmark, bincode_benchmark);
+criterion_group!(
+    benches,
+    mavio_benchmark,
+    ours_benchmark,
+    inlineable_ours_benchmark,
+    bincode_benchmark
+);
 criterion_main!(benches);
 
 mod heartbeat {
-    use mavlink_hal::description::DescribeFieldSet as _;
-    pub const MSG_SIZE: usize = mavlink_hal::macro_util::total_size(Heartbeat::FIELDS);
+
+    #[derive(data_core::mavlink::Dialect, bincode::Encode)]
+    #[dialect(id = 1, name = "minimal", version = 2)] // arbitrary
+    pub enum Dialect {
+        /// Stuff from minimal
+        Minimal(Minimal),
+    }
+
+    #[derive(data_core::mavlink::Message, bincode::Encode)]
+    pub enum Minimal {
+        /// Heartbeat
+        #[mavlink(id = 0)]
+        Heartbeat(Heartbeat),
+        /// Protocol version message
+        #[mavlink(id = 300)]
+        ProtocolVersion(ProtocolVersion),
+    }
+
+    // crc_extra = 217
+    #[derive(
+        data_core::mavlink::FieldSet,
+        data_core::mavlink::Encode,
+        data_core::mavlink::Decode,
+        core::marker::Copy,
+        core::clone::Clone,
+        core::fmt::Debug,
+        core::default::Default,
+        core::cmp::PartialEq,
+        bincode::Encode,
+    )]
+    pub struct ProtocolVersion {
+        /// MAVLink field `version`.
+        ///
+        /// Currently active MAVLink version number * 100: v1.0 is 100, v2.0 is 200, etc.
+        pub version: u16,
+        /// MAVLink field `min_version`.
+        ///
+        /// Minimum MAVLink version supported
+        pub min_version: u16,
+        /// MAVLink field `max_version`.
+        ///
+        /// Maximum MAVLink version supported (set to the same value as version by default)
+        pub max_version: u16,
+        /// MAVLink field `spec_version_hash`.
+        ///
+        /// The first 8 bytes (not characters printed in hex!) of the git hash.
+        pub spec_version_hash: [u8; 8],
+        /// MAVLink field `library_version_hash`.
+        ///
+        /// The first 8 bytes (not characters printed in hex!) of the git hash.
+        pub library_version_hash: [u8; 8],
+    }
 
     #[derive(
-        data_core::MavlinkFieldSet,
-        data_core::MavlinkEncode,
+        data_core::mavlink::FieldSet,
+        data_core::mavlink::Encode,
+        data_core::mavlink::Decode,
         core::marker::Copy,
         core::clone::Clone,
         core::fmt::Debug,
@@ -136,9 +224,10 @@ mod heartbeat {
     ///
     ///
     #[derive(
-        data_core::MavlinkFieldSet,
-        data_core::MavlinkEnum,
-        data_core::MavlinkEncode,
+        data_core::mavlink::FieldSet,
+        data_core::mavlink::Enum,
+        data_core::mavlink::Encode,
+        data_core::mavlink::Decode,
         core::marker::Copy,
         core::clone::Clone,
         core::fmt::Debug,
@@ -195,9 +284,10 @@ mod heartbeat {
     /// other components must report a value appropriate for their type (e.g. a camera must
     /// use MAV_TYPE_CAMERA).
     #[derive(
-        data_core::MavlinkFieldSet,
-        data_core::MavlinkEnum,
-        data_core::MavlinkEncode,
+        data_core::mavlink::FieldSet,
+        data_core::mavlink::Enum,
+        data_core::mavlink::Encode,
+        data_core::mavlink::Decode,
         core::marker::Copy,
         core::clone::Clone,
         core::fmt::Debug,
@@ -418,9 +508,10 @@ mod heartbeat {
     ///
     /// Micro air vehicle / autopilot classes. This identifies the individual model.
     #[derive(
-        data_core::MavlinkFieldSet,
-        data_core::MavlinkEnum,
-        data_core::MavlinkEncode,
+        data_core::mavlink::FieldSet,
+        data_core::mavlink::Enum,
+        data_core::mavlink::Encode,
+        data_core::mavlink::Decode,
         core::marker::Copy,
         core::clone::Clone,
         core::fmt::Debug,
