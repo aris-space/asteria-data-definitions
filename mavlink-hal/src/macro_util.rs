@@ -134,13 +134,18 @@ pub const fn calc_extra_crc(message_name: &str, orig_fields: &[MessageField]) ->
 ///
 /// See <https://github.com/mavlink/mavlink/blob/master/message_definitions/v1.0/all.xml> for the ranges
 pub const fn sanitize_id(id: u32) -> u32 {
+    if id == 0 || id == 300 {
+        // whitelist heartbeat??
+        return id;
+    }
+
     assert!(id <= 0x00ff_ffff, "id is larger than 24 bit");
     assert!(
         !(id >= 11000 && id <= 11999),
         "ardupilotmega.xml range of IDs"
     );
     assert!(!(id >= 8000 && id <= 8999), "ASLUAV.xml range of IDs");
-    assert!(!(id >= 300 && id <= 10000), "common.xml range of IDs");
+    assert!(!(id <= 10000), "common.xml range of IDs");
     assert!(!(id >= 42000 && id <= 42999), "icarous.xml range of IDs");
     assert!(!(id >= 10001 && id <= 10999), "uAvionix.xml range of IDs");
     assert!(!(id >= 60000 && id <= 60049), "storm32.xml range of IDs");
