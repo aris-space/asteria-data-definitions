@@ -187,9 +187,12 @@ impl TryFrom<f32> for ThrottleableValve {
         #[allow(clippy::cast_possible_truncation)] // checked by the branch condition
         #[allow(clippy::cast_sign_loss)] // checked by the branch condition
         if (0.0..=1.0).contains(&value) {
-            Ok(Self {
-                openness_percent: (value * 100.).round() as u8,
-            })
+            #[cfg(feature = "std")]
+            let openness_percent = (value * 100.).round() as u8;
+            #[cfg(not(feature = "std"))]
+            let openness_percent = core::f32::math::round(value * 100.) as u8;
+
+            Ok(Self { openness_percent })
         } else {
             Err(OutOfRange)
         }
