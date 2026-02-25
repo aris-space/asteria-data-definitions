@@ -47,6 +47,7 @@ derive_serde = [
     "dp-oxidizer-control-board/derive_serde",
     "dp-recovery-board/derive_serde",
     "dp-sensor-carrier/derive_serde",
+    "dep:serde"
 ]
 # Derive defmt for all datapoint specific types
 derive_defmt = [
