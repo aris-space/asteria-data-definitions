@@ -76,7 +76,6 @@ pub fn handle(mavlink_message: MavlinkMessage) -> TokenStream {
         #[allow(non_upper_case_globals)]
         pub mod #meta_mavlink_mod {
             use super::#ident;
-            use ::datatypes as datatypes;
             use ::data_core::mavlink::{
                 hal::{macro_util, description, codec},
                 mavio::{protocol, prelude, self}
