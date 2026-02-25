@@ -1,4 +1,4 @@
-use datatypes::actuator::DprState;
+use datatypes::actuator::DPRValve;
 use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
 use gated_derive::gated_derive;
 
@@ -22,7 +22,7 @@ pub struct OxidizerControlBoardStatus {
 #[serde(rename_all = "camelCase")]
 pub struct OxidizerControlBoardValveStates {
     /// Oxidizer DPR Control loop state
-    pub oss_dpr: DprState,
+    pub oss_dpr: DPRValve,
     /// Oxidizer Vent Valve state
     pub oss_vnt_vlv: ValveState,
 }

@@ -96,6 +96,7 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("CanMessage", &["can"]),
     ("CanEncode", &["can"]),
     ("CanDecode", &["can"]),
+    ("thiserror::Error", &["error"]),
 ];
 
 // -----------------------------------------------------------------------------

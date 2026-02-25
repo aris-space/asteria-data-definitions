@@ -13,11 +13,14 @@ bincode = { workspace = true, optional = true }
 defmt = { workspace = true, optional = true }
 arbitrary = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
+thiserror = { version = "2.0.17", optional = true }
+watchable = { version = "1.1.2", optional = true }
 
 [features]
 std = ["bincode/std"]
-derive_serde = ["dep:serde"]
+derive_serde = ["dep:serde", "dep:thiserror"]
 derive_defmt = ["dep:defmt"]
 derive_bincode = ["dep:bincode"]
 derive_arbitrary = ["dep:arbitrary", "std"]
 derive_utoipa = ["dep:utoipa", "std"]
+watchable_settable = ["dep:watchable"]

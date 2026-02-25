@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
 use data_core::Message;
-use datatypes::actuator::{DprState, PressurizationGain};
+use datatypes::actuator::{DPRValve, PressurizationGain};
 use datatypes::status::{BuildInformationCommon, ValveState};
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
@@ -163,7 +163,7 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x211)]
-    FuelDprConfigFC(DprState),
+    FuelDprConfigFC(DPRValve),
 
     /// # `PressurizationVentControlFC`
     /// Event message sent by the FC.
@@ -218,7 +218,7 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x216)]
-    FuelDprConfigECU(DprState),
+    FuelDprConfigECU(DPRValve),
 
     /// # `PressurizationVentControlECU`
     /// Event message sent by the ECU.
@@ -272,7 +272,7 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x21b)]
-    FuelDprConfigRFS(DprState),
+    FuelDprConfigRFS(DPRValve),
 
     /// # `PressurizationVentControlRFS`
     /// Event message sent by the RFS.
