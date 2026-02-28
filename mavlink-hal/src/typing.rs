@@ -110,6 +110,10 @@ impl ScalarTypeable for u8 {
     const SCALAR_TYPE: MavScalarType = MavScalarType::UInt8;
     const SCALAR_ENUM: Option<&'static Enum> = None;
 }
+impl ScalarTypeable for bool {
+    const SCALAR_TYPE: MavScalarType = MavScalarType::UInt8;
+    const SCALAR_ENUM: Option<&'static Enum> = None;
+}
 impl ScalarTypeable for u16 {
     const SCALAR_TYPE: MavScalarType = MavScalarType::UInt16;
     const SCALAR_ENUM: Option<&'static Enum> = None;

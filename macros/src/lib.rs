@@ -12,6 +12,26 @@
 //! Instead you should only use the reexported macros from the `data_core` crate.
 //! Using the `data_core` crate has the benefit that this crate also reexports
 //! all crates used by the macros.
+//!
+//! ## CAN
+//!
+//! The following macros can be used for generating CAN messages directly from code data structures
+//! - The [`CanMessage`] derive macro implements the logic for encoding and decoding CAN messages from/into rust enum variants
+//! - The [`CanDecode`] derive macro implements the logic for decoding CAN messages as rust enum variants
+//! - The [`CanEncode`] derive macro implements the logic for encoding rust enum variants as CAN messages
+//!
+//! Additionally, there are the [`sparse_decodable_can_message`] and [`sparse_decodable_can_message`] macros which allow creating
+//! a new sparse decodable/encodable CAN message enum using pseudo-rust syntax
+//!
+//! ## MavLink
+//!
+//! The following macros can be used for generating a MavLink dialect directly from code data structures
+//! - The [`MavlinkMessage`] derive macro turns newtype enum variants annotated with `#[mavlink(id = ...)]` into MavLink message variants
+//! - The [`MavlinkFieldSet`] derive macro can be used to turn a rust data structure into a MavLink representable data structure
+//! - The [`MavlinkEnum`] derive macro can be used to represent rust enums and MavLink enums
+//! - The [`MavlinkEncode`] derive macro implements the logic for encoding a MavLink fieldset as part of a MavLink message
+//! - The [`MavlinkDecode`] derive macro implements the logic for decoding a part of a MavLink message as a MavLink fieldset
+//! - The [`MavlinkDialect`] derive macro can be used on a toplevel message enum to generate the full MavLink dialect
 
 use darling::FromDeriveInput;
 use proc_macro::TokenStream;
@@ -21,7 +41,11 @@ use message::Message;
 
 #[cfg(feature = "can")]
 mod can;
+#[cfg(feature = "mavlink")]
+mod mavlink;
+
 mod message;
+mod util;
 
 /// Derive macro for generating a module with type aliases for all enum variants
 ///
@@ -55,6 +79,8 @@ pub fn derive_message(input: TokenStream) -> TokenStream {
     }
     .into()
 }
+
+// *------------ CAN MACROS ------------* //
 
 /// Derive macro for implementing the [`can_hal::Encode`] and [`can_hal::Decode`] traits for the message enum.
 ///
@@ -212,4 +238,175 @@ pub fn sparse_encodable_can_message(input: TokenStream) -> TokenStream {
 
     let input = parse_macro_input!(input as SparseCanMessage);
     handle_encode(&input).into()
+}
+
+// *------------ MAVLINK MACROS ------------* //
+
+/// Derive macro for implementing the [`mavio::Message`], [`mavio::protocol::MessageSpec`], [`mavio::protocol::IntoPayload`]
+/// and [`mavlink_hal::description::DescribeMessages`] traits for the message enum.
+///
+/// **Important**: This macro only concerns about variants which have a `#[mavlink(id = ...)]` attribute, calling some mavlink-specific
+/// methods (like `mavio::protocol::MessageSpec::id`) on a non-mavlink variant will cause a panic!
+///
+/// **Important**: You can only derive this macro on a single enum per module. The reason for this is that
+/// the trait implementations are done in the [`mavlink::message::MAVLINK_MESSAGE_META_IDENT`] module which doesn't
+/// contain the enum name in it's name.
+///
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkMessage, attributes(mavlink))]
+pub fn derive_mavlink_message(input: TokenStream) -> TokenStream {
+    use crate::mavlink::message::{MavlinkMessage, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkMessage::from_derive_input(&input) {
+        Ok(message) => handle(message),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
+
+/// Derive macro for implementing the [`mavlink_hal::description::DescribeFieldSet`] trait for enums and structs.
+///
+/// When added to newtype structs or enums, the following attributes can be used:
+/// - `#[mavlink(name = "...")]`: Optional override for the MavLink fieldset name, which is by default the lower snake case struct/enum name \
+///   **Note**: The name override will be converted to a lower snake case name
+/// - `#[unit("...")]`: Optional unit for the MavLink fieldset
+///
+/// When added to structs with named fields, the following attributes can be used on the fields:
+/// - `#[mavlink(name = "...")]`: Optional override for the MavLink fieldset name, which is by default the lower snake case struct name \
+///   **Note**: The name override will be converted to a lower snake case name
+/// - `#[mavlink(flatten)]`: Optional boolean flag to indicate that this field is a nested fieldset which should be flattened
+/// - `#[mavlink(refine)]`: Optional boolean flag to indicate that this field should refine a previous definition
+/// - `#[unit("...")]`: Optional unit for the MavLink fieldset
+///
+/// **Important**: The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used on a field at the same time
+///
+/// # Usage
+/// ```rust,ignore
+/// #[derive(MavlinkFieldSet)]
+/// #[unit("°C")]
+/// #[repr(transparent)]
+/// pub struct Celsius(pub f32);
+///
+/// #[derive(MavlinkFieldSet)]
+/// struct Temperatures {
+///     #[mavlink(flatten)]
+///     pub tank: Celsius,
+///     #[mavlink(refine)]
+///     pub runline: Celsius
+/// }
+/// ```
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkFieldSet, attributes(mavlink, unit))]
+pub fn derive_mavlink_fieldset(input: TokenStream) -> TokenStream {
+    use crate::mavlink::fieldset::{MavlinkFieldSet, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkFieldSet::from_derive_input(&input) {
+        Ok(fieldset) => handle(fieldset),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
+
+/// Derive macro for implementing the [`mavlink_hal::description::DescribeEnum`] and [`mavlink_hal::typing::ScalarTypeable`]
+/// traits for enums.
+///
+/// The enum supports the following attributes:
+/// - `#[mavlink(name = "...")]`: Optional override for the MavLink enum name, which is by default the upper snake case enum name \
+///   **Note**: The name override will be converted to an upper snake case name
+///
+/// The enum variants support the following attributes:
+/// - `#[mavlink(name = "...")]`: Override the MavLink enum variant name, which is by default the upper snake case variant name \
+///   **Note**: The name override will be converted to an upper snake case name
+///
+/// **Important**: Since enums are represented as [`u8`] in MavLink, we only allow unit enum variants.
+///
+/// # Usage
+/// ```rust,ignore
+/// #[derive(MavlinkEnum)]
+/// #[mavlink(name = "NORMALLY_OPEN_VALVE")]
+/// #[repr(u8)]
+/// enum Valve {
+///     #[default]
+///     Open = 0,
+///     #[mavlink(name = "CLOSED")]
+///     NotOpen = 1
+/// }
+/// ```
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkEnum, attributes(mavlink))]
+pub fn derive_mavlink_enum(input: TokenStream) -> TokenStream {
+    use crate::mavlink::r#enum::{MavlinkEnum, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkEnum::from_derive_input(&input) {
+        Ok(mavlink_enum) => handle(mavlink_enum),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
+
+/// Derive macro for implementing the [`mavlink_hal::codec::Encode`] trait for structs and enums.
+///
+/// When added to structs with named fields, the following attributes can be used on the fields:
+/// - `#[mavlink(flatten)]`: Optional boolean flag to indicate that this field is a nested fieldset which should be flattened
+/// - `#[mavlink(refine)]`: Optional boolean flag to indicate that this field should refine a previous definition
+///
+/// **Important**: The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used on a field at the same time
+///
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkEncode, attributes(mavlink))]
+pub fn derive_mavlink_encode(input: TokenStream) -> TokenStream {
+    use crate::mavlink::encode::{MavlinkEncode, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkEncode::from_derive_input(&input) {
+        Ok(encode) => handle(encode),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
+
+/// Derive macro for implementing the [`mavlink_hal::codec::Decode`] trait for structs and enums.
+///
+/// When added to structs with named fields, the following attributes can be used on the fields:
+/// - `#[mavlink(flatten)]`: Optional boolean flag to indicate that this field is a nested fieldset which should be flattened
+/// - `#[mavlink(refine)]`: Optional boolean flag to indicate that this field should refine a previous definition
+///
+/// **Important**: The `#[mavlink(flatten)]` and `#[mavlink(refine)]` attributes cannot be used on a field at the same time
+///
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkDecode, attributes(mavlink))]
+pub fn derive_mavlink_decode(input: TokenStream) -> TokenStream {
+    use crate::mavlink::decode::{MavlinkDecode, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkDecode::from_derive_input(&input) {
+        Ok(decode) => handle(decode),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
+
+/// Derive macro for implementing the [`mavio::Dialect`], [`mavio::protocol::MessageSpec`], [`mavio::protocol::IntoPayload`] and
+/// [`mavlink_hal::description::DescribeMessages`] traits for an enum.
+///
+/// The enum supports the following attribute:
+/// - `#[dialect(name = "...", id = <number>, version = <number>)]`: The name attribute is used as the MavLink dialect name, the id attribute
+///   is used as the MavLink dialect identifier and the version attribute is used as the version of the dialect
+///
+/// **Important**: This macro only works on newtype enums and every enum variant needs to implement [`mavlink_hal::description::DescribeMessages`]
+///
+#[cfg(feature = "mavlink")]
+#[proc_macro_derive(MavlinkDialect, attributes(dialect))]
+pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
+    use crate::mavlink::dialect::{MavlinkDialect, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match MavlinkDialect::from_derive_input(&input) {
+        Ok(dialect) => handle(dialect),
+        Err(err) => err.write_errors(),
+    }
+    .into()
 }

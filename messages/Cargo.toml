@@ -24,6 +24,7 @@ serde = { workspace = true, optional = true }
 default = ["can"]
 # Derive can related traits for all datapoints and datapoint specific types
 can = [
+    "derive_can",
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
     "dp-power-board/can",
@@ -86,6 +87,20 @@ derive_debug = [
     "dp-sensor-carrier/derive_debug",
 ]
 # Derive the Utoipa and Serde for the message enum and all dependencies.
+mavlink = [
+    "derive_mavlink",
+    "dp-engine-control-board/mavlink",
+    "dp-fuel-control-board/mavlink",
+    "dp-power-board/mavlink",
+    "dp-rfs-computer/mavlink",
+    "dp-system-management/mavlink",
+    "dp-flight-computer/mavlink",
+    "dp-oxidizer-control-board/mavlink",
+    "dp-recovery-board/mavlink",
+    "dp-sensor-carrier/mavlink",
+    "data-core/mavlink",
+]
+# Derive the Mission Control related features for the message enum and all dependencies.
 mission-control = [
     "dp-engine-control-board/mission-control",
     "dp-fuel-control-board/mission-control",
@@ -112,6 +127,8 @@ derive_utoipa = [
     "dp-sensor-carrier/derive_utoipa",
     "dep:utoipa",
 ]
+derive_can = []
+derive_mavlink = []
 
 [lints]
 workspace = true

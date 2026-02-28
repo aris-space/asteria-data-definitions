@@ -1,3 +1,5 @@
+#[cfg(feature = "mavlink")]
+use data_core::mavlink;
 use datatypes::status::{ArmingState, StatusCommonMessage};
 use gated_derive::gated_derive;
 
@@ -8,37 +10,42 @@ use gated_derive::gated_derive;
 /// Once powered, actuator detection is no longer possible.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
 #[gated_derive(utoipa::ToSchema)]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub enum ActuatorStatus {
     /// Actuator is not connected (e.g. unplugged or circuit open).
     #[default]
-    NotConnected,
+    NotConnected = 0,
     /// Actuator is connected but not powered.
-    Connected,
+    Connected = 1,
     /// Actuator is powered; detection circuit is no longer active.
-    PowerOn,
+    PowerOn = 2,
 }
 
 /// Represents the current state of a watchdog timer.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
 #[gated_derive(utoipa::ToSchema)]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub enum WatchdogState {
     /// Watchdog is not active. No steering signal has been received since startup.
     #[default]
-    Disabled,
+    Disabled = 0,
     /// Watchdog is actively monitoring and receiving valid steering updates.
-    Active,
+    Active = 1,
     /// Watchdog has expired due to lack of steering updates
-    Expired,
+    Expired = 2,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -53,6 +60,7 @@ pub struct SteeringPositions {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -70,20 +78,27 @@ pub struct RecoveryPowerConfig {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct RecoveryBoardStatus {
+    #[mavlink(flatten)]
     pub common: StatusCommonMessage,
     /// Detected state of separation actuator 1.
+    #[mavlink(refine)]
     pub sep1_status: ActuatorStatus,
     /// Detected state of separation actuator 2.
+    #[mavlink(refine)]
     pub sep2_status: ActuatorStatus,
     /// Detected state of deployment actuator 1.
+    #[mavlink(refine)]
     pub depl1_status: ActuatorStatus,
     /// Detected state of deployment actuator 2.
+    #[mavlink(refine)]
     pub depl2_status: ActuatorStatus,
     /// General steering actuator state as observed from detection circuitry.
+    #[mavlink(refine)]
     pub steering_general: ActuatorStatus,
     /// True if left steering motor has correctly responded to ping.
     /// Will be false until the steering servos have power
@@ -92,7 +107,9 @@ pub struct RecoveryBoardStatus {
     /// Will be false until the steering servos have power
     pub steering_right_connected: bool,
     /// Current state of the steering watchdog.
+    #[mavlink(refine)]
     pub steering_watchdog_status: WatchdogState,
     /// `Armed` if the Recovery board is armed and the recovery actuators receive power, ie recovery arming Pin is pulled
+    #[mavlink(refine)]
     pub arming_state: ArmingState,
 }

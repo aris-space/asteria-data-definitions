@@ -1,3 +1,5 @@
+#[cfg(feature = "mavlink")]
+use data_core::mavlink;
 use datatypes::status::{SensorStatus, StatusCommonMessage};
 use datatypes::units::{Celsius, HPa};
 use gated_derive::gated_derive;
@@ -6,44 +8,59 @@ use gated_derive::gated_derive;
 /// Each field corresponds to a specific sensor instance.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SensorsHealth {
     /// Status of barometer on I2C2 (bus 1: PA9 = SCL, PA8 = SDA)
+    #[mavlink(refine)]
     pub barometer_bus_1: SensorStatus,
     /// Status of barometer on I2C3 (bus 2: PC8 = SCL, PC9 = SDA)
+    #[mavlink(refine)]
     pub barometer_bus_2: SensorStatus,
     /// Status of `SHT4x` temperature/humidity sensor on I2C2 (bus 1)
+    #[mavlink(refine)]
     pub dht_bus_1: SensorStatus,
     /// Status of `SHT4x` temperature/humidity sensor on I2C3 (bus 2)
+    #[mavlink(refine)]
     pub dht_bus_2: SensorStatus,
     /// Status of magnetometer on I2C2 (bus 1), INT on PA0
+    #[mavlink(refine)]
     pub magnetometer_bus_1: SensorStatus,
     /// Status of magnetometer on I2C3 (bus 2), INT on PA1
+    #[mavlink(refine)]
     pub magnetometer_bus_2: SensorStatus,
     /// Status of IMU (LSM6DSO32) on SPI3 (PB3–PB6, INT on PC13)
+    #[mavlink(refine)]
     pub imu_1: SensorStatus,
     /// Status of IMU (LSM6DSO32) on SPI1 (PA4–PA7, INT on PC14)
+    #[mavlink(refine)]
     pub imu_2: SensorStatus,
     /// Status of GPS module on USART1 (PC5 = TX, PC4 = RX)
+    #[mavlink(refine)]
     pub gps_1: SensorStatus,
     /// Status of GPS module on USART3 (PC11 = TX, PC10 = RX)
+    #[mavlink(refine)]
     pub gps_2: SensorStatus,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct SensorCarrierStatus {
+    #[mavlink(flatten)]
     pub common: StatusCommonMessage,
+    #[mavlink(flatten)]
     pub sensor_health: SensorsHealth,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -62,6 +79,7 @@ pub struct PositionData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -99,6 +117,7 @@ pub struct ImuData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -122,6 +141,7 @@ pub struct VelocityData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -150,11 +170,13 @@ impl Default for OrientationData {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct EnvironmentalData {
     /// Temperature in Celsius.
+    #[mavlink(flatten)]
     pub temperature: Celsius,
     /// Relative humidity in percent (0–100%).
     pub humidity: f32,
@@ -163,11 +185,13 @@ pub struct EnvironmentalData {
     /// **Note:** This data may differ from the `PressureData` message, which reports data
     /// at a much higher rate and with less filtering to improve timeliness.
     /// This data point should only be used for low-frequency applications.
+    #[mavlink(flatten)]
     pub pressure: HPa,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
