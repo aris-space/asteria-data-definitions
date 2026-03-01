@@ -54,7 +54,13 @@ pub const fn concat_slices<T: Copy, const N: usize>(sets: &[&[T]]) -> [T; N] {
 
     // SAFETY
     // - We checked that the we wrote exactly `N` elements
-    let res: [T; N] = unsafe { core::mem::MaybeUninit::array_assume_init(x) };
+    // - `MaybeUninit<T>` and `T` have the same memory layouts and thus we can just
+    //   treat it as an `[T; N]`
+    let res: [T; N] = unsafe {
+        let ptr = &raw const x;
+        let ptr = ptr.cast::<[T; N]>();
+        ptr.read()
+    };
     res
 }
 
