@@ -26,9 +26,7 @@ pub mod mavlink {
 
 #[cfg(feature = "pss")]
 pub mod pss {
-    pub use data_macros::{
-        PssData as Data
-    };
+    pub use data_macros::PssData as Data;
     pub use pss as lib;
 }
 
