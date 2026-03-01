@@ -9,11 +9,13 @@ path = "src/lib.rs"
 proc-macro = true
 
 [features]
-default = []
+default = ["pss"]
 # Enable all CAN related macros
 can = []
 # Enable all MavLink related macros
 mavlink = []
+# Enable all PSS related macros
+pss = []
 
 [dependencies]
 darling = "0.21.3"

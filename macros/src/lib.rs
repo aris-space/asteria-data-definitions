@@ -33,6 +33,12 @@
 //! - The [`MavlinkDecode`] derive macro implements the logic for decoding a part of a MavLink message as a MavLink fieldset
 //! - The [`MavlinkDialect`] derive macro can be used on a toplevel message enum to generate the full MavLink dialect, also implements all
 //!   traits required for a `mavio::Message`
+//!
+//! ## PSS
+//!
+//! The PSS macros are at the moment only used for the mission control. The following macros are available
+//! - The [`PssData`] derive macro recursively collects information about available PSS datapoints at compile time and allows getting
+//!   the datapoint values in an unified format at runtime
 
 use darling::FromDeriveInput;
 use proc_macro::TokenStream;
@@ -44,6 +50,8 @@ use message::Message;
 mod can;
 #[cfg(feature = "mavlink")]
 mod mavlink;
+#[cfg(feature = "pss")]
+mod pss;
 
 mod message;
 mod util;
@@ -407,6 +415,35 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     match MavlinkDialect::from_derive_input(&input) {
         Ok(dialect) => handle(dialect),
+        Err(err) => err.write_errors(),
+    }
+    .into()
+}
+
+// *------------ PSS MACROS ------------* //
+
+/// Derive macro for implementing [`pss::data::DatapointHolder`] for an enum or a struct.
+///
+/// The macro supports the following attributes:
+/// - `#[pss(id = "...", type = "...")]`: The id specifies to which name this PSS datapoint field should be mapped. The type field
+///   specifies which kind of PSS datapoint this field is (e.g. DPR, sensor, valve, ...).
+/// - `#[unit("...")]`: Optional unit of the datapoint field
+///
+/// **Note**: When using this macro on newtype structs, the attributes need to be set on the container-level
+///           instead of the field-level
+///
+/// The macro also ensures that all datapoint ids are unique.
+///
+/// **Important**: This macro only works for newtype and named structed as well as newtype and named enums
+///
+#[cfg(feature = "pss")]
+#[proc_macro_derive(PssData, attributes(unit, pss))]
+pub fn derive_pss_data(input: TokenStream) -> TokenStream {
+    use crate::pss::data::{PssData, handle};
+
+    let input = parse_macro_input!(input as DeriveInput);
+    match PssData::from_derive_input(&input) {
+        Ok(data) => handle(data),
         Err(err) => err.write_errors(),
     }
     .into()
