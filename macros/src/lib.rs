@@ -31,7 +31,8 @@
 //! - The [`MavlinkEnum`] derive macro can be used to represent rust enums and MavLink enums
 //! - The [`MavlinkEncode`] derive macro implements the logic for encoding a MavLink fieldset as part of a MavLink message
 //! - The [`MavlinkDecode`] derive macro implements the logic for decoding a part of a MavLink message as a MavLink fieldset
-//! - The [`MavlinkDialect`] derive macro can be used on a toplevel message enum to generate the full MavLink dialect
+//! - The [`MavlinkDialect`] derive macro can be used on a toplevel message enum to generate the full MavLink dialect, also implements all
+//!   traits required for a `mavio::Message`
 
 use darling::FromDeriveInput;
 use proc_macro::TokenStream;
@@ -389,8 +390,8 @@ pub fn derive_mavlink_decode(input: TokenStream) -> TokenStream {
     .into()
 }
 
-/// Derive macro for implementing the [`mavio::Dialect`], [`mavio::protocol::MessageSpec`], [`mavio::protocol::IntoPayload`] and
-/// [`mavlink_hal::description::DescribeMessages`] traits for an enum.
+/// Derive macro for implementing the [`mavio::Dialect`], [`mavio::protocol::MessageSpec`], [`mavio::protocol::IntoPayload`],
+/// [`mavio::Message`] and [`mavlink_hal::description::DescribeMessages`] traits for an enum.
 ///
 /// The enum supports the following attribute:
 /// - `#[dialect(name = "...", id = <number>, version = <number>)]`: The name attribute is used as the MavLink dialect name, the id attribute
