@@ -34,7 +34,7 @@ pub fn handle(mavlink_dialect: MavlinkDialect) -> TokenStream {
 
     let variants = data.take_enum().unwrap_or_default();
     let describe_messages_impl = generate_describe_messages_impl(&ident, &variants);
-    let message_spec_impl = generate_message_impl(&ident, &variants);
+    let message_impl = generate_message_impl(&ident, &variants);
 
     let (idents, types) = variants
         .iter()
@@ -51,7 +51,7 @@ pub fn handle(mavlink_dialect: MavlinkDialect) -> TokenStream {
 
     quote! {
         #describe_messages_impl
-        #message_spec_impl
+        #message_impl
 
         impl ::data_core::mavlink::mavio::Dialect for #ident {
             fn name() -> &'static str {
@@ -173,5 +173,7 @@ fn generate_message_impl(ident: &Ident, variants: &[MavlinkDialectVariant]) -> T
                 }
             }
         }
+
+        impl ::data_core::mavlink::mavio::Message for #ident {}
     }
 }
