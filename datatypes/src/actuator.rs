@@ -190,7 +190,7 @@ impl TryFrom<f32> for ThrottleableValve {
             #[cfg(feature = "std")]
             let openness_percent = (value * 100.).round() as u8;
             #[cfg(not(feature = "std"))]
-            let openness_percent = core::f32::math::round(value * 100.) as u8;
+            let openness_percent = (value * 100. + 0.5) as u8;
 
             Ok(Self { openness_percent })
         } else {
