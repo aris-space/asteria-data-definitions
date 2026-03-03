@@ -74,15 +74,6 @@ impl Settable for NormallyOpenValve {
     }
 }
 
-impl From<NormallyOpenValve> for f32 {
-    fn from(value: NormallyOpenValve) -> Self {
-        match value {
-            NormallyOpenValve::Open => 1.0,
-            NormallyOpenValve::Closed => 0.0,
-        }
-    }
-}
-
 /// The state of a valve that is normally closed.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
@@ -121,15 +112,6 @@ impl Settable for NormallyClosedValve {
             _ => Err(OutOfRange),
         }?;
         Ok(())
-    }
-}
-
-impl From<NormallyClosedValve> for f32 {
-    fn from(value: NormallyClosedValve) -> Self {
-        match value {
-            NormallyClosedValve::Open => 1.0,
-            NormallyClosedValve::Closed => 0.0,
-        }
     }
 }
 

@@ -425,12 +425,17 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
 /// Derive macro for implementing [`pss::data::DatapointHolder`] for an enum or a struct.
 ///
 /// The macro supports the following attributes:
-/// - `#[pss(id = "...", type = "...")]`: The id specifies to which name this PSS datapoint field should be mapped. The type field
-///   specifies which kind of PSS datapoint this field is (e.g. DPR, sensor, valve, ...).
-/// - `#[unit("...")]`: Optional unit of the datapoint field
+/// - `#[pss(name = "...", kind = "...")]`: The name specifies to which name this PSS datapoint field should be mapped. The kind field
+///   specifies which kind of PSS datapoint this field is (e.g. DPR actuator, digital sensor, ...).
+/// - `#[pss(flatten)]`: Optional flag which needs to be added to fields which should be flattened into the current container. This is needed
+///   for the recursion.
+/// - `#[unit("...")]`: Optional unit of the datapoint field which is required by some `#[pss(kind = "...")]`. If it's required but missing
+///   an appropriate error will be thrown at compile time.
 ///
 /// **Note**: When using this macro on newtype structs, the attributes need to be set on the container-level
 ///           instead of the field-level
+///
+/// **Note**: This macro only considers fields which have either the `#[pss(name = "...", kind = "...")]` or `#[pss(flatten)]` attribute
 ///
 /// The macro also ensures that all datapoint ids are unique.
 ///

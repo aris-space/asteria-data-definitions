@@ -1,4 +1,4 @@
-use std::mem::MaybeUninit;
+use core::mem::MaybeUninit;
 
 use crate::data::DatapointInformation;
 
@@ -64,16 +64,16 @@ pub const fn concat_slices<T: Copy, const N: usize>(sets: &[&[T]]) -> [T; N] {
     res
 }
 
-/// Checks that all ids defined by datapoint infos are unique.
+/// Checks that all names of datapoint infos are unique.
 /// Otherwise, panics to be used at compile time.
-pub const fn check_unique_ids(infos: &[DatapointInformation]) {
+pub const fn check_unique_names(infos: &[DatapointInformation]) {
     let mut i = 0;
     while i < infos.len() {
         let mut j = i + 1;
         while j < infos.len() {
             assert!(
-                !check_str_eq(infos[i].id, infos[j].id),
-                "Duplicate ID detected",
+                !check_str_eq(infos[i].name, infos[j].name),
+                "Duplicate name detected",
             );
             j += 1;
         }

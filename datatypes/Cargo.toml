@@ -16,14 +16,16 @@ arbitrary = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 thiserror = { version = "2.0.17", optional = true }
 watchable = { version = "1.1.2", optional = true }
+pss = { path = "../pss", optional = true }
 
 [features]
 default = ["derive_mavlink"]
 std = ["bincode/std"]
-derive_serde = ["dep:serde", "dep:thiserror"]
+derive_serde = ["dep:serde", "dep:thiserror", "pss?/derive_serde"]
 derive_mavlink = ["data-core/mavlink"]
 derive_defmt = ["dep:defmt"]
 derive_bincode = ["dep:bincode"]
 derive_arbitrary = ["dep:arbitrary", "std"]
-derive_utoipa = ["dep:utoipa", "std"]
+derive_utoipa = ["dep:utoipa", "std", "pss?/derive_utoipa"]
 watchable_settable = ["dep:watchable"]
+pss = ["dep:pss"]

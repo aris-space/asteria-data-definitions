@@ -1,20 +1,22 @@
 #![allow(dead_code)]
 
 use data_core::pss::{self, lib::data::DatapointHolder};
-use datatypes::{actuator::DPRValve, status::SensorStatus};
+use datatypes::{actuator::DPRValve, status::{SensorStatus, ValveState}};
 
 #[derive(pss::Data)]
 enum AnyMessage {
-    #[pss(type = "binary", id = "first_field")]
-    PowerBoard(u8),
-    #[pss(type = "binary", id = "second_field")]
-    YetAnotherMessage(u16),
+    #[pss(kind = "dpr_actuator", name = "first_field")]
+    PowerBoard(ValveState),
+    #[unit("°C")]
+    #[pss(kind = "analog_sensor", name = "second_field")]
+    YetAnotherMessage(SensorStatus),
+    #[pss(flatten)]
     OxidizerControlBoard(Asdf),
     NewMessage(Test),
 }
 
 #[derive(pss::Data)]
-#[pss(type = "binary", id = "third_field")]
+#[pss(kind = "digital_sensor", name = "third_field")]
 #[unit("°F")]
 struct Test(SensorStatus);
 
@@ -22,7 +24,7 @@ struct Test(SensorStatus);
 struct Asdf {
     my_field: u16,
     #[unit("°C")]
-    #[pss(type = "binary", id = "fourth_field")]
+    #[pss(kind = "dpr_actuator", name = "fourth_field")]
     my_other_field: DPRValve,
 }
 
