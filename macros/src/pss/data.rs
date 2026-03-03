@@ -24,14 +24,14 @@ struct DataKindWithUnit<'a>(&'a SpannedValue<DataKind>, Option<&'a Unit>);
 impl ToTokens for DataKindWithUnit<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let lib = quote!(::data_core::pss::lib::data);
-        let ident = match self.0.as_ref() {
-            DataKind::DigitalActuator => quote!(Actuator(#lib::ActuatorKind::Digital)),
-            DataKind::DprActuator => quote!(Actuator(#lib::ActuatorKind::DPR)),
-            DataKind::FractionalActuator => quote!(Actuator(#lib::ActuatorKind::Fractional)),
-            DataKind::AnalogSensor if let Some(unit) = self.1 => {
+        let ident = match (self.0.as_ref(), self.1) {
+            (DataKind::DigitalActuator, _) => quote!(Actuator(#lib::ActuatorKind::Digital)),
+            (DataKind::DprActuator, _) => quote!(Actuator(#lib::ActuatorKind::DPR)),
+            (DataKind::FractionalActuator, _) => quote!(Actuator(#lib::ActuatorKind::Fractional)),
+            (DataKind::AnalogSensor, Some(unit)) => {
                 quote!(Sensor(#lib::SensorKind::Analog { unit: #unit }))
             }
-            DataKind::AnalogSensor => {
+            (DataKind::AnalogSensor, _) => {
                 let err = darling::Error::custom(
                     "Analog sensor requires an `#[unit(\"...\")]` attribute",
                 )
@@ -39,7 +39,7 @@ impl ToTokens for DataKindWithUnit<'_> {
                 tokens.extend(err.write_errors());
                 return;
             }
-            DataKind::DigitalSensor => quote!(Sensor(#lib::SensorKind::Digital)),
+            (DataKind::DigitalSensor, _) => quote!(Sensor(#lib::SensorKind::Digital)),
         };
         tokens.extend(quote!(#lib::DatapointKind::#ident));
     }

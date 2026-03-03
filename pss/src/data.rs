@@ -8,7 +8,7 @@ pub enum ActuatorKind {
     Digital,
     #[serde(rename = "dpr")]
     DPR,
-    Fractional
+    Fractional,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -17,7 +17,7 @@ pub enum ActuatorKind {
 #[schema(as = SensorKind)]
 pub enum SensorKind {
     Analog { unit: &'static str },
-    Digital
+    Digital,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -26,7 +26,7 @@ pub enum SensorKind {
 #[schema(as = DatapointKind)]
 pub enum DatapointKind {
     Actuator(ActuatorKind),
-    Sensor(SensorKind)
+    Sensor(SensorKind),
 }
 
 /// Compile time information about a PSS datapoint

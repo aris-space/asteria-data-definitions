@@ -1,7 +1,10 @@
 #![allow(dead_code)]
 
 use data_core::pss::{self, lib::data::DatapointHolder};
-use datatypes::{actuator::DPRValve, status::{SensorStatus, ValveState}};
+use datatypes::{
+    actuator::DPRValve,
+    status::{SensorStatus, ValveState},
+};
 
 #[derive(pss::Data)]
 enum AnyMessage {
