@@ -1,6 +1,6 @@
 use core::f32;
 
-use pss::data::{ActuatorValue, DatapointValue, SensorValue};
+use datapoint_information::datapoint::{ActuatorValue, DatapointValue, SensorValue};
 
 use crate::{
     actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},

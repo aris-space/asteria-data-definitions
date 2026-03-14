@@ -27,8 +27,10 @@ pub mod mavlink {
 #[cfg(feature = "pss")]
 pub mod pss {
     pub use data_macros::PssData as Data;
-    pub use pss as lib;
 }
+
+#[cfg(feature = "datapoint-information")]
+pub use datapoint_information as data;
 
 #[cfg(feature = "bincode")]
 pub use bincode;

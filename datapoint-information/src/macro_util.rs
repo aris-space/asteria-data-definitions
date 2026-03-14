@@ -1,6 +1,6 @@
 use core::mem::MaybeUninit;
 
-use crate::data::DatapointInformation;
+use crate::datapoint::DatapointInformation;
 
 /// Manually compare bytes of two static strings for equality.
 /// This is needed as `PartialEq` is not (yet) const

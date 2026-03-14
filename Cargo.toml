@@ -15,7 +15,7 @@ members = [
     "mavlink",
     "mavlink-hal",
     "messages",
-    "pss",
+    "datapoint-information",
 ]
 
 [workspace.dependencies]

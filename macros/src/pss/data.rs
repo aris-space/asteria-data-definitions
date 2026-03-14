@@ -23,13 +23,13 @@ struct DataKindWithUnit<'a>(&'a SpannedValue<DataKind>, Option<&'a Unit>);
 
 impl ToTokens for DataKindWithUnit<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
-        let lib = quote!(::data_core::pss::lib::data);
+        let data = quote!(::data_core::data::datapoint);
         let ident = match (self.0.as_ref(), self.1) {
-            (DataKind::DigitalActuator, _) => quote!(Actuator(#lib::ActuatorKind::Digital)),
-            (DataKind::DprActuator, _) => quote!(Actuator(#lib::ActuatorKind::DPR)),
-            (DataKind::FractionalActuator, _) => quote!(Actuator(#lib::ActuatorKind::Fractional)),
+            (DataKind::DigitalActuator, _) => quote!(Actuator(#data::ActuatorKind::Digital)),
+            (DataKind::DprActuator, _) => quote!(Actuator(#data::ActuatorKind::DPR)),
+            (DataKind::FractionalActuator, _) => quote!(Actuator(#data::ActuatorKind::Fractional)),
             (DataKind::AnalogSensor, Some(unit)) => {
-                quote!(Sensor(#lib::SensorKind::Analog { unit: #unit }))
+                quote!(Sensor(#data::SensorKind::Analog { unit: #unit }))
             }
             (DataKind::AnalogSensor, _) => {
                 let err = darling::Error::custom(
@@ -39,9 +39,9 @@ impl ToTokens for DataKindWithUnit<'_> {
                 tokens.extend(err.write_errors());
                 return;
             }
-            (DataKind::DigitalSensor, _) => quote!(Sensor(#lib::SensorKind::Digital)),
+            (DataKind::DigitalSensor, _) => quote!(Sensor(#data::SensorKind::Digital)),
         };
-        tokens.extend(quote!(#lib::DatapointKind::#ident));
+        tokens.extend(quote!(#data::DatapointKind::#ident));
     }
 }
 
@@ -188,8 +188,8 @@ pub fn handle(pss_data: PssData) -> TokenStream {
     quote! {
         #impl_tokenstream
 
-        const _: () = ::data_core::pss::lib::macro_util::check_unique_names(
-            <#ident as ::data_core::pss::lib::data::DatapointHolder>::DATAPOINTS
+        const _: () = ::data_core::data::macro_util::check_unique_names(
+            <#ident as ::data_core::data::datapoint::DatapointHolder>::DATAPOINTS
         );
     }
 }
@@ -221,11 +221,11 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
 
             let value = if let Some(name) = &variant.name {
                 quote! {
-                    #ident::#variant_ident(value) => vec![::data_core::pss::lib::data::NamedDatapointValue { name: #name, value: (*value).into() }]
+                    #ident::#variant_ident(value) => vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: (*value).into() }]
                 }
             } else {
                 quote! {
-                    #ident::#variant_ident(value) => <#ty as ::data_core::pss::lib::data::DatapointHolder>::get_datapoint_values(value)
+                    #ident::#variant_ident(value) => <#ty as ::data_core::data::datapoint::DatapointHolder>::get_datapoint_values(value)
                 }
             };
 
@@ -260,11 +260,11 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
 
                 let value = if let Some(name) = &field.name {
                     quote! {
-                        values.extend(vec![::data_core::pss::lib::data::NamedDatapointValue { name: #name, value: #field_ident.into() }]);
+                        values.extend(vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: #field_ident.into() }]);
                     }
                 } else {
                     quote! {
-                        values.extend(<#ty as ::data_core::pss::lib::data::DatapointHolder>::get_datapoint_values(&#field_ident));
+                        values.extend(<#ty as ::data_core::data::datapoint::DatapointHolder>::get_datapoint_values(&#field_ident));
                     }
                 };
 
@@ -296,10 +296,10 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
     let datapoints = concatenate_datapoints(&datapoints, &lengths);
 
     quote! {
-        impl ::data_core::pss::lib::data::DatapointHolder for #ident {
-            const DATAPOINTS: &[::data_core::pss::lib::data::DatapointInformation] = #datapoints;
+        impl ::data_core::data::datapoint::DatapointHolder for #ident {
+            const DATAPOINTS: &[::data_core::data::datapoint::DatapointInformation] = #datapoints;
 
-            fn get_datapoint_values(&self) -> std::vec::Vec<::data_core::pss::lib::data::NamedDatapointValue> {
+            fn get_datapoint_values(&self) -> std::vec::Vec<::data_core::data::datapoint::NamedDatapointValue> {
                 match self {
                     #(#values,)*
                     _ => std::vec::Vec::new()
@@ -352,11 +352,11 @@ fn handle_struct(
         if let Some((datapoints, _)) = datapoints {
             let value = if let Some(name) = name {
                 quote! {
-                    values.extend(vec![::data_core::pss::lib::data::NamedDatapointValue { name: #name, value: (self.0).into() }]);
+                    values.extend(vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: (self.0).into() }]);
                 }
             } else {
                 quote! {
-                    values.extend(<#ty as ::data_core::pss::lib::data::DatapointHolder>::get_datapoint_values(&self.0));
+                    values.extend(<#ty as ::data_core::data::datapoint::DatapointHolder>::get_datapoint_values(&self.0));
                 }
             };
             (datapoints, vec![value])
@@ -387,11 +387,11 @@ fn handle_struct(
 
             let value = if let Some(name) = &field.name {
                 quote! {
-                    values.extend(vec![::data_core::pss::lib::data::NamedDatapointValue { name: #name, value: (self.#field_ident).into() }]);
+                    values.extend(vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: (self.#field_ident).into() }]);
                 }
             } else {
                 quote! {
-                    values.extend(<#ty as ::data_core::pss::lib::data::DatapointHolder>::get_datapoint_values(&self.#field_ident));
+                    values.extend(<#ty as ::data_core::data::datapoint::DatapointHolder>::get_datapoint_values(&self.#field_ident));
                 }
             };
 
@@ -407,10 +407,10 @@ fn handle_struct(
     };
 
     quote! {
-        impl ::data_core::pss::lib::data::DatapointHolder for #ident {
-            const DATAPOINTS: &[::data_core::pss::lib::data::DatapointInformation] = #datapoints;
+        impl ::data_core::data::datapoint::DatapointHolder for #ident {
+            const DATAPOINTS: &[::data_core::data::datapoint::DatapointInformation] = #datapoints;
 
-            fn get_datapoint_values(&self) -> std::vec::Vec<::data_core::pss::lib::data::NamedDatapointValue> {
+            fn get_datapoint_values(&self) -> std::vec::Vec<::data_core::data::datapoint::NamedDatapointValue> {
                 let mut values = std::vec::Vec::new();
                 #(#values;)*
                 values
@@ -463,7 +463,7 @@ fn get_datapoints(
         errors.finish()?;
 
         let datapoints = quote! {
-            <#ty as ::data_core::pss::lib::data::DatapointHolder>::DATAPOINTS
+            <#ty as ::data_core::data::datapoint::DatapointHolder>::DATAPOINTS
         };
         let datapoints_len = quote!(#datapoints.len());
         return Ok(Some((datapoints, datapoints_len)));
@@ -477,7 +477,7 @@ fn get_datapoints(
 
     let datapoints = quote! {
         &[
-            ::data_core::pss::lib::data::DatapointInformation {
+            ::data_core::data::datapoint::DatapointInformation {
                 kind: #kind,
                 label: #label,
                 name: #name
@@ -496,7 +496,7 @@ fn concatenate_datapoints(datapoints: &[TokenStream], lengths: &[TokenStream]) -
             // concatenate slices without storing intermediates
             datapoints.iter().zip(lengths).fold((quote!(&[]), quote!(0)), |(acc, acc_len), (info, length)| {
                 let next = quote! {
-                    &::data_core::pss::lib::macro_util::concat_slices::<_, { #acc_len + #length }>(&[#acc, #info])
+                    &::data_core::data::macro_util::concat_slices::<_, { #acc_len + #length }>(&[#acc, #info])
                 };
                 (next, quote! { #acc_len + #length })
             }).0

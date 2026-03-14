@@ -9,7 +9,7 @@ path = "src/lib.rs"
 proc-macro = true
 
 [features]
-default = ["pss"]
+default = []
 # Enable all CAN related macros
 can = []
 # Enable all MavLink related macros
