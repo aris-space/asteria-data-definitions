@@ -36,6 +36,8 @@ pub enum DatapointKind {
 pub struct DatapointInformation {
     /// Unique name of the datapoint
     pub name: &'static str,
+    /// User-facing label of the datapoint
+    pub label: &'static str,
     /// Kind of the datapoint (e.g. DPR actuator, digital sensor, ...)
     pub kind: DatapointKind,
 }

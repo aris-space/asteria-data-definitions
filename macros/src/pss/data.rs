@@ -50,8 +50,12 @@ impl ToTokens for DataKindWithUnit<'_> {
 pub struct PssDataField {
     /// Unique name of the PSS datapoint
     ///
-    /// **Important**: Only fields which have a `#[pss(name = ...)]` attribute are considered by this macro
+    /// **Important**: Only fields which have a `#[pss(...)]` attribute are considered by this macro
     name: Option<LitStr>,
+    /// User-facing label of the PSS datapoint
+    ///
+    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
+    label: Option<LitStr>,
     /// Type of the PSS datapoint
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
@@ -69,8 +73,12 @@ pub struct PssDataField {
 pub struct PssDataVariant {
     /// Unique name of the PSS datapoint
     ///
-    /// **Important**: Only variants which have a `#[pss(name = ...)]` attribute are considered by this macro
+    /// **Important**: Only variants which have a `#[pss(...)]` attribute are considered by this macro
     name: Option<LitStr>,
+    /// User-facing label of the PSS datapoint
+    ///
+    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
+    label: Option<LitStr>,
     /// Type of the PSS datapoint
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
@@ -94,6 +102,10 @@ pub struct PssData {
     ///
     /// **Important**: This can only be set on newtype enums and structs
     name: Option<LitStr>,
+    /// User-facing label of the PSS datapoint
+    ///
+    /// **Important**: This can only be set on newtype enums and structs
+    label: Option<LitStr>,
     /// Type of the PSS datapoint
     ///
     /// **Note**: This can only be set on newtype enums and structs
@@ -110,6 +122,7 @@ pub fn handle(pss_data: PssData) -> TokenStream {
     let PssData {
         ident,
         name,
+        label,
         kind,
         flatten,
         ..
@@ -137,6 +150,14 @@ pub fn handle(pss_data: PssData) -> TokenStream {
                 .with_span(&ident),
             );
         }
+        if label.is_some() {
+            errors.push(
+                darling::Error::custom(
+                    "Attribute `#[pss(label = ...)]` cannot be set on enum container",
+                )
+                .with_span(&ident),
+            );
+        }
         if kind.is_some() {
             errors.push(
                 darling::Error::custom(
@@ -157,6 +178,7 @@ pub fn handle(pss_data: PssData) -> TokenStream {
             &ident,
             flatten,
             name.as_ref(),
+            label.as_ref(),
             kind.as_ref(),
             unit.as_ref(),
             &fields,
@@ -188,7 +210,7 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
                 },
             };
 
-            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.kind.as_ref(), unit.as_ref()) {
+            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.label.as_ref(), variant.kind.as_ref(), unit.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -227,7 +249,7 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
                     },
                 };
 
-                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.kind.as_ref(), unit.as_ref()) {
+                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
                     Ok(Some((datapoints, len))) => (datapoints, len),
                     Ok(None) => return None,
                     Err(err) => {
@@ -291,6 +313,7 @@ fn handle_struct(
     ident: &Ident,
     flatten: Flag,
     name: Option<&LitStr>,
+    label: Option<&LitStr>,
     kind: Option<&SpannedValue<DataKind>>,
     unit: Option<&Unit>,
     fields: &Fields<PssDataField>,
@@ -308,6 +331,9 @@ fn handle_struct(
         if field.name.is_some() {
             errors.push(darling::Error::custom("Attribute `#[pss(name = ...)]` cannot be used on newtype structs, use this attribute on the container-level instead!").with_span(&field.name));
         }
+        if field.label.is_some() {
+            errors.push(darling::Error::custom("Attribute `#[pss(label = ...)]` cannot be used on newtype structs, use this attribute on the container-level instead!").with_span(&field.name));
+        }
         if let Some(kind) = &field.kind {
             errors.push(darling::Error::custom("Attribute `#[pss(kind = ...)]` cannot be used on newtype structs, use this attribute on the container-level instead!").with_span(&kind.span()));
         }
@@ -318,7 +344,7 @@ fn handle_struct(
 
         let ty = &field.ty;
 
-        let datapoints = match get_datapoints(ty, flatten, name, kind, unit) {
+        let datapoints = match get_datapoints(ty, flatten, name, label, kind, unit) {
             Ok(datapoints) => datapoints,
             Err(err) => return err.write_errors(),
         };
@@ -350,7 +376,7 @@ fn handle_struct(
                 },
             };
 
-            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.kind.as_ref(), unit.as_ref()) {
+            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -403,11 +429,12 @@ fn get_datapoints(
     ty: &syn::Type,
     flatten: Flag,
     name: Option<&LitStr>,
+    label: Option<&LitStr>,
     kind: Option<&SpannedValue<DataKind>>,
     unit: Option<&Unit>,
 ) -> darling::Result<Option<(TokenStream, TokenStream)>> {
-    if flatten.is_present() && (kind.is_some() || name.is_some()) {
-        Err(darling::Error::custom("Attribute `#[pss(flatten)]` cannot be combined with `#[pss(name = ...)]` or `#[pss(kind = ...)]`").with_span(&flatten.span()))?;
+    if flatten.is_present() && (kind.is_some() || name.is_some() || label.is_some()) {
+        Err(darling::Error::custom("Attribute `#[pss(flatten)]` cannot be combined with `#[pss(name = ...)]`, `#[pss(label = ...)]` or `#[pss(kind = ...)]`").with_span(&flatten.span()))?;
     }
 
     if !flatten.is_present() && kind.is_none() && name.is_none() {
@@ -415,12 +442,25 @@ fn get_datapoints(
     }
 
     let Some(name) = name else {
-        if let Some(kind) = kind {
-            Err(darling::Error::custom(
-                "Attribute `#[pss(kind = ...)]` cannot be used without `#[pss(name = ...)]`",
-            )
-            .with_span(&kind.span()))?;
+        let mut errors = darling::Error::accumulator();
+        if let Some(label) = label {
+            errors.push(
+                darling::Error::custom(
+                    "Attribute `#[pss(label = ...)]` cannot be used without `#[pss(name = ...)]`",
+                )
+                .with_span(&label.span()),
+            );
         }
+        if let Some(kind) = kind {
+            errors.push(
+                darling::Error::custom(
+                    "Attribute `#[pss(kind = ...)]` cannot be used without `#[pss(name = ...)]`",
+                )
+                .with_span(&kind.span()),
+            );
+        }
+
+        errors.finish()?;
 
         let datapoints = quote! {
             <#ty as ::data_core::pss::lib::data::DatapointHolder>::DATAPOINTS
@@ -428,9 +468,9 @@ fn get_datapoints(
         let datapoints_len = quote!(#datapoints.len());
         return Ok(Some((datapoints, datapoints_len)));
     };
-    let Some(kind) = kind.map(|kind| DataKindWithUnit(kind, unit)) else {
+    let Some((kind, label)) = kind.map(|kind| DataKindWithUnit(kind, unit)).zip(label) else {
         return Err(darling::Error::custom(
-            "Attribute `#[pss(kind = ...)]` is required when `#[pss(name = ...)]` is set",
+            "Attribute `#[pss(kind = ...)]` and `#[pss(label = ...)]` are required when `#[pss(name = ...)]` is set",
         )
         .with_span(name))?;
     };
@@ -439,6 +479,7 @@ fn get_datapoints(
         &[
             ::data_core::pss::lib::data::DatapointInformation {
                 kind: #kind,
+                label: #label,
                 name: #name
             }
         ]

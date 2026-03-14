@@ -4,16 +4,20 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-datatypes = { version = "0.1.0", path = "../datatypes", features = ["pss"] }
+datatypes = { version = "0.1.0", path = "../datatypes", features = ["pss", "derive_serde"] }
 dp-oxidizer-control-board = { version = "0.3.0", path = "../datapoints/dp-oxidizer-control-board", features = [
     "can",
+    "derive_serde"
 ] }
 dp-power-board = { version = "0.3.0", path = "../datapoints/dp-power-board", features = [
     "can",
+    "derive_serde"
 ] }
 
 data-core = { version = "0.1.0", path = "../core", features = ["can", "mavlink", "pss"] }
 thiserror = { version = "2.0.17", default-features = false }
+serde.workspace = true
+serde_json = "1.0.149"
 
 [lints]
 workspace = true
