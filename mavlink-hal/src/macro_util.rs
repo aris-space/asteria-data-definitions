@@ -168,7 +168,7 @@ pub const fn check_unique_ids(messages: &[Message]) {
     while i < messages.len() {
         let mut j = i + 1;
         while j < messages.len() {
-            assert!(messages[i].id != messages[j].id, "Duplicate ID detected",);
+            assert!(messages[i].id != messages[j].id, "Duplicate ID detected");
             j += 1;
         }
         i += 1;
