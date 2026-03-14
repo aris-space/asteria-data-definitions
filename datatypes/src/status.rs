@@ -109,15 +109,6 @@ pub enum SensorStatus {
     Online = 1,
 }
 
-impl From<SensorStatus> for f32 {
-    fn from(value: SensorStatus) -> Self {
-        match value {
-            SensorStatus::Offline => 0.0,
-            SensorStatus::Online => 1.0,
-        }
-    }
-}
-
 /// Enum representing the state of a valve.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
@@ -132,15 +123,6 @@ pub enum ValveState {
     /// Power should not be disabled for the valve
     #[default]
     Inactive = 1,
-}
-
-impl From<ValveState> for f32 {
-    fn from(value: ValveState) -> Self {
-        match value {
-            ValveState::Active => 0.0,
-            ValveState::Inactive => 1.0,
-        }
-    }
 }
 
 #[cfg(feature = "derive_bincode")]
