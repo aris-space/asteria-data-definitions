@@ -1,7 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 //! This crate should be used for using the macros from the `data_macros` crate.
 //! The reason for this is, that this crate reexports all crates needed by the macros
-//! (unless specified otherwhise by the macro itself)
+//! (unless specified otherwise by the macro itself)
 
 pub use data_macros::Message;
 
@@ -23,6 +23,14 @@ pub mod mavlink {
     pub use mavio;
     pub use mavlink_hal as hal;
 }
+
+#[cfg(feature = "pss")]
+pub mod pss {
+    pub use data_macros::PssData as Data;
+}
+
+#[cfg(feature = "datapoint-information")]
+pub use datapoint_information as data;
 
 #[cfg(feature = "bincode")]
 pub use bincode;

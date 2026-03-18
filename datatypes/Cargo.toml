@@ -9,6 +9,7 @@ workspace = true
 [dependencies]
 gated-derive = { path = "../macro-gated-derive" }
 data-core = { version = "0.1.0", path = "../core", optional = true }
+datapoint-information = { version = "0.1.0", path = "../datapoint-information", optional = true }
 serde = { workspace = true, optional = true }
 bincode = { workspace = true, optional = true }
 defmt = { workspace = true, optional = true }
@@ -20,10 +21,12 @@ watchable = { version = "1.1.2", optional = true }
 [features]
 default = ["derive_mavlink"]
 std = ["bincode/std"]
-derive_serde = ["dep:serde", "dep:thiserror"]
+derive_datapoint_information = ["dep:datapoint-information"]
+derive_serde = ["dep:serde", "dep:thiserror", "datapoint-information?/derive_serde"]
 derive_mavlink = ["data-core/mavlink"]
 derive_defmt = ["dep:defmt"]
 derive_bincode = ["dep:bincode"]
 derive_arbitrary = ["dep:arbitrary", "std"]
-derive_utoipa = ["dep:utoipa", "std"]
+derive_utoipa = ["dep:utoipa", "std", "datapoint-information?/derive_utoipa"]
 watchable_settable = ["dep:watchable"]
+pss = ["derive_datapoint_information"]

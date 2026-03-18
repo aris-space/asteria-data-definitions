@@ -1,0 +1,17 @@
+[package]
+name = "datapoint-information"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gated-derive = { path = "../macro-gated-derive" }
+serde = { workspace = true, optional = true }
+utoipa = { workspace = true, optional = true }
+
+[features]
+default = []
+derive_utoipa = ["dep:utoipa"]
+derive_serde = ["dep:serde"]
+
+[lints]
+workspace = true

@@ -8,18 +8,23 @@ bincode = { version = "2.0.1", optional = true, default-features = false }
 mavio = { version = "0.5.10", features = ["std", "derive"], optional = true }
 can-hal = { path = "../can-hal", version = "0.1.0", optional = true }
 mavlink-hal = { path = "../mavlink-hal", version = "0.1.0", optional = true }
+datapoint-information = { path = "../datapoint-information", version = "0.1.0", optional = true }
 data-macros = { path = "../macros", version = "0.1.0" }
 
 [features]
 default = []
-std = ["bincode/std"]
+std = ["bincode?/std"]
 bincode = ["dep:bincode"]
+datapoint-information = ["dep:datapoint-information"]
 # Reexport all CAN related macros from the `data_macros` crate.
 # Additionally, also reexport the `can_hal` and `bincode` crates which are used by those macros.
 can = ["bincode", "data-macros/can", "dep:can-hal"]
 # Reexport all MavLink related macros from the `data_macros` crate.
 # Additionally, also reexport the `mavlink_hal`, and `mavio` crates which are used by those macros.
 mavlink = ["data-macros/mavlink", "dep:mavlink-hal", "dep:mavio"]
+# Reexport all PSS related macros from the `data_macros` crate.
+# Additionally, also reexport the `datapoint-information` crate which is used by those macros.
+pss = ["data-macros/pss", "datapoint-information"]
 
 [lints]
 workspace = true
