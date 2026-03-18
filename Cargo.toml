@@ -8,7 +8,6 @@ members = [
     "core",
     "datapoints/*",
     "datatypes",
-    "example-nostd-client",
     "fuzz",
     "macro-gated-derive",
     "macros",
