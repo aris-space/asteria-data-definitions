@@ -8,6 +8,9 @@ use data_core::mavlink;
 use datatypes::status::{BoardId, InstantUs};
 use gated_derive::gated_derive;
 
+mod version;
+pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+
 #[derive(Message)]
 #[gated_derive(can::Message, Debug)]
 #[gated_derive(mavlink::Message)]

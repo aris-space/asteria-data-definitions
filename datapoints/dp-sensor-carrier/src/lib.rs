@@ -12,6 +12,9 @@ use gated_derive::gated_derive;
 mod dptypes;
 pub use dptypes::*;
 
+mod version;
+pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+
 #[derive(Message)]
 #[gated_derive(can::Message, Debug)]
 #[gated_derive(mavlink::Message)]
