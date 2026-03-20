@@ -93,7 +93,7 @@ pub struct PssDataVariant {
 
 #[derive(FromDeriveInput)]
 #[darling(
-    supports(enum_named, enum_newtype, struct_named, struct_newtype),
+    supports(enum_named, enum_newtype, enum_unit, struct_named, struct_newtype),
     attributes(pss),
     forward_attrs(unit)
 )]
@@ -170,7 +170,14 @@ pub fn handle(pss_data: PssData) -> TokenStream {
             return err.write_errors();
         }
 
-        let variants = pss_data.data.take_enum().expect("should be enum");
+        let variants = pss_data
+            .data
+            .take_enum()
+            .expect("should be enum")
+            .into_iter()
+            // Filter out unit fields as there can't be any data for them.
+            .filter(|variant| !variant.fields.is_unit())
+            .collect::<Vec<_>>();
         handle_enum(&ident, &variants)
     } else {
         let fields = pss_data.data.take_struct().expect("should be struct");
@@ -494,7 +501,7 @@ fn get_datapoints(
 /// Concatenate a list of datapoints and their corresponding lengths
 fn concatenate_datapoints(datapoints: &[TokenStream], lengths: &[TokenStream]) -> TokenStream {
     match datapoints.len() {
-        0 => quote!([]),
+        0 => quote!(&[]),
         1 => quote! { #(#datapoints)* },
         _ => {
             // concatenate slices without storing intermediates

@@ -5,6 +5,8 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
+#[cfg(feature = "pss")]
+use data_core::pss;
 use datatypes::actuator::{DPRValve, PressurizationGain};
 use datatypes::status::{BuildInformationCommon, ValveState};
 use datatypes::units::BarG;
@@ -20,6 +22,7 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[gated_derive(can::Message, Debug)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = OxidizerControlBoardMessage)]
 pub enum Message {
@@ -60,6 +63,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x321)]
     #[mavlink(id = 0x10_03_01)]
+    #[pss(flatten)]
     BoardStatus(OxidizerControlBoardStatus),
 
     /// # `OxidizerControlBoardValveStates`
@@ -79,6 +83,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
     #[mavlink(id = 0x10_03_02)]
+    #[pss(flatten)]
     ValveStates(OxidizerControlBoardValveStates),
     /// # `OxidizerPressurizationCompleted`
     /// Event message sent by the OxidizerControlBoard
