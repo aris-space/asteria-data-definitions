@@ -5,6 +5,7 @@ use datapoint_information::datapoint::{ActuatorValue, DatapointValue, SensorValu
 use crate::{
     actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
     status::{SensorStatus, ValveState},
+    units::BarG,
 };
 
 impl From<NormallyClosedValve> for DatapointValue {
@@ -60,5 +61,11 @@ impl From<SensorStatus> for DatapointValue {
         Self::Sensor(SensorValue::Digital {
             enabled: matches!(value, SensorStatus::Online),
         })
+    }
+}
+
+impl From<BarG> for DatapointValue {
+    fn from(value: BarG) -> Self {
+        Self::Sensor(SensorValue::Analog { value: value.0 })
     }
 }

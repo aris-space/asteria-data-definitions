@@ -5,6 +5,8 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
+#[cfg(feature = "pss")]
+use data_core::pss;
 use datatypes::status::{
     BuildInformationCommon, ManualActuatorChange, ManualStateTransition, StateMachineState,
 };
@@ -20,6 +22,7 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[gated_derive(can::Message, Debug)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = FlightComputerMessage)]
 pub enum Message {
