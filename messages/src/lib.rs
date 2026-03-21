@@ -53,7 +53,7 @@ pub enum Message {
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
     EngineControlBoard(dp_engine_control_board::Message),
     // -------- Uplink --------
-    ManualAction(crate::manual_action::Message)
+    ManualAction(crate::manual_action::Message),
 }
 
 /// Test to assert that all CAN IDs are unique
