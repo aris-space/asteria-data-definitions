@@ -36,6 +36,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x612)]
+    #[mavlink(id = 0x10_07_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `SensorCarrierStatus`
@@ -54,6 +55,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x312)]
+    #[mavlink(id = 0x10_07_01)]
     BoardStatus(SensorCarrierStatus),
 
     /// # `PositionData`
@@ -95,6 +97,7 @@ pub enum Message {
     /// Barometer-based altitude is relative to the initialization pressure and is sensitive to weather.
     /// GNSS height is referred to mean sea level (HAMSL).
     #[can(id = 0x420)]
+    #[mavlink(id = 0x10_07_02)]
     PositionData(PositionData),
 
     /// # `ImuData`
@@ -134,6 +137,7 @@ pub enum Message {
     /// Note that `acceleration_down` and `angular_velocity_down` are not affected by errors in
     /// inertial yaw.
     #[can(id = 0x421)]
+    #[mavlink(id = 0x10_07_03)]
     ImuData(ImuData),
 
     /// # `VelocityData`
@@ -173,6 +177,7 @@ pub enum Message {
     ///
     /// The vertical component (`velocity_z`) is not affected by errors in inertial yaw.
     #[can(id = 0x422)]
+    #[mavlink(id = 0x10_07_04)]
     VelocityData(VelocityData),
 
     /// # `OrientationData`
@@ -216,6 +221,7 @@ pub enum Message {
     ///
     /// The emitted quaternion is always **normalised**.
     #[can(id = 0x423)]
+    #[mavlink(id = 0x10_07_05)]
     OrientationData(OrientationData),
 
     /// # `EnvironmentalData`
@@ -235,6 +241,7 @@ pub enum Message {
     /// ## Reaction
     /// No action required.
     #[can(id = 0x510)]
+    #[mavlink(id = 0x10_07_06)]
     EnvironmentalData(EnvironmentalData),
 
     /// # `MagnetometerData`
@@ -270,6 +277,7 @@ pub enum Message {
     ///
     /// Note that `magnetic_field_down` is not affected by errors in inertial yaw.
     #[can(id = 0x520)]
+    #[mavlink(id = 0x10_07_07)]
     MagnetometerData(MagnetometerData),
 
     /// # `PressureData`
@@ -291,6 +299,7 @@ pub enum Message {
     /// ## Note
     /// This differs from `EnvironmentalData`, which is lower-rate and smoothed.
     #[can(id = 0x530)]
+    #[mavlink(id = 0x10_07_08)]
     PressureData(HPa),
     // ======================== RX ========================
 }

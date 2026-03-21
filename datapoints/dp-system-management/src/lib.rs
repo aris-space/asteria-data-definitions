@@ -35,6 +35,7 @@ pub enum Message {
     /// be used to correct for drift, this may result in non-monotonic timekeeping
     /// and is therefore discouraged.
     #[can(id = 0x30)]
+    #[mavlink(id = 0x10_08_00)]
     UTCTimeUpdate(InstantUs),
 
     /// # `ResetSpecific`
@@ -53,6 +54,7 @@ pub enum Message {
     /// ## Reaction
     /// The addressed board performs an immediate reset. Others shall ignore the message.
     #[can(id = 0x20)]
+    #[mavlink(id = 0x10_08_01)]
     ResetSpecific(BoardId),
 
     /// # `ResetAll`

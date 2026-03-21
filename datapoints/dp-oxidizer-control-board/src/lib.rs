@@ -37,6 +37,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x618)]
+    #[mavlink(id = 0x10_03_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `OxidizerControlBoardStatus`
@@ -55,6 +56,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x321)]
+    #[mavlink(id = 0x10_03_01)]
     BoardStatus(OxidizerControlBoardStatus),
 
     /// # `OxidizerControlBoardValveStates`
@@ -73,6 +75,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
+    #[mavlink(id = 0x10_03_02)]
     ValveStates(OxidizerControlBoardValveStates),
     /// # `OxidizerPressurizationCompleted`
     /// Event message sent by the OxidizerControlBoard
@@ -109,6 +112,7 @@ pub enum Message {
     /// ## Reaction
     ///
     #[can(id = 0x124)]
+    #[mavlink(id = 0x10_03_03)]
     OxidizerPressurization(BarG),
 
     /// # `OxidizerPressurizationGain`
@@ -127,6 +131,7 @@ pub enum Message {
     /// ## Reaction
     ///
     #[can(id = 0x126)]
+    #[mavlink(id = 0x10_03_04)]
     OxidizerPressurizationGain(PressurizationGain),
 
     /// # `OxidizerPressurizationAbort`
@@ -167,6 +172,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x210)]
+    #[mavlink(id = 0x10_03_05)]
     OxidizerDprConfigFC(DPRValve),
 
     /// # `OxidizerVentControlFC`
@@ -185,6 +191,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x214)]
+    #[mavlink(id = 0x10_03_06)]
     OxidizerVentControlFC(ValveState),
 
     /// # `OxidizerDprConfigECU`
@@ -204,6 +211,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x215)]
+    #[mavlink(id = 0x10_03_07)]
     OxidizerDprConfigECU(DPRValve),
 
     /// # `OxidizerVentControlECU`
@@ -222,6 +230,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x219)]
+    #[mavlink(id = 0x10_03_08)]
     OxidizerVentControlECU(ValveState),
 
     /// # `OxidizerDprConfigRFS`
@@ -240,6 +249,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x21a)]
+    #[mavlink(id = 0x10_03_09)]
     OxidizerDprConfigRFS(DPRValve),
 
     /// # `OxidizerVentControlRFS`
@@ -258,5 +268,6 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x21e)]
+    #[mavlink(id = 0x10_03_0A)]
     OxidizerVentControlRFS(ValveState),
 }

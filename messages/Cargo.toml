@@ -19,12 +19,14 @@ gated-derive = { path = "../macro-gated-derive" }
 thiserror = { version = "2.0.17", optional = true, default-features = false }
 utoipa = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
+bincode = { workspace = true, optional = true }
 
 [features]
 default = ["can"]
 # Derive can related traits for all datapoints and datapoint specific types
 can = [
     "derive_can",
+    "derive_bincode",
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
     "dp-power-board/can",
@@ -35,6 +37,7 @@ can = [
     "dp-recovery-board/can",
     "dp-sensor-carrier/can",
     "data-core/can",
+    "dep:bincode",
     "dep:thiserror",                 # required for CAN message macro
 ]
 # Derive serde for all datapoint specific types
@@ -129,6 +132,7 @@ derive_utoipa = [
 ]
 derive_can = []
 derive_mavlink = []
+derive_bincode = []
 
 [lints]
 workspace = true

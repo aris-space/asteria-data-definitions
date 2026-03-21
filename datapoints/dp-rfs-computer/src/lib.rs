@@ -35,6 +35,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x611)]
+    #[mavlink(id = 0x10_06_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `RfsComputerStatus`
@@ -54,6 +55,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     /// It is also used to only ingite if the RFS is armed and ensure exclusive PSS control.
     #[can(id = 0x311)]
+    #[mavlink(id = 0x10_06_01)]
     Status(RfsComputerStatus),
 
     /// # `RfsComputerValveStates`
@@ -72,6 +74,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x325)]
+    #[mavlink(id = 0x10_06_02)]
     ValveStates(RfsComputerValveStates),
 
     // ======================== RX ========================
@@ -92,6 +95,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the GOX igniter valve state accordingly.
     #[can(id = 0x20a)]
+    #[mavlink(id = 0x10_06_03)]
     GoxIgniterValveControl(ValveState),
 
     /// # `H2IgniterValveControl`
@@ -111,6 +115,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the H2 igniter valve state accordingly.
     #[can(id = 0x20b)]
+    #[mavlink(id = 0x10_06_04)]
     H2IgniterValveControl(ValveState),
 
     /// # `IgniterSparkPlugControl`
@@ -130,6 +135,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust spark plug state accordingly.
     #[can(id = 0x20c)]
+    #[mavlink(id = 0x10_06_05)]
     IgniterSparkPlugControl(ValveState),
 
     /// # `IgniterPurgeControl`
@@ -149,5 +155,6 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the GOX and H2 purge valve state accordingly.
     #[can(id = 0x20d)]
+    #[mavlink(id = 0x10_06_06)]
     IgniterPurgeControl(ValveState),
 }

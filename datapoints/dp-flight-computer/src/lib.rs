@@ -35,6 +35,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x610)]
+    #[mavlink(id = 0x10_01_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `FlightComputerStatus`
@@ -54,6 +55,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     /// It is also used to only arm the RFS if the FC is armed and ensure exclusive PSS control.
     #[can(id = 0x310)]
+    #[mavlink(id = 0x10_01_01)]
     Status(FlightComputerStatus),
     // ======================== RX ========================
 }

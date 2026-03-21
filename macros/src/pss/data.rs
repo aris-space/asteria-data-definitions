@@ -191,6 +191,10 @@ pub fn handle(pss_data: PssData) -> TokenStream {
         const _: () = ::data_core::data::macro_util::check_unique_names(
             <#ident as ::data_core::data::datapoint::DatapointHolder>::DATAPOINTS
         );
+
+        const _: () = ::data_core::data::macro_util::check_name_len(
+            <#ident as ::data_core::data::datapoint::DatapointHolder>::DATAPOINTS
+        );
     }
 }
 
