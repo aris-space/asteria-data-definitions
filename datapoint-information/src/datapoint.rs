@@ -44,7 +44,7 @@ pub struct DatapointInformation {
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 #[schema(as = ActuatorValue)]
 pub enum ActuatorValue {
     Digital {
@@ -62,7 +62,7 @@ pub enum ActuatorValue {
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 #[schema(as = SensorValue)]
 pub enum SensorValue {
     Analog { value: f32 },
@@ -71,7 +71,7 @@ pub enum SensorValue {
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "component", rename_all = "snake_case")]
 #[schema(as = DatapointValue)]
 pub enum DatapointValue {
     Actuator(ActuatorValue),
@@ -80,7 +80,7 @@ pub enum DatapointValue {
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 #[schema(as = NamedDatapointValue)]
 pub struct NamedDatapointValue {
     /// Unique name of the datapoint
