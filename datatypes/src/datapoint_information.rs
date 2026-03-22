@@ -5,7 +5,7 @@ use datapoint_information::datapoint::{ActuatorValue, DatapointValue, SensorValu
 use crate::{
     actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
     status::{SensorStatus, ValveState},
-    units::BarG,
+    units::{BarG, Celsius},
 };
 
 impl From<NormallyClosedValve> for DatapointValue {
@@ -66,6 +66,12 @@ impl From<SensorStatus> for DatapointValue {
 
 impl From<BarG> for DatapointValue {
     fn from(value: BarG) -> Self {
+        Self::Sensor(SensorValue::Analog { value: value.0 })
+    }
+}
+
+impl From<Celsius> for DatapointValue {
+    fn from(value: Celsius) -> Self {
         Self::Sensor(SensorValue::Analog { value: value.0 })
     }
 }
