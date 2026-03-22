@@ -7,7 +7,9 @@ use crate::{
         DPRValve, DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve,
         ThrottleableValve,
     },
+    sensor::DigitalIn,
     status::SensorStatus,
+    units::Celsius,
 };
 
 impl From<NormallyClosedValve> for DatapointValue {
@@ -70,6 +72,20 @@ impl From<SensorStatus> for DatapointValue {
     fn from(value: SensorStatus) -> Self {
         Self::Sensor(SensorValue::Digital {
             enabled: matches!(value, SensorStatus::Online),
+        })
+    }
+}
+
+impl From<Celsius> for DatapointValue {
+    fn from(Celsius(value): Celsius) -> Self {
+        Self::Sensor(SensorValue::Analog { value })
+    }
+}
+
+impl From<DigitalIn> for DatapointValue {
+    fn from(value: DigitalIn) -> Self {
+        Self::Sensor(SensorValue::Digital {
+            enabled: matches!(value, DigitalIn::On),
         })
     }
 }

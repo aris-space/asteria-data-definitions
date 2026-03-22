@@ -28,6 +28,9 @@ const TYPE_KIND_REGISTRY: &[(&str, DataKind)] = &[
     ("NormallyOpenValve", DataKind::DigitalActuator),
     ("DigitalOut", DataKind::DigitalActuator),
     ("InvertedDigitalOut", DataKind::DigitalActuator),
+    // `Celsius` is an analog sensor — additionally requires a `#[unit("...")]` attribute
+    ("Celsius", DataKind::AnalogSensor),
+    ("DigitalIn", DataKind::DigitalSensor),
 ];
 
 /// Infer a [`DataKind`] from the last path segment of `ty` using [`TYPE_KIND_REGISTRY`].
