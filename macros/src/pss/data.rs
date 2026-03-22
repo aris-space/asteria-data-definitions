@@ -9,7 +9,7 @@ use syn::{Ident, LitStr};
 
 use crate::util::{GetUnit, Unit};
 
-#[derive(FromMeta)]
+#[derive(FromMeta, Clone, Copy)]
 #[darling(rename_all = "snake_case")]
 enum DataKind {
     DigitalActuator,
@@ -17,6 +17,29 @@ enum DataKind {
     FractionalActuator,
     AnalogSensor,
     DigitalSensor,
+}
+
+/// Registry mapping a type's last path segment to its inferred [`DataKind`].
+///
+/// When a field or variant annotated with `#[pss(name = "...")]` uses one of these types,
+/// the `kind` attribute may be omitted and will be inferred automatically from this registry.
+const TYPE_KIND_REGISTRY: &[(&str, DataKind)] = &[
+    ("NormallyClosedValve", DataKind::DigitalActuator),
+    ("NormallyOpenValve", DataKind::DigitalActuator),
+    ("DigitalOut", DataKind::DigitalActuator),
+    ("InvertedDigitalOut", DataKind::DigitalActuator),
+];
+
+/// Infer a [`DataKind`] from the last path segment of `ty` using [`TYPE_KIND_REGISTRY`].
+fn infer_kind(ty: &syn::Type) -> Option<DataKind> {
+    let syn::Type::Path(type_path) = ty else {
+        return None;
+    };
+    let ident = type_path.path.segments.last()?.ident.to_string();
+    TYPE_KIND_REGISTRY
+        .iter()
+        .find(|(name, _)| *name == ident)
+        .map(|(_, kind)| *kind)
 }
 
 struct DataKindWithUnit<'a>(&'a SpannedValue<DataKind>, Option<&'a Unit>);
@@ -58,7 +81,9 @@ pub struct PssDataField {
     label: Option<LitStr>,
     /// Type of the PSS datapoint
     ///
-    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
+    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set,
+    /// unless the type is listed in [`TYPE_KIND_REGISTRY`] (e.g. `NormallyClosedValve`,
+    /// `NormallyOpenValve`, `DigitalOut`, `InvertedDigitalOut`), in which case it is inferred.
     kind: Option<SpannedValue<DataKind>>,
     /// Boolean flag whether this field should be flattened
     flatten: Flag,
@@ -81,7 +106,9 @@ pub struct PssDataVariant {
     label: Option<LitStr>,
     /// Type of the PSS datapoint
     ///
-    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
+    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set,
+    /// unless the type is listed in [`TYPE_KIND_REGISTRY`] (e.g. `NormallyClosedValve`,
+    /// `NormallyOpenValve`, `DigitalOut`, `InvertedDigitalOut`), in which case it is inferred.
     kind: Option<SpannedValue<DataKind>>,
     /// Boolean flag whether this variant should be flattened
     flatten: Flag,
@@ -468,9 +495,19 @@ fn get_datapoints(
         let datapoints_len = quote!(#datapoints.len());
         return Ok(Some((datapoints, datapoints_len)));
     };
-    let Some((kind, label)) = kind.map(|kind| DataKindWithUnit(kind, unit)).zip(label) else {
+    let inferred: Option<SpannedValue<DataKind>> = kind
+        .is_none()
+        .then(|| infer_kind(ty))
+        .flatten()
+        .map(|k| SpannedValue::new(k, proc_macro2::Span::call_site()));
+    let effective_kind = kind.or(inferred.as_ref());
+    let Some((kind, label)) = effective_kind
+        .map(|kind| DataKindWithUnit(kind, unit))
+        .zip(label)
+    else {
         return Err(darling::Error::custom(
-            "Attribute `#[pss(kind = ...)]` and `#[pss(label = ...)]` are required when `#[pss(name = ...)]` is set",
+            "Attribute `#[pss(label = ...)]` is required when `#[pss(name = ...)]` is set. \
+             Also set `#[pss(kind = ...)]` unless the type is listed in TYPE_KIND_REGISTRY.",
         )
         .with_span(name))?;
     };

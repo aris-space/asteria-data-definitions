@@ -425,9 +425,12 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
 /// Derive macro for implementing [`pss::data::DatapointHolder`] for an enum or a struct.
 ///
 /// The macro supports the following attributes:
-/// - `#[pss(name = "...", label = "...", kind = "...")]`: The name specifies to which name this PSS datapoint field should be mapped, the
-///   label field specifies the display name of the datapoint and the kind field specifies which kind of PSS datapoint this field is
-///   (one of [`pss::data::DataKind`]: `digital_actuator, dpr_actuator, fractional_actuator, analog_sensor, digital_sensor`).
+/// - `#[pss(name = "...", label = "...")]`: The name specifies to which name this PSS datapoint field should be
+///   mapped and the label field specifies the display name of the datapoint.
+/// - `#[pss(kind = "...")]`: Specifies which kind of PSS datapoint this field is
+///   (one of `digital_actuator, dpr_actuator, fractional_actuator, analog_sensor, digital_sensor`).
+///   This attribute can be omitted for the following well-known types, whose kind is inferred automatically,
+///   see the constant in the source of [`pss::data`].
 /// - `#[pss(flatten)]`: Optional flag which needs to be added to fields which should be flattened into the current container. This is needed
 ///   for the recursion.
 /// - `#[unit("...")]`: Optional unit of the datapoint field which is required by some `#[pss(kind = "...")]`. If it's required but missing
@@ -436,11 +439,11 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
 /// **Note**: When using this macro on newtype structs, the attributes need to be set on the container-level
 ///           instead of the field-level
 ///
-/// **Note**: This macro only considers fields which have either the `#[pss(name = "...", kind = "...")]` or `#[pss(flatten)]` attribute
+/// **Note**: This macro only considers fields which have either the `#[pss(name = "...")]` or `#[pss(flatten)]` attribute
 ///
 /// The macro also ensures that all datapoint ids are unique.
 ///
-/// **Important**: This macro only works for newtype and named structed as well as newtype and named enums
+/// **Important**: This macro only works for newtype and named structs as well as newtype and named enums
 ///
 #[cfg(feature = "pss")]
 #[proc_macro_derive(PssData, attributes(unit, pss))]
