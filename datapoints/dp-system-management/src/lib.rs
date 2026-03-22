@@ -54,7 +54,6 @@ pub enum Message {
     /// ## Reaction
     /// The addressed board performs an immediate reset. Others shall ignore the message.
     #[can(id = 0x20)]
-    #[mavlink(id = 0x10_00_01)]
     ResetSpecific(BoardId),
 
     /// # `ResetAll`

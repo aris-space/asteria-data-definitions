@@ -153,7 +153,6 @@ pub enum Message {
     /// ## Reaction
     /// The Recovery Board shall switch power to the actuators as specified in the message.
     #[can(id = 0x200)]
-    #[mavlink(id = 0x10_05_04)]
     RecoveryPowerConfig(RecoveryPowerConfig),
 
     /// # `SeparationTrigger`

@@ -112,7 +112,6 @@ pub enum Message {
     /// ## Reaction
     ///
     #[can(id = 0x125)]
-    #[mavlink(id = 0x10_02_03)]
     FuelPressurization(BarG),
 
     /// # `FuelPressurizationGain`
@@ -131,7 +130,6 @@ pub enum Message {
     /// ## Reaction
     ///
     #[can(id = 0x127)]
-    #[mavlink(id = 0x10_02_04)]
     FuelPressurizationGain(PressurizationGain),
 
     /// # `FuelPressurizationAbort`
@@ -172,7 +170,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x211)]
-    #[mavlink(id = 0x10_02_05)]
     FuelDprConfigFC(DPRValve),
 
     /// # `PressurizationVentControlFC`
@@ -191,7 +188,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
     #[can(id = 0x212)]
-    #[mavlink(id = 0x10_02_06)]
     PressurizationVentControlFC(ValveState),
 
     /// # `FuelVentControlFC`
@@ -210,7 +206,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
     #[can(id = 0x213)]
-    #[mavlink(id = 0x10_02_07)]
     FuelVentControlFC(ValveState),
 
     /// # `FuelDprConfigECU`
@@ -230,7 +225,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x216)]
-    #[mavlink(id = 0x10_02_08)]
     FuelDprConfigECU(DPRValve),
 
     /// # `PressurizationVentControlECU`
@@ -249,7 +243,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
     #[can(id = 0x217)]
-    #[mavlink(id = 0x10_02_09)]
     PressurizationVentControlECU(ValveState),
 
     /// # `FuelVentControlECU`
@@ -268,7 +261,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
     #[can(id = 0x218)]
-    #[mavlink(id = 0x10_02_0A)]
     FuelVentControlECU(ValveState),
 
     /// # `FuelDprConfigRFS`
@@ -287,7 +279,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x21b)]
-    #[mavlink(id = 0x10_02_0B)]
     FuelDprConfigRFS(DPRValve),
 
     /// # `PressurizationVentControlRFS`
@@ -306,7 +297,6 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
     #[can(id = 0x21c)]
-    #[mavlink(id = 0x10_02_0C)]
     PressurizationVentControlRFS(ValveState),
 
     /// # `FuelVentControlRFS`
@@ -325,6 +315,5 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
     #[can(id = 0x21d)]
-    #[mavlink(id = 0x10_02_0D)]
     FuelVentControlRFS(ValveState),
 }

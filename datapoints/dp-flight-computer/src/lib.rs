@@ -60,7 +60,7 @@ pub enum Message {
     // ======================== RX ========================
     /// Command a manual state transition on the FC.
     /// The state machine will perform the state transition and emit a state change event.
-    #[mavlink(id = 0x10_01_02)]
+    #[mavlink(id = 0x20_01_00)]
     ManualStateTransition(ManualStateTransition),
 
     /// Command a specific actuator to move to a specific target position.
@@ -69,6 +69,6 @@ pub enum Message {
     /// macro.
     ///
     /// Upon change, an "actuator states" message will be emitted.
-    #[mavlink(id = 0x10_01_03)]
+    #[mavlink(id = 0x20_01_01)]
     ManualActuatorChange(ManualActuatorChange),
 }

@@ -112,7 +112,6 @@ pub enum Message {
     /// ## Reaction
     /// The Power Board sets the respective output pins according to the fields.
     #[can(id = 0x201)]
-    #[mavlink(id = 0x10_04_04)]
     CameraPowerControl(CameraPowerStatus),
 
     /// # `CameraPowerStatus`

@@ -97,7 +97,6 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the GOX igniter valve state accordingly.
     #[can(id = 0x20a)]
-    #[mavlink(id = 0x10_06_03)]
     GoxIgniterValveControl(ValveState),
 
     /// # `H2IgniterValveControl`
@@ -117,7 +116,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the H2 igniter valve state accordingly.
     #[can(id = 0x20b)]
-    #[mavlink(id = 0x10_06_04)]
+    #[mavlink(id = 0x10_06_03)]
     H2IgniterValveControl(ValveState),
 
     /// # `IgniterSparkPlugControl`
@@ -137,7 +136,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust spark plug state accordingly.
     #[can(id = 0x20c)]
-    #[mavlink(id = 0x10_06_05)]
+    #[mavlink(id = 0x10_06_04)]
     IgniterSparkPlugControl(ValveState),
 
     /// # `IgniterPurgeControl`
@@ -157,12 +156,12 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the GOX and H2 purge valve state accordingly.
     #[can(id = 0x20d)]
-    #[mavlink(id = 0x10_06_06)]
+    #[mavlink(id = 0x10_06_05)]
     IgniterPurgeControl(ValveState),
 
     /// Command a manual state transition on the RFSC.
     /// The state machine will perform the state transition and emit a state change event.
-    #[mavlink(id = 0x10_06_07)]
+    #[mavlink(id = 0x20_06_00)]
     ManualStateTransition(ManualStateTransition),
 
     /// Command a specific actuator to move to a specific target position.
@@ -171,6 +170,6 @@ pub enum Message {
     /// macro.
     ///
     /// Upon change, an "actuator states" message will be emitted.
-    #[mavlink(id = 0x10_06_08)]
+    #[mavlink(id = 0x20_06_01)]
     ManualActuatorChange(ManualActuatorChange),
 }
