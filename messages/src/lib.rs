@@ -49,9 +49,11 @@ pub enum Message {
     RecoveryBoard(dp_recovery_board::Message),
     PowerBoard(dp_power_board::Message),
     SensorCarrier(dp_sensor_carrier::Message),
+    #[pss(flatten)]
     FuelControlBoard(dp_fuel_control_board::Message),
     #[pss(flatten)]
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
+    #[pss(flatten)]
     EngineControlBoard(dp_engine_control_board::Message),
 }
 
