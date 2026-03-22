@@ -51,7 +51,7 @@ pub struct FuelControlBoardValveStates {
     #[mavlink(flatten)]
     #[pss(
         name = "fss_vnt_vlv",
-        label = "Fueld Vent Valve State",
+        label = "Fuel Vent Valve State",
         kind = "digital_sensor"
     )]
     pub fss_vnt_vlv: ValveState,
