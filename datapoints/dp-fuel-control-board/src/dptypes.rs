@@ -1,5 +1,7 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
+#[cfg(feature = "pss")]
+use data_core::pss;
 use datatypes::actuator::DPRValve;
 use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
 use gated_derive::gated_derive;
@@ -25,16 +27,32 @@ pub struct FuelControlBoardStatus {
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
+#[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FuelControlBoardValveStates {
     /// Fuel DPR Control loop state
     #[mavlink(flatten)]
+    #[pss(
+        name = "fss_dpr",
+        label = "Fuel Control Loop State",
+        kind = "dpr_actuator"
+    )]
     pub fss_dpr: DPRValve,
     /// Pressurization Valve state
     #[mavlink(flatten)]
+    #[pss(
+        name = "prz_vnt_vlv",
+        label = "Pressurization Vent Valve State",
+        kind = "digital_sensor"
+    )]
     pub prz_vnt_vlv: ValveState,
     /// Fuel Vent Valve state
     #[mavlink(flatten)]
+    #[pss(
+        name = "fss_vnt_vlv",
+        label = "Fueld Vent Valve State",
+        kind = "digital_sensor"
+    )]
     pub fss_vnt_vlv: ValveState,
 }

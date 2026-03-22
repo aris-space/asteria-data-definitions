@@ -19,6 +19,7 @@ arbitrary = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 
 [features]
+default = ["pss"]
 can = ["derive_can", "derive_bincode", "data-core/can"]
 mavlink = ["derive_mavlink", "data-core/mavlink", "datatypes/derive_mavlink"]
 pss = ["derive_pss", "std", "data-core/pss", "datatypes/pss"]
