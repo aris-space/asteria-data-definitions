@@ -83,28 +83,3 @@ pub struct ThrustPoint {
     /// Time in 100ms steps after ignition when this thrust level should be reached.
     pub time: u8,
 }
-
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(utoipa::ToSchema)]
-#[derive(Clone, Debug, PartialEq, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct ThrustCurveConfig {
-    /// The thrust curve, consisting of 25 points.
-    pub thrust_curve: [ThrustPoint; 25],
-    /// The length of the thrust curve in points (0-25).
-    pub thrust_curve_length: u8,
-}
-impl ThrustCurveConfig {
-    /// Calculates a unique hash for the entire thrust curve array.
-    /// This uses `SipHasher` which is deprecated, but still used because we don't care about
-    /// cryptographic security here.
-    #[must_use]
-    pub fn calculate_unique_hash(&self) -> u64 {
-        #![allow(deprecated)]
-        use core::hash::{Hash, Hasher, SipHasher};
-        let mut hasher = SipHasher::new();
-        self.thrust_curve[..self.thrust_curve_length as usize].hash(&mut hasher);
-        hasher.finish()
-    }
-}

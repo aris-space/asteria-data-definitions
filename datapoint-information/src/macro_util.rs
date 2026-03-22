@@ -86,11 +86,7 @@ pub const fn check_unique_names(infos: &[DatapointInformation]) {
 pub const fn check_name_len(infos: &[DatapointInformation]) {
     let mut i = 0;
     while i < infos.len() {
-        let mut j = i + 1;
-        while j < infos.len() {
-            assert!(infos[i].name.len() <= 20, "Name is longer than 20 bytes");
-            j += 1;
-        }
+        assert!(infos[i].name.len() <= 20, "Name is longer than 20 bytes");
         i += 1;
     }
 }

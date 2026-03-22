@@ -35,7 +35,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x614)]
-    #[mavlink(id = 0x10_00_00)]
+    #[mavlink(id = 0x10_08_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `EngineControlBoardStatus`
@@ -54,7 +54,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x314)]
-    #[mavlink(id = 0x10_00_01)]
+    #[mavlink(id = 0x10_08_01)]
     BoardStatus(EngineControlBoardStatus),
 
     /// # `EngineControlBoardValveStates`
@@ -73,7 +73,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
-    #[mavlink(id = 0x10_00_02)]
+    #[mavlink(id = 0x10_08_02)]
     ValveStates(EngineControlBoardValveStates),
 
     /// # `EnginePressure`
@@ -97,7 +97,7 @@ pub enum Message {
     /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
     /// The value will be `NaN` if reading the sensor fails.
     #[can(id = 0x460)]
-    #[mavlink(id = 0x10_00_03)]
+    #[mavlink(id = 0x10_08_03)]
     EnginePressure(EnginePressure),
 
     /// # `EngineBayTemperature`
@@ -123,7 +123,7 @@ pub enum Message {
     /// If the value read in firmware is outside the specific temperature range of [-200.0, 200.0] °C,
     /// the value will be set to `NaN`.
     #[can(id = 0x461)]
-    #[mavlink(id = 0x10_00_04)]
+    #[mavlink(id = 0x10_08_04)]
     EngineBayTemperature(EngineBayTemperature),
 
     /// # `FiringAborted`
@@ -217,26 +217,6 @@ pub enum Message {
     CombustionDetected,
 
     // ======================== RX ========================
-    /// # `ThrustCurveConfig`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC configure the Launch Thrust Curve
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `EngineControlBoard`
-    ///
-    /// ## Purpose
-    /// Transmit the flight thrust curve to the Engine Control Board.
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x240)]
-    // FIXME: At the moment the thrust curve has this ThrustPoint array
-    // and is thus not mavlink-encodable
-    // #[mavlink(id = 0x10_00_05)]
-    ThrustCurveConfig(ThrustCurveConfig),
     /// # `FiringAbortInitiation`
     /// Event message sent by the FC.
     ///
@@ -295,7 +275,6 @@ pub enum Message {
     /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
     /// The Valve is Normally Closed
     #[can(id = 0x225)]
-    #[mavlink(id = 0x10_00_06)]
     OxidizerMainControlFC(ValveState),
 
     /// # `OxidizerMainControlRFS`
@@ -317,7 +296,6 @@ pub enum Message {
     /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
     /// The Valve is Normally Closed
     #[can(id = 0x227)]
-    #[mavlink(id = 0x10_00_07)]
     OxidizerMainControlRFS(ValveState),
 
     /// # `FuelMainControlFC`
@@ -339,7 +317,6 @@ pub enum Message {
     /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
     /// The Valve is Normally Closed
     #[can(id = 0x226)]
-    #[mavlink(id = 0x10_00_08)]
     FuelMainControlFC(ValveState),
 
     /// # `FuelMainControlRFS`
@@ -361,6 +338,5 @@ pub enum Message {
     /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
     /// The Valve is Normally Closed
     #[can(id = 0x228)]
-    #[mavlink(id = 0x10_00_09)]
     FuelMainControlRFS(ValveState),
 }

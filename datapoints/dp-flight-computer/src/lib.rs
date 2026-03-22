@@ -5,7 +5,7 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::BuildInformationCommon;
+use datatypes::status::{BuildInformationCommon, ManualActuatorChange, ManualStateTransition};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -58,4 +58,17 @@ pub enum Message {
     #[mavlink(id = 0x10_01_01)]
     Status(FlightComputerStatus),
     // ======================== RX ========================
+    /// Command a manual state transition on the FC.
+    /// The state machine will perform the state transition and emit a state change event.
+    #[mavlink(id = 0x10_01_02)]
+    ManualStateTransition(ManualStateTransition),
+
+    /// Command a specific actuator to move to a specific target position.
+    /// The actuator name and the semantics of the value are defined using
+    /// an `#[pss(name = "...", kind  = "...")]` attribute from the [`data_core::pss::Data`]
+    /// macro.
+    ///
+    /// Upon change, an "actuator states" message will be emitted.
+    #[mavlink(id = 0x10_01_03)]
+    ManualActuatorChange(ManualActuatorChange),
 }

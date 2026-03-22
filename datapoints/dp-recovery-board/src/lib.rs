@@ -135,7 +135,6 @@ pub enum Message {
     /// When this message is received, the `RecoveryBoard` shall set the target positions for the left and
     /// right steering motors to the values indicated by `left_pos` and `right_pos` respectively.
     #[can(id = 0x1FE)]
-    #[mavlink(id = 0x10_05_03)]
     SteeringTargetPositions(SteeringPositions),
 
     /// # `RecoveryPowerConfig`

@@ -20,8 +20,6 @@ use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
 
-pub mod manual_action;
-
 /// Reexport all datapoints to simplify imports
 pub mod datapoints {
     pub use dp_engine_control_board;
@@ -42,7 +40,6 @@ pub mod datapoints {
 #[can(dispatch)]
 #[serde(tag = "board", content = "message")]
 pub enum Message {
-    // -------- Downlink --------
     FlightComputer(dp_flight_computer::Message),
     RfsComputer(dp_rfs_computer::Message),
     SystemManagement(dp_system_management::Message),
@@ -52,8 +49,6 @@ pub enum Message {
     FuelControlBoard(dp_fuel_control_board::Message),
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
     EngineControlBoard(dp_engine_control_board::Message),
-    // -------- Uplink --------
-    ManualAction(crate::manual_action::Message),
 }
 
 /// Test to assert that all CAN IDs are unique
