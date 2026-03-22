@@ -5,6 +5,8 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
+#[cfg(feature = "derive_pss")]
+use data_core::pss;
 use datatypes::actuator::{DigitalOut, NormallyClosedValve};
 use datatypes::status::BuildInformationCommon;
 use gated_derive::gated_derive;
@@ -14,7 +16,7 @@ pub use dptypes::*;
 
 #[derive(Message)]
 #[gated_derive(can::Message, Debug)]
-#[gated_derive(mavlink::Message)]
+#[gated_derive(mavlink::Message, pss::Data)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = RfsComputerMessage)]
@@ -45,6 +47,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x331)]
+    #[pss(label = "Spark Plug", name = "ign_spk_plg", kind = "digital_actuator")]
     IgniterSparkPlugState(DigitalOut),
 
     /// The current active state of the normally closed GOX igniter valve.
@@ -53,6 +56,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x332)]
+    #[pss(label = "GOX Igniter", name = "gox_ign_vlv", kind = "digital_actuator")]
     GoxIgniterValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed H2 igniter valve.
@@ -61,6 +65,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x333)]
+    #[pss(label = "H2 Igniter", name = "h2_ign_vlv", kind = "digital_actuator")]
     H2IgniterValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed GOX purge valve.
@@ -69,6 +74,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x334)]
+    #[pss(label = "GOX Purge", name = "gox_prg_vlv", kind = "digital_actuator")]
     GoxPurgeValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed H2 purge valve.
@@ -77,6 +83,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x335)]
+    #[pss(label = "H2 Purge", name = "h2_prg_vlv", kind = "digital_actuator")]
     H2PurgeValveState(NormallyClosedValve),
 
     // ======================== RX ========================

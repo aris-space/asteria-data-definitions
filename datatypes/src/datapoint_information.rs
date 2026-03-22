@@ -3,8 +3,8 @@ use core::f32;
 use datapoint_information::datapoint::{ActuatorValue, DatapointValue, SensorValue};
 
 use crate::{
-    actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
-    status::{SensorStatus, ValveState},
+    actuator::{DPRValve, DigitalOut, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
+    status::SensorStatus,
 };
 
 impl From<NormallyClosedValve> for DatapointValue {
@@ -23,10 +23,10 @@ impl From<NormallyOpenValve> for DatapointValue {
     }
 }
 
-impl From<ValveState> for DatapointValue {
-    fn from(value: ValveState) -> Self {
+impl From<DigitalOut> for DatapointValue {
+    fn from(value: DigitalOut) -> Self {
         Self::Actuator(ActuatorValue::Digital {
-            active: matches!(value, ValveState::Active),
+            active: matches!(value, DigitalOut::On),
         })
     }
 }
