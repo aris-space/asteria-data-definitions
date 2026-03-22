@@ -5,7 +5,9 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{BuildInformationCommon, ManualActuatorChange, ManualStateTransition, ValveState};
+use datatypes::status::{
+    BuildInformationCommon, ManualActuatorChange, ManualStateTransition, ValveState,
+};
 use gated_derive::gated_derive;
 
 mod dptypes;

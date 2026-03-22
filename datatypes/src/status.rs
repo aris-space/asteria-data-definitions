@@ -124,7 +124,6 @@ pub struct ManualActuatorChange {
     pub actuator: [u8; 20],
 }
 
-
 /// Enum representing the status of a sensor.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
