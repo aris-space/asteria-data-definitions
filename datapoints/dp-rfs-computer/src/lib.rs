@@ -8,7 +8,9 @@ use data_core::mavlink;
 #[cfg(feature = "derive_pss")]
 use data_core::pss;
 use datatypes::actuator::{DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve};
+use datatypes::sensor::DigitalIn;
 use datatypes::status::BuildInformationCommon;
+use datatypes::units::Celsius;
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -169,6 +171,43 @@ pub enum Message {
     /// The current active state of the custom output 3.
     #[pss(label = "Custom 3", name = "custom3")]
     Custom3State(DigitalOut),
+
+    // ======================== Sensors ========================
+    /// The temperature of the LOx line, from sensor `R-T-L-1`.
+    #[pss(label = "LOx Temperature", name = "r_t_l_1")]
+    #[unit("°C")]
+    LoxTemperature(Celsius),
+
+    /// The temperature of the igniter, from sensor `I-T-I-1`.
+    #[pss(label = "Igniter Temperature", name = "i_t_i_1")]
+    #[unit("°C")]
+    IgniterTemperature(Celsius),
+
+    /// The temperature inside the DACS cabinet.
+    #[pss(label = "Cabinet Temperature", name = "cabinet_t")]
+    #[unit("°C")]
+    CabinetTemperature(Celsius),
+
+    /// The ambient temperature.
+    #[pss(label = "Ambient Temperature", name = "ambient_t")]
+    #[unit("°C")]
+    AmbientTemperature(Celsius),
+
+    /// Whether the LOx decoupler is in its retracted state, from the proximity sensor.
+    #[pss(label = "LOx Decoupler Proximity", name = "lox_decoupler_prox")]
+    LoxDecouplerProximity(DigitalIn),
+
+    /// Whether the N2 decoupler is in its retracted state, from the proximity sensor.
+    #[pss(label = "N2 Decoupler Proximity", name = "n2_decoupler_prox")]
+    N2DecouplerProximity(DigitalIn),
+
+    /// Whether the valves are receiving power (arming relay state).
+    #[pss(label = "Valves Armed", name = "valves_armed")]
+    ValvesArmed(DigitalIn),
+
+    /// Whether the spark plug is receiving power (arming relay state).
+    #[pss(label = "Igniter Armed", name = "igniter_armed")]
+    IgniterArmed(DigitalIn),
 
     // ======================== RX ========================
     /// Controls the GOX igniter valve on the RFS from the FC.
