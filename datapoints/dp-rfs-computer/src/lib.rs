@@ -5,7 +5,8 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{BuildInformationCommon, ValveState};
+use datatypes::actuator::{DigitalOut, NormallyClosedValve};
+use datatypes::status::BuildInformationCommon;
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -19,135 +20,118 @@ pub use dptypes::*;
 #[schema(as = RfsComputerMessage)]
 pub enum Message {
     // ======================== TX ========================
-    /// # `RfsComputerBuildInfo`
-    /// Firmware build metadata emitted by the RFS Computer.
+    /// Software build metadata periodically emitted by the RFS Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 0.2 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Allows version tracking and verification of the RFS Computer firmware.
-    ///
-    /// ## Reaction
-    /// Receivers may log or display the firmware version and build metadata.
+    /// # CAN
+    /// - **Kind**: Debug message
+    /// - **Sent by**: RFS Computer
     #[can(id = 0x611)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `RfsComputerStatus`
     /// Periodic status message emitted by the RFS Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 1 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Communicates the runtime health and status of the RFS Computer.
-    ///
-    /// ## Reaction
-    /// Receivers may log the data or use it for diagnostics and system health checks.
+    /// Contains runtime health of the RFS Computer.
     /// It is also used to only ingite if the RFS is armed and ensure exclusive PSS control.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
     #[can(id = 0x311)]
     Status(RfsComputerStatus),
 
-    /// # `RfsComputerValveStates`
-    /// Periodic status message emitted by the Remote Filling Station Computer.
+    /// The current active state of the normally off spark plug.
     ///
-    /// ## Type
-    /// - `Periodic @ 5 Hz`
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x331)]
+    IgniterSparkPlugState(DigitalOut),
+
+    /// The current active state of the normally closed GOX igniter valve.
     ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `EngineControlBoard` (mainly)
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x332)]
+    GoxIgniterValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed H2 igniter valve.
     ///
-    /// ## Purpose
-    /// Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
-    /// This includes the ingiter valves and the spark plug.
-    /// ## Reaction
-    /// Receivers may log the data or use it for diagnostics and system health checks.
-    #[can(id = 0x325)]
-    ValveStates(RfsComputerValveStates),
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x333)]
+    H2IgniterValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed GOX purge valve.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x334)]
+    GoxPurgeValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed H2 purge valve.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x335)]
+    H2PurgeValveState(NormallyClosedValve),
 
     // ======================== RX ========================
-    /// # `GoxIgniterValveControl`
-    /// Controls the GOX igniter valve on the RFS from the ECU.
+    /// Controls the GOX igniter valve on the RFS from the FC.
     ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the igniter
+    /// This is needed during the ignition sequence where the flight computer controls the igniter
     /// and thus needs to open and close valves.
     ///
-    /// ## Reaction
-    /// The remote filling station shall adjust the GOX igniter valve state accordingly.
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
     #[can(id = 0x20a)]
-    GoxIgniterValveControl(ValveState),
+    GoxIgniterValveControl(NormallyClosedValve),
 
-    /// # `H2IgniterValveControl`
-    /// Controls the H2 igniter valve on the RFS from the ECU.
+    /// Controls the H2 igniter valve on the RFS from the FC.
     ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the igniter
+    /// This is needed during the ignition sequence where the flight computer controls the igniter
     /// and thus needs to open and close valves.
     ///
-    /// ## Reaction
-    /// The remote filling station shall adjust the H2 igniter valve state accordingly.
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
     #[can(id = 0x20b)]
-    H2IgniterValveControl(ValveState),
+    H2IgniterValveControl(NormallyClosedValve),
 
-    /// # `IgniterSparkPlugControl`
-    /// Controls the igniter spark plug on the RFS from the ECU.
+    /// Controls the igniter spark plug on the RFS from the FC.
     ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
+    /// This is needed during the ignition sequence where the flight computer controls the igniter
+    /// and thus needs to activate the spark plug.
     ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the igniter
-    /// and thus needs to open and close valves and activate the spark plug.
-    ///
-    /// ## Reaction
-    /// The remote filling station shall adjust spark plug state accordingly.
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
     #[can(id = 0x20c)]
-    IgniterSparkPlugControl(ValveState),
+    IgniterSparkPlugControl(DigitalOut),
 
-    /// # `IgniterPurgeControl`
-    /// Controls the GOX and H2 purge valves on the RFS from the ECU.
+    /// Controls the H2 purge valve on the RFS from the FC.
     ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
+    /// This is needed during the ignition sequence where the flight computer controls the ignition
+    /// and thus needs to purge.
     ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the ignition
-    /// and thus needs to open and close valves.
-    ///
-    /// ## Reaction
-    /// The remote filling station shall adjust the GOX and H2 purge valve state accordingly.
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
     #[can(id = 0x20d)]
-    IgniterPurgeControl(ValveState),
+    H2IgniterPurgeControl(NormallyClosedValve),
+
+    /// Controls the GOX purge valve on the RFS from the FC.
+    ///
+    /// This is needed during the ignition sequence where the flight computer controls the ignition
+    /// and thus needs to purge.
+    ///
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
+    #[can(id = 0x20e)]
+    GoxIgniterPurgeControl(NormallyClosedValve),
 }
