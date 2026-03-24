@@ -37,6 +37,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x617)]
+    #[mavlink(id = 0x10_02_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `FuelControlBoardStatus`
@@ -55,6 +56,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x320)]
+    #[mavlink(id = 0x10_02_01)]
     BoardStatus(FuelControlBoardStatus),
 
     /// # `FuelControlBoardValveStates`
@@ -73,6 +75,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
+    #[mavlink(id = 0x10_02_02)]
     ValveStates(FuelControlBoardValveStates),
     /// # `FuelPressurizationCompleted`
     /// Event message sent by the FuelControlBoard.

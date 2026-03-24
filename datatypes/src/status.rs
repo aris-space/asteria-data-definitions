@@ -93,6 +93,37 @@ pub struct BuildInformationCommon {
     pub can_semver: [u8; 3],
 }
 
+/// Shared manual state transition used by the FC and RFSC.
+#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ManualStateTransition {
+    /// The index in the state path where the new state should end up at.
+    pub transition_index: u32,
+    /// The name of the state to which the state machine should transition.
+    pub state: [u8; 30],
+}
+
+/// Shared manual actuator change used by the FC and RFSC.
+#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ManualActuatorChange {
+    /// The target value of the actuator.
+    /// This depends on the actuator type, for valves 0.0 is fully closed
+    /// and 1.0 is fully open.
+    pub value: f32,
+    /// The index in the state path where the current state is.
+    /// For the initial state this is 0 and increments with every transition.
+    pub path_index: u32,
+    /// The name of the actuator whose value should be changed.
+    pub actuator: [u8; 20],
+}
+
 /// Enum representing the status of a sensor.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]

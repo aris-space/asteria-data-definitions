@@ -35,6 +35,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x614)]
+    #[mavlink(id = 0x10_08_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `EngineControlBoardStatus`
@@ -53,6 +54,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x314)]
+    #[mavlink(id = 0x10_08_01)]
     BoardStatus(EngineControlBoardStatus),
 
     /// # `EngineControlBoardValveStates`
@@ -71,6 +73,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
+    #[mavlink(id = 0x10_08_02)]
     ValveStates(EngineControlBoardValveStates),
 
     /// # `EnginePressure`
@@ -94,6 +97,7 @@ pub enum Message {
     /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
     /// The value will be `NaN` if reading the sensor fails.
     #[can(id = 0x460)]
+    #[mavlink(id = 0x10_08_03)]
     EnginePressure(EnginePressure),
 
     /// # `EngineBayTemperature`
@@ -119,6 +123,7 @@ pub enum Message {
     /// If the value read in firmware is outside the specific temperature range of [-200.0, 200.0] °C,
     /// the value will be set to `NaN`.
     #[can(id = 0x461)]
+    #[mavlink(id = 0x10_08_04)]
     EngineBayTemperature(EngineBayTemperature),
 
     /// # `FiringAborted`
@@ -212,23 +217,6 @@ pub enum Message {
     CombustionDetected,
 
     // ======================== RX ========================
-    /// # `ThrustCurveConfig`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC configure the Launch Thrust Curve
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `EngineControlBoard`
-    ///
-    /// ## Purpose
-    /// Transmit the flight thrust curve to the Engine Control Board.
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x240)]
-    ThrustCurveConfig(ThrustCurveConfig),
     /// # `FiringAbortInitiation`
     /// Event message sent by the FC.
     ///

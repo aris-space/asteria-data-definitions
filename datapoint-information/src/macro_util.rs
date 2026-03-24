@@ -80,3 +80,13 @@ pub const fn check_unique_names(infos: &[DatapointInformation]) {
         i += 1;
     }
 }
+
+/// Check that all names of datapoint infos fit in a 20 character buffer.
+/// Otherwise, panics to be used at compile time.
+pub const fn check_name_len(infos: &[DatapointInformation]) {
+    let mut i = 0;
+    while i < infos.len() {
+        assert!(infos[i].name.len() <= 20, "Name is longer than 20 bytes");
+        i += 1;
+    }
+}

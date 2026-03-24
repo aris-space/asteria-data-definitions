@@ -35,6 +35,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x615)]
+    #[mavlink(id = 0x10_04_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `PowerBoardStatus`
@@ -53,6 +54,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x315)]
+    #[mavlink(id = 0x10_04_01)]
     BoardStatus(StatusCommonMessage),
 
     /// # `RailStatus5V`
@@ -71,6 +73,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log, display, or track these values. They may trigger warnings if any measurement is out of nominal range.
     #[can(id = 0x500)]
+    #[mavlink(id = 0x10_04_02)]
     RailStatus5V(RailStatus),
 
     /// # `RailStatus24V`
@@ -89,6 +92,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log, display, or track these values. They may trigger warnings if any measurement is out of nominal range.
     #[can(id = 0x501)]
+    #[mavlink(id = 0x10_04_03)]
     RailStatus24V(RailStatus),
 
     // ======================== RX ========================
@@ -126,5 +130,6 @@ pub enum Message {
     /// ## Reaction
     /// No action required.
     #[can(id = 0x330)]
+    #[mavlink(id = 0x10_04_05)]
     CameraPowerStatus(CameraPowerStatus),
 }

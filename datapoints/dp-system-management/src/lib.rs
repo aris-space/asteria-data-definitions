@@ -35,6 +35,7 @@ pub enum Message {
     /// be used to correct for drift, this may result in non-monotonic timekeeping
     /// and is therefore discouraged.
     #[can(id = 0x30)]
+    #[mavlink(id = 0x10_00_00)]
     UTCTimeUpdate(InstantUs),
 
     /// # `ResetSpecific`

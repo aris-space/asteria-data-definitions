@@ -35,6 +35,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x616)]
+    #[mavlink(id = 0x10_05_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `RecoveryBoardStatus`
@@ -53,6 +54,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x316)]
+    #[mavlink(id = 0x10_05_01)]
     BoardStatus(RecoveryBoardStatus),
 
     /// # `SteeringActualPositions`
@@ -71,6 +73,7 @@ pub enum Message {
     /// ## Reaction
     /// No action required.
     #[can(id = 0x1FF)]
+    #[mavlink(id = 0x10_05_02)]
     SteeringActualPositions(SteeringPositions),
 
     /// # `SeparationOccurred`

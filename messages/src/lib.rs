@@ -4,6 +4,14 @@
 //!
 //! Like other crates, various cargo features can enable certain components,
 //! currently `can` and `mavlink`.
+//!
+//! ## MavLink Messages
+//! The generated MavLink dialect is a MavLink V2 dialect. This means that the message id's
+//! are 24 bit (or 6 hex digits).
+//! The id's follow the following schema (from MSB to LSB):
+//! - Hex digits 0,1: `01` for downlink messages and `02` for uplink messages.
+//! - Hex digits 2,3: `xx` where `xx` is the ascending id for a specific board/message enum.
+//! - Hex digits 4,5: `xx` where `xx` is the ascending message number for the given board. Starts at `00` for every board/message enum.
 
 use gated_derive::gated_derive;
 

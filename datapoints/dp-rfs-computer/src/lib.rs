@@ -5,7 +5,9 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{BuildInformationCommon, ValveState};
+use datatypes::status::{
+    BuildInformationCommon, ManualActuatorChange, ManualStateTransition, ValveState,
+};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -35,6 +37,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x611)]
+    #[mavlink(id = 0x10_06_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `RfsComputerStatus`
@@ -54,6 +57,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     /// It is also used to only ingite if the RFS is armed and ensure exclusive PSS control.
     #[can(id = 0x311)]
+    #[mavlink(id = 0x10_06_01)]
     Status(RfsComputerStatus),
 
     /// # `RfsComputerValveStates`
@@ -72,6 +76,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x325)]
+    #[mavlink(id = 0x10_06_02)]
     ValveStates(RfsComputerValveStates),
 
     // ======================== RX ========================
@@ -111,6 +116,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the H2 igniter valve state accordingly.
     #[can(id = 0x20b)]
+    #[mavlink(id = 0x10_06_03)]
     H2IgniterValveControl(ValveState),
 
     /// # `IgniterSparkPlugControl`
@@ -130,6 +136,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust spark plug state accordingly.
     #[can(id = 0x20c)]
+    #[mavlink(id = 0x10_06_04)]
     IgniterSparkPlugControl(ValveState),
 
     /// # `IgniterPurgeControl`
@@ -149,5 +156,20 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the GOX and H2 purge valve state accordingly.
     #[can(id = 0x20d)]
+    #[mavlink(id = 0x10_06_05)]
     IgniterPurgeControl(ValveState),
+
+    /// Command a manual state transition on the RFSC.
+    /// The state machine will perform the state transition and emit a state change event.
+    #[mavlink(id = 0x20_06_00)]
+    ManualStateTransition(ManualStateTransition),
+
+    /// Command a specific actuator to move to a specific target position.
+    /// The actuator name and the semantics of the value are defined using
+    /// an `#[pss(name = "...", kind  = "...")]` attribute from the [`data_core::pss::Data`]
+    /// macro.
+    ///
+    /// Upon change, an "actuator states" message will be emitted.
+    #[mavlink(id = 0x20_06_01)]
+    ManualActuatorChange(ManualActuatorChange),
 }
