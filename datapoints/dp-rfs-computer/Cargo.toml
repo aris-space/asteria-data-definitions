@@ -33,4 +33,3 @@ derive_can = []
 derive_mavlink = []
 derive_debug = []
 derive_pss = []
-
