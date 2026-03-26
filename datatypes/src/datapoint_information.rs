@@ -8,10 +8,16 @@ use crate::{
     units::{BarG, Celsius},
 };
 
+// TODO: We need to somehow store whether the `enabled` state is the default
+//       state of the valve or whether it's the modified state.
+//
+// FIXME: Also, for DPR, we need to know the last non-NaN value of the DPR since
+//        to re-enable we ideally want to use that instead of a new setpoint?
+
 impl From<NormallyClosedValve> for DatapointValue {
     fn from(value: NormallyClosedValve) -> Self {
         Self::Actuator(ActuatorValue::Digital {
-            active: matches!(value, NormallyClosedValve::Open),
+            enabled: matches!(value, NormallyClosedValve::Open),
         })
     }
 }
@@ -19,7 +25,7 @@ impl From<NormallyClosedValve> for DatapointValue {
 impl From<NormallyOpenValve> for DatapointValue {
     fn from(value: NormallyOpenValve) -> Self {
         Self::Actuator(ActuatorValue::Digital {
-            active: matches!(value, NormallyOpenValve::Open),
+            enabled: matches!(value, NormallyOpenValve::Open),
         })
     }
 }
@@ -27,7 +33,7 @@ impl From<NormallyOpenValve> for DatapointValue {
 impl From<ValveState> for DatapointValue {
     fn from(value: ValveState) -> Self {
         Self::Actuator(ActuatorValue::Digital {
-            active: matches!(value, ValveState::Active),
+            enabled: matches!(value, ValveState::Active),
         })
     }
 }
@@ -51,7 +57,7 @@ impl From<DPRValve> for DatapointValue {
 impl From<ThrottleableValve> for DatapointValue {
     fn from(value: ThrottleableValve) -> Self {
         Self::Actuator(ActuatorValue::Fractional {
-            precent: f32::from(value.openness_percent),
+            percent: f32::from(value.openness_percent),
         })
     }
 }

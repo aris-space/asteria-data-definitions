@@ -48,7 +48,7 @@ pub struct DatapointInformation {
 #[schema(as = ActuatorValue)]
 pub enum ActuatorValue {
     Digital {
-        active: bool,
+        enabled: bool,
     },
     #[serde(rename = "dpr")]
     DPR {
@@ -56,8 +56,19 @@ pub enum ActuatorValue {
         setpoint: f32,
     },
     Fractional {
-        precent: f32,
+        percent: f32,
     },
+}
+
+impl From<ActuatorValue> for f32 {
+    fn from(value: ActuatorValue) -> Self {
+        match value {
+            ActuatorValue::Digital { enabled } => enabled.into(),
+            ActuatorValue::DPR { enabled: false, .. } => f32::NAN,
+            ActuatorValue::DPR { setpoint, .. } => setpoint,
+            ActuatorValue::Fractional { percent } => percent,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -69,6 +80,15 @@ pub enum SensorValue {
     Digital { enabled: bool },
 }
 
+impl From<SensorValue> for f32 {
+    fn from(value: SensorValue) -> Self {
+        match value {
+            SensorValue::Analog { value } => value,
+            SensorValue::Digital { enabled } => enabled.into(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
 #[serde(tag = "component", rename_all = "snake_case")]
@@ -76,6 +96,15 @@ pub enum SensorValue {
 pub enum DatapointValue {
     Actuator(ActuatorValue),
     Sensor(SensorValue),
+}
+
+impl From<DatapointValue> for f32 {
+    fn from(value: DatapointValue) -> Self {
+        match value {
+            DatapointValue::Actuator(actuator_value) => actuator_value.into(),
+            DatapointValue::Sensor(sensor_value) => sensor_value.into(),
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
