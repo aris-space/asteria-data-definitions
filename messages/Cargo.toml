@@ -42,9 +42,9 @@ can = [
 derive_serde = [
     "dp-engine-control-board/derive_serde",
     "dp-fuel-control-board/derive_serde",
-    # "dp-power-board/derive_serde",
+    "dp-power-board/derive_serde",
     "dp-rfs-computer/derive_serde",
-    # "dp-system-management/derive_serde",
+    "dp-system-management/derive_serde",
     "dp-flight-computer/derive_serde",
     "dp-oxidizer-control-board/derive_serde",
     "dp-recovery-board/derive_serde",
