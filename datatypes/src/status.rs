@@ -91,7 +91,7 @@ pub struct BuildInformationCommon {
 #[serde(rename_all = "camelCase")]
 pub struct StateMachineState {
     /// The index in the state path where we are currently at.
-    /// Equals the number of transitions that have occured.
+    /// This equals the number of transitions that have occured.
     pub path_index: u32,
     /// The name of the current state in zero-padded utf-8.
     pub state: [u8; 30],

@@ -1,7 +1,7 @@
 //! This module provides a helper for sending mavlink frames over UDP,
 //! as mavio is not designed for this.
 //!
-//! This sends entire frames a single UDP datagram, the same as mavlink-router does.
+//! This sends entire frames as a single UDP datagram, the same as mavlink-router does.
 
 use std::num::Wrapping;
 
@@ -39,7 +39,7 @@ pub fn send_message<M: mavio::Message>(
     socket: &std::net::UdpSocket,
 ) -> Result<(), SendError> {
     // the reason this doesn't use `mavio::Sender`,
-    // is that this will send the header and payload at two different calls.
+    // is that it would send the header and payload in two different calls, potentially resulting in two datagrams.
     let frame = endpoint.next_frame(msg)?;
     let mut buf = [0; HEADER_MAX_SIZE + PAYLOAD_MAX_SIZE + CHECKSUM_SIZE + SIGNATURE_LENGTH];
     let len = frame
@@ -58,7 +58,7 @@ pub fn recv_message<M: mavio::Message + mavio::Dialect>(
     let len = socket.recv(&mut buf)?;
     let buf = &buf[..len];
     // SAFETY: we assume that every datagram is exactly one message.
-    // But it is not undefined behaviour it it weren't, it just fails with an error.
+    // But it is not undefined behaviour if it weren't, it just fails with an error.
     let frame = unsafe { Frame::<V2>::deserialize(buf) }?;
     let sequence = Wrapping(frame.sequence());
 
