@@ -83,6 +83,20 @@ pub struct BuildInformationCommon {
     pub can_semver: [u8; 3],
 }
 
+/// Shared state machine state used by the FC and RFSC.
+#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct StateMachineState {
+    /// The index in the state path where we are currently at.
+    /// Equals the number of transitions that have occured.
+    pub path_index: u32,
+    /// The name of the current state in zero-padded utf-8.
+    pub state: [u8; 30],
+}
+
 /// Shared manual state transition used by the FC and RFSC.
 #[gated_derive(serde::Serialize, serde::Deserialize)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
