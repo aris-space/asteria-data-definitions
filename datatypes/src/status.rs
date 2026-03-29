@@ -4,6 +4,8 @@
 use data_core::mavlink;
 use gated_derive::gated_derive;
 
+use crate::units::InstantUs;
+
 /// The ID of a board in the rocket.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
@@ -23,18 +25,6 @@ pub enum BoardId {
     FuelControlBoard = 7,
     OxidizerControlBoard = 8,
 }
-
-/// UTC timestamp given in microseconds since the Unix epoch (`1970-01-01T00:00:00Z`).
-///
-/// This value is derived from the GPS time sensors and is therefore highly accurate.
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-#[serde(rename_all = "camelCase")]
-#[unit("us")]
-pub struct InstantUs(pub u64);
 
 /// Represents the current arming state of the subsystem
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -122,6 +112,28 @@ pub struct ManualActuatorChange {
     pub path_index: u32,
     /// The name of the actuator whose value should be changed.
     pub actuator: [u8; 20],
+}
+
+/// Telemetry health statistics for an uplink.
+#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct UplinkTelemetryHealth {
+    /// The timestamp of the last message received, including malformed ones.
+    #[mavlink(refine)]
+    pub time_of_last_msg: InstantUs,
+    /// The total number of the messages received, including malformed ones.
+    pub num_msg_received: u32,
+    /// The number of message that were inferred to have been lost by the sequence number.
+    pub num_msg_lost: u32,
+
+    /// The timestamp of the last message that has been understood and processed successfully.
+    #[mavlink(refine)]
+    pub time_of_last_processed_msg: InstantUs,
+    /// The number of the messages received that have been understood and processed successfully.
+    pub num_msg_processed: u32,
 }
 
 /// Enum representing the status of a sensor.

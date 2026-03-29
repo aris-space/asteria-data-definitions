@@ -5,7 +5,8 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{BoardId, InstantUs};
+use datatypes::status::BoardId;
+use datatypes::units::InstantUs;
 use gated_derive::gated_derive;
 
 mod version;
@@ -21,6 +22,8 @@ pub enum Message {
     // ======================== TX ========================
     /// # `UTCTimeUpdate`
     /// Synchronizes system time using GPS-derived UTC.
+    ///
+    /// This value is derived from the GPS time sensors and is therefore highly accurate.
     ///
     /// ## Type
     /// - `Periodic @ 10 Hz`
