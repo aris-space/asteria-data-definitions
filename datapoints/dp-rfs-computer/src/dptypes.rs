@@ -1,6 +1,7 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
 use datatypes::status::{ArmingState, StatusCommonMessage, ValveState};
+use datatypes::units::{BarG, Celsius};
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -43,4 +44,30 @@ pub struct RfsComputerValveStates {
     /// The current active state of the normally off spark plug.
     #[mavlink(refine)]
     pub ign_spk_plg: ValveState,
+}
+
+/// Igniter pressure reading, forwarded from the RFS to the ECU.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct IgniterPressure {
+    /// The igniter pressure in barg.
+    #[mavlink(flatten)]
+    pub igniter_pressure: BarG,
+}
+
+/// Igniter temperature reading, forwarded from the RFS to the ECU.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct IgniterTemperature {
+    /// The igniter temperature in °C.
+    #[mavlink(flatten)]
+    pub igniter_temperature: Celsius,
 }

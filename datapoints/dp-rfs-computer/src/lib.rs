@@ -82,6 +82,46 @@ pub enum Message {
     #[mavlink(id = 0x10_06_02)]
     ValveStates(RfsComputerValveStates),
 
+    /// # `IgniterPressure`
+    /// Periodic igniter pressure readings emitted by the RFS Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 40 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `EngineControlBoard`
+    ///
+    /// ## Purpose
+    /// This is needed during the ignition sequence where the engine control board controls the igniter
+    /// and thus needs to know its pressure for detecting successful ignition.
+    ///
+    /// ## Reaction
+    /// No action required, but the ECU may decide to continue or abort based on the pressure.
+    #[can(id = 0x440)]
+    #[mavlink(id = 0x10_06_06)]
+    IgniterPressure(IgniterPressure),
+
+    /// # `IgniterTemperature`
+    /// Periodic igniter temperature readings emitted by the RFS Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 10 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `EngineControlBoard`
+    ///
+    /// ## Purpose
+    /// This is needed during the ignition sequence where the engine control board controls the igniter
+    /// and thus needs to know its temperature for detecting successful ignition.
+    ///
+    /// ## Reaction
+    /// No action required, but the ECU may decide to continue or abort based on the temperature.
+    #[can(id = 0x441)]
+    #[mavlink(id = 0x10_06_07)]
+    IgniterTemperature(IgniterTemperature),
+
     // ======================== RX ========================
     /// # `GoxIgniterValveControl`
     /// Controls the GOX igniter valve on the RFS from the ECU.
