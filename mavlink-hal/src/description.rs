@@ -5,6 +5,8 @@
 //! - a [`DescribeFieldSet`] implementor then groups a list of fields together (a part of a message).
 //! - a [`Message`] takes the list of messages and adds a message name and id, to make it a message.
 //! - finally, a [`DescribeMessages`] implementation groups a list of messages.
+//!
+//! See also the mavlink schema defintion: <https://github.com/ArduPilot/pymavlink/blob/master/generator/mavschema.xsd>
 
 use mavio::protocol::MessageSpec;
 

@@ -1,4 +1,4 @@
-//! This module provides the packet serialization implementation for our HAL.
+//! This module provides the packet serialization implementation for our message types.
 //!
 //! See <https://mavlink.io/en/guide/serialization.html> for the description of how packets are serialized.
 //! In particular, we have choosen traits that can be called recursively, and still provide the right field order.

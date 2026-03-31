@@ -5,7 +5,9 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{BuildInformationCommon, ManualActuatorChange, ManualStateTransition};
+use datatypes::status::{
+    BuildInformationCommon, ManualActuatorChange, ManualStateTransition, StateMachineState,
+};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -60,6 +62,11 @@ pub enum Message {
     #[can(id = 0x310)]
     #[mavlink(id = 0x10_01_01)]
     Status(FlightComputerStatus),
+
+    /// The current state of the flight computer state machine.
+    #[mavlink(id = 0x10_01_02)]
+    StateMachineState(StateMachineState),
+
     // ======================== RX ========================
     /// Command a manual state transition on the FC.
     /// The state machine will perform the state transition and emit a state change event.
