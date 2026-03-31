@@ -253,7 +253,7 @@ pub enum MavType {
     Servo = 33,
     /// MAVLink enum entry `MAV_TYPE_ODID`.
     ///
-    /// Open Drone ID. See https://mavlink.io/en/services/opendroneid.html.
+    /// Open Drone ID. See <https://mavlink.io/en/services/opendroneid.html>.
     Odid = 34,
     /// MAVLink enum entry `MAV_TYPE_DECAROTOR`.
     ///
@@ -310,7 +310,7 @@ pub enum MavType {
     ///
     /// VTOL hybrid of helicopter and autogyro. It has a main rotor for lift and separate
     /// propellers for forward flight. The rotor must be powered for hover but can autorotate
-    /// in cruise flight. See: https://en.wikipedia.org/wiki/Gyrodyne
+    /// in cruise flight. See: <https://en.wikipedia.org/wiki/Gyrodyne>
     VtolGyrodyne = 47,
 }
 
@@ -336,15 +336,15 @@ pub enum MavAutopilot {
     Reserved = 1,
     /// MAVLink enum entry `MAV_AUTOPILOT_SLUGS`.
     ///
-    /// SLUGS autopilot, http://slugsuav.soe.ucsc.edu
+    /// SLUGS autopilot, <http://slugsuav.soe.ucsc.edu>
     Slugs = 2,
     /// MAVLink enum entry `MAV_AUTOPILOT_ARDUPILOTMEGA`.
     ///
-    /// ArduPilot - Plane/Copter/Rover/Sub/Tracker, https://ardupilot.org
+    /// ArduPilot - Plane/Copter/Rover/Sub/Tracker, <https://ardupilot.org>
     Ardupilotmega = 3,
     /// MAVLink enum entry `MAV_AUTOPILOT_OPENPILOT`.
     ///
-    /// OpenPilot, http://openpilot.org
+    /// OpenPilot, <http://openpilot.org>
     Openpilot = 4,
     /// MAVLink enum entry `MAV_AUTOPILOT_GENERIC_WAYPOINTS_ONLY`.
     ///
@@ -364,7 +364,7 @@ pub enum MavAutopilot {
     Invalid = 8,
     /// MAVLink enum entry `MAV_AUTOPILOT_PPZ`.
     ///
-    /// PPZ UAV - http://nongnu.org/paparazzi
+    /// PPZ UAV - <http://nongnu.org/paparazzi>
     Ppz = 9,
     /// MAVLink enum entry `MAV_AUTOPILOT_UDB`.
     ///
@@ -376,38 +376,38 @@ pub enum MavAutopilot {
     Fp = 11,
     /// MAVLink enum entry `MAV_AUTOPILOT_PX4`.
     ///
-    /// PX4 Autopilot - http://px4.io/
+    /// PX4 Autopilot - <http://px4.io/>
     Px4 = 12,
     /// MAVLink enum entry `MAV_AUTOPILOT_SMACCMPILOT`.
     ///
-    /// SMACCMPilot - http://smaccmpilot.org
+    /// SMACCMPilot - <http://smaccmpilot.org>
     Smaccmpilot = 13,
     /// MAVLink enum entry `MAV_AUTOPILOT_AUTOQUAD`.
     ///
-    /// AutoQuad -- http://autoquad.org
+    /// AutoQuad -- <http://autoquad.org>
     Autoquad = 14,
     /// MAVLink enum entry `MAV_AUTOPILOT_ARMAZILA`.
     ///
-    /// Armazila -- http://armazila.com
+    /// Armazila -- <http://armazila.com>
     Armazila = 15,
     /// MAVLink enum entry `MAV_AUTOPILOT_AEROB`.
     ///
-    /// Aerob -- http://aerob.ru
+    /// Aerob -- <http://aerob.ru>
     Aerob = 16,
     /// MAVLink enum entry `MAV_AUTOPILOT_ASLUAV`.
     ///
-    /// ASLUAV autopilot -- http://www.asl.ethz.ch
+    /// ASLUAV autopilot -- <http://www.asl.ethz.ch>
     Asluav = 17,
     /// MAVLink enum entry `MAV_AUTOPILOT_SMARTAP`.
     ///
-    /// SmartAP Autopilot - http://sky-drones.com
+    /// SmartAP Autopilot - <http://sky-drones.com>
     Smartap = 18,
     /// MAVLink enum entry `MAV_AUTOPILOT_AIRRAILS`.
     ///
-    /// AirRails - http://uaventure.com
+    /// AirRails - <http://uaventure.com>
     Airrails = 19,
     /// MAVLink enum entry `MAV_AUTOPILOT_REFLEX`.
     ///
-    /// Fusion Reflex - https://fusion.engineering
+    /// Fusion Reflex - <https://fusion.engineering>
     Reflex = 20,
 }
