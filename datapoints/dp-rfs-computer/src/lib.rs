@@ -8,6 +8,7 @@ use data_core::mavlink;
 use datatypes::status::{
     BuildInformationCommon, ManualActuatorChange, ManualStateTransition, ValveState,
 };
+use datatypes::units::{BarG, Celsius};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -100,7 +101,7 @@ pub enum Message {
     /// No action required, but the ECU may decide to continue or abort based on the pressure.
     #[can(id = 0x440)]
     #[mavlink(id = 0x10_06_06)]
-    IgniterPressure(IgniterPressure),
+    IgniterPressure(BarG),
 
     /// # `IgniterTemperature`
     /// Periodic igniter temperature readings emitted by the RFS Computer.
@@ -120,7 +121,7 @@ pub enum Message {
     /// No action required, but the ECU may decide to continue or abort based on the temperature.
     #[can(id = 0x441)]
     #[mavlink(id = 0x10_06_07)]
-    IgniterTemperature(IgniterTemperature),
+    IgniterTemperature(Celsius),
 
     // ======================== RX ========================
     /// # `GoxIgniterValveControl`
