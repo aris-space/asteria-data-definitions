@@ -9,6 +9,9 @@ use datatypes::status::BoardId;
 use datatypes::units::InstantUs;
 use gated_derive::gated_derive;
 
+mod dptypes;
+pub use dptypes::*;
+
 mod version;
 pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 
@@ -19,6 +22,10 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[serde(tag = "type", content = "content")]
 #[schema(as = SystemManagementMessage)]
 pub enum Message {
+    /// Sends a mavlink compatible Heartbeat message.
+    #[mavlink(id = 0x0)]
+    Heartbeat(Heartbeat),
+
     // ======================== TX ========================
     /// # `UTCTimeUpdate`
     /// Synchronizes system time using GPS-derived UTC.
