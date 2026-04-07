@@ -83,6 +83,17 @@ pub struct BuildInformationCommon {
     pub can_semver: [u8; 3],
 }
 
+/// First 5 hex characters of the config file Git Object Hash
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ConfigHash {
+    pub hash: [u8; 5],
+}
+
 /// Shared state machine state used by the FC and RFSC.
 #[gated_derive(serde::Serialize, serde::Deserialize)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]

@@ -1,12 +1,13 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use data_core::Message;
 #[cfg(feature = "can")]
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
+use data_core::Message;
 use datatypes::status::{
-    BuildInformationCommon, ManualActuatorChange, ManualStateTransition, StateMachineState,
+    BuildInformationCommon, ConfigHash, ManualActuatorChange, ManualStateTransition,
+    StateMachineState,
 };
 use gated_derive::gated_derive;
 
@@ -42,6 +43,26 @@ pub enum Message {
     #[can(id = 0x610)]
     #[mavlink(id = 0x10_01_00)]
     BuildInfo(BuildInformationCommon),
+
+    /// # `FlightComputerConfigHash`
+    /// First 5 hex characters of the config file Git Object Hash currently
+    /// loaded by the Flight Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 0.2 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Allows Flight Computer config file tracking.
+    ///
+    /// ## Reaction
+    /// Receivers may log or display the config hash.
+    #[can(id = 0x620)]
+    #[mavlink(id = 0x10_01_03)]
+    ConfigHash(ConfigHash),
 
     /// # `FlightComputerStatus`
     /// Periodic status message emitted by the Flight Computer.
