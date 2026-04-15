@@ -27,7 +27,7 @@ pub struct EngineControlBoardStatus {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, pss::Data)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -42,7 +42,7 @@ pub struct EngineControlBoardValveStates {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, pss::Data)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -60,7 +60,7 @@ pub struct EnginePressure {
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, pss::Data)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
