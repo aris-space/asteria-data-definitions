@@ -41,13 +41,13 @@ can = [
 # Derive pss related traits for all datapoints and datapoint specific types
 pss = [
     "derive_pss",
-    "dp-engine-control-board/pss",
-    "dp-fuel-control-board/pss",
+    # "dp-engine-control-board/pss",
+    # "dp-fuel-control-board/pss",
     # "dp-power-board/pss",
     # "dp-rfs-computer/pss",
     # "dp-system-management/pss",
     # "dp-flight-computer/pss",
-    "dp-oxidizer-control-board/pss",
+    # "dp-oxidizer-control-board/pss",
     # "dp-recovery-board/pss",
     # "dp-sensor-carrier/pss",
     "data-core/pss",

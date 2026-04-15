@@ -63,7 +63,6 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x321)]
     #[mavlink(id = 0x10_03_01)]
-    #[pss(flatten)]
     BoardStatus(OxidizerControlBoardStatus),
 
     /// # `OxidizerControlBoardValveStates`
@@ -83,7 +82,6 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
     #[mavlink(id = 0x10_03_02)]
-    #[pss(flatten)]
     ValveStates(OxidizerControlBoardValveStates),
     /// # `OxidizerPressurizationCompleted`
     /// Event message sent by the OxidizerControlBoard

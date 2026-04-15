@@ -33,26 +33,11 @@ pub struct FuelControlBoardStatus {
 pub struct FuelControlBoardValveStates {
     /// Fuel DPR Control loop state
     #[mavlink(flatten)]
-    #[pss(
-        name = "fss_dpr",
-        label = "Fuel Control Loop State",
-        kind = "dpr_actuator"
-    )]
     pub fss_dpr: DPRValve,
     /// Pressurization Valve state
     #[mavlink(flatten)]
-    #[pss(
-        name = "prz_vnt_vlv",
-        label = "Pressurization Vent Valve State",
-        kind = "digital_sensor"
-    )]
     pub prz_vnt_vlv: ValveState,
     /// Fuel Vent Valve state
     #[mavlink(flatten)]
-    #[pss(
-        name = "fss_vnt_vlv",
-        label = "Fuel Vent Valve State",
-        kind = "digital_sensor"
-    )]
     pub fss_vnt_vlv: ValveState,
 }
