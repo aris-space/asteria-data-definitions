@@ -80,7 +80,6 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
     #[mavlink(id = 0x10_08_02)]
-    #[pss(flatten)]
     ValveStates(EngineControlBoardValveStates),
 
     /// # `EnginePressure`
@@ -105,7 +104,6 @@ pub enum Message {
     /// The value will be `NaN` if reading the sensor fails.
     #[can(id = 0x460)]
     #[mavlink(id = 0x10_08_03)]
-    #[pss(flatten)]
     EnginePressure(EnginePressure),
 
     /// # `EngineBayTemperature`
@@ -132,7 +130,6 @@ pub enum Message {
     /// the value will be set to `NaN`.
     #[can(id = 0x461)]
     #[mavlink(id = 0x10_08_04)]
-    #[pss(flatten)]
     EngineBayTemperature(EngineBayTemperature),
 
     /// # `FiringAborted`

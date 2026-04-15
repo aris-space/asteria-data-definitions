@@ -34,19 +34,9 @@ pub struct EngineControlBoardStatus {
 pub struct EngineControlBoardValveStates {
     /// Fuel Main Valve state
     #[mavlink(flatten)]
-    #[pss(
-        name = "fss_mnl_vlv",
-        label = "Fuel Main Valve State",
-        kind = "digital_sensor"
-    )]
     pub fss_mnl_vlv: ValveState,
     /// Oxidizer Main Valve state
     #[mavlink(flatten)]
-    #[pss(
-        name = "oss_mnl_vlv",
-        label = "Oxidizer Main Valve State",
-        kind = "digital_sensor"
-    )]
     pub oss_mnl_vlv: ValveState,
 }
 
@@ -59,33 +49,12 @@ pub struct EngineControlBoardValveStates {
 pub struct EnginePressure {
     /// Engine Chamber pressure in barg.
     #[mavlink(flatten)]
-    // FIXME: Find a way to use field type to identify unit.
-    #[unit("barg")]
-    #[pss(
-        name = "eng_cc_p",
-        label = "Engine Chamber Pressure",
-        kind = "analog_sensor"
-    )]
     pub eng_cc_p: BarG,
     /// Injector Fuel pressure in barg.
     #[mavlink(flatten)]
-    // FIXME: Find a way to use field type to identify unit.
-    #[unit("barg")]
-    #[pss(
-        name = "fss_inj_p",
-        label = "Injector Fuel Pressure",
-        kind = "analog_sensor"
-    )]
     pub fss_inj_p: BarG,
     /// Injector Oxidizer pressure in barg.
     #[mavlink(flatten)]
-    // FIXME: Find a way to use field type to identify unit.
-    #[unit("barg")]
-    #[pss(
-        name = "oss_inj_p",
-        label = "Injector Oxidizer Pressure",
-        kind = "analog_sensor"
-    )]
     pub oss_inj_p: BarG,
 }
 
@@ -98,23 +67,9 @@ pub struct EnginePressure {
 pub struct EngineBayTemperature {
     /// Oxidizer Runline temperature in °C.
     #[mavlink(flatten)]
-    // FIXME: Find a way to use field type to identify unit.
-    #[unit("°C")]
-    #[pss(
-        name = "oss_rnl_t",
-        label = "Oxidizer Runline Temperature",
-        kind = "analog_sensor"
-    )]
     pub oss_rnl_t: Celsius,
     /// Oxidizer Tank Bottom temperature in °C.
     #[mavlink(flatten)]
-    // FIXME: Find a way to use field type to identify unit.
-    #[unit("°C")]
-    #[pss(
-        name = "oss_tnk_t",
-        label = "Oxidizer Tank Bottom Temperature",
-        kind = "analog_sensor"
-    )]
     pub oss_tnk_t: Celsius,
 }
 
