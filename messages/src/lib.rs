@@ -55,19 +55,8 @@ pub enum Message {
 #[cfg(feature = "can")]
 #[test]
 fn unique_can_ids() {
-    let mut all_ids = [
-        &dp_flight_computer::Message::ALL_CAN_IDS[..],
-        &dp_rfs_computer::Message::ALL_CAN_IDS[..],
-        &dp_system_management::Message::ALL_CAN_IDS[..],
-        &dp_recovery_board::Message::ALL_CAN_IDS[..],
-        &dp_power_board::Message::ALL_CAN_IDS[..],
-        &dp_sensor_carrier::Message::ALL_CAN_IDS[..],
-        &dp_fuel_control_board::Message::ALL_CAN_IDS[..],
-        &dp_oxidizer_control_board::Message::ALL_CAN_IDS[..],
-        &dp_engine_control_board::Message::ALL_CAN_IDS[..],
-    ]
-    .concat();
-
+    use can::hal::CanDecode;
+    let mut all_ids = Vec::from(Message::SUPPORTED_IDS);
     let nr_msg = all_ids.len();
     all_ids.sort();
     all_ids.dedup();

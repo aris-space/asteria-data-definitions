@@ -3,6 +3,7 @@
 pub use embedded_can::StandardId;
 
 pub mod codec;
+pub mod macro_util;
 
 /// The max data length which CAN FD supports (64 bytes).
 pub const FD_DATA_LENGTH: usize = 64;
@@ -28,6 +29,7 @@ pub const fn next_valid_length(length: usize) -> Option<u8> {
 /// Implementors of this trait can be created from a CAN id and raw data.
 pub trait CanDecode: Sized {
     type Error: core::error::Error;
+    const SUPPORTED_IDS: &[StandardId];
 
     /// Tries to decode an instance of `Self` from the provided byte slice.
     ///
