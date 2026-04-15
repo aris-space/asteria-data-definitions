@@ -428,6 +428,8 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
 /// - `#[pss(name = "...", label = "...", kind = "...")]`: The name specifies to which name this PSS datapoint field should be mapped, the
 ///   label field specifies the display name of the datapoint and the kind field specifies which kind of PSS datapoint this field is
 ///   (e.g. DPR actuator, digital sensor, ...).
+///
+///   **Note**: Digital datapoint kinds are required to implement [`::data_core::data::datapoint::DigitalDatapointKind`] to get their default state.
 /// - `#[pss(flatten)]`: Optional flag which needs to be added to fields which should be flattened into the current container. This is needed
 ///   for the recursion.
 /// - `#[unit("...")]`: Optional unit of the datapoint field which is required by some `#[pss(kind = "...")]`. If it's required but missing
