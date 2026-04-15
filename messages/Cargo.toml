@@ -21,7 +21,7 @@ utoipa = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 
 [features]
-default = ["can", "pss"]
+default = ["can"]
 # Derive can related traits for all datapoints and datapoint specific types
 can = [
     "derive_can",

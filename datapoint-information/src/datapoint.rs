@@ -5,7 +5,9 @@ use gated_derive::gated_derive;
 #[serde(rename_all = "snake_case", tag = "kind")]
 #[schema(as = ActuatorKind)]
 pub enum ActuatorKind {
-    Digital,
+    Digital {
+        default_enabled: bool,
+    },
     #[serde(rename = "dpr")]
     DPR,
     Fractional,
@@ -17,7 +19,7 @@ pub enum ActuatorKind {
 #[schema(as = SensorKind)]
 pub enum SensorKind {
     Analog { unit: &'static str },
-    Digital,
+    Digital { default_enabled: bool },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -127,4 +129,10 @@ pub trait DatapointHolder {
     fn get_datapoint_values(&self) -> Vec<NamedDatapointValue> {
         Vec::new()
     }
+}
+
+/// Trait to collect the default states of digital datapoint kinds.
+pub trait DigitalDatapointKind {
+    /// Boolean whether the datapoint kind is enabled by default.
+    const DEFAULT_ENABLED: bool;
 }

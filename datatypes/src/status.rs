@@ -1,5 +1,6 @@
 //! System status, state information, and identifiers.
 
+use data_core::data::datapoint::DigitalDatapointKind;
 #[cfg(feature = "derive_mavlink")]
 use data_core::mavlink;
 use gated_derive::gated_derive;
@@ -190,6 +191,10 @@ pub enum SensorStatus {
     Online = 1,
 }
 
+impl DigitalDatapointKind for SensorStatus {
+    const DEFAULT_ENABLED: bool = false;
+}
+
 /// Enum representing the state of a valve.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
@@ -204,6 +209,10 @@ pub enum ValveState {
     /// Power should not be disabled for the valve
     #[default]
     Inactive = 1,
+}
+
+impl DigitalDatapointKind for ValveState {
+    const DEFAULT_ENABLED: bool = false;
 }
 
 #[cfg(feature = "derive_bincode")]

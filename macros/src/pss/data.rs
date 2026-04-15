@@ -19,13 +19,18 @@ enum DataKind {
     DigitalSensor,
 }
 
-struct DataKindWithUnit<'a>(&'a SpannedValue<DataKind>, Option<&'a Unit>);
+struct DataKindWithUnitAndType<'a>(&'a SpannedValue<DataKind>, Option<&'a Unit>, &'a syn::Type);
 
-impl ToTokens for DataKindWithUnit<'_> {
+impl ToTokens for DataKindWithUnitAndType<'_> {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         let data = quote!(::data_core::data::datapoint);
+        let ty = self.2;
         let ident = match (self.0.as_ref(), self.1) {
-            (DataKind::DigitalActuator, _) => quote!(Actuator(#data::ActuatorKind::Digital)),
+            (DataKind::DigitalActuator, _) => quote! {
+                Actuator(#data::ActuatorKind::Digital {
+                    default_enabled: <#ty as #data::DigitalDatapointKind>::DEFAULT_ENABLED,
+                })
+            },
             (DataKind::DprActuator, _) => quote!(Actuator(#data::ActuatorKind::DPR)),
             (DataKind::FractionalActuator, _) => quote!(Actuator(#data::ActuatorKind::Fractional)),
             (DataKind::AnalogSensor, Some(unit)) => {
@@ -39,7 +44,11 @@ impl ToTokens for DataKindWithUnit<'_> {
                 tokens.extend(err.write_errors());
                 return;
             }
-            (DataKind::DigitalSensor, _) => quote!(Sensor(#data::SensorKind::Digital)),
+            (DataKind::DigitalSensor, _) => quote! {
+                Sensor(#data::SensorKind::Digital {
+                    default_enabled: <#ty as #data::DigitalDatapointKind>::DEFAULT_ENABLED,
+                })
+            },
         };
         tokens.extend(quote!(#data::DatapointKind::#ident));
     }
@@ -479,7 +488,10 @@ fn get_datapoints(
         let datapoints_len = quote!(#datapoints.len());
         return Ok(Some((datapoints, datapoints_len)));
     };
-    let Some((kind, label)) = kind.map(|kind| DataKindWithUnit(kind, unit)).zip(label) else {
+    let Some((kind, label)) = kind
+        .map(|kind| DataKindWithUnitAndType(kind, unit, ty))
+        .zip(label)
+    else {
         return Err(darling::Error::custom(
             "Attribute `#[pss(kind = ...)]` and `#[pss(label = ...)]` are required when `#[pss(name = ...)]` is set",
         )

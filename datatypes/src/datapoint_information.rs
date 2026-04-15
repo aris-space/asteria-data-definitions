@@ -8,12 +8,6 @@ use crate::{
     units::{BarG, Celsius},
 };
 
-// TODO: We need to somehow store whether the `enabled` state is the default
-//       state of the valve or whether it's the modified state.
-//
-// FIXME: Also, for DPR, we need to know the last non-NaN value of the DPR since
-//        to re-enable we ideally want to use that instead of a new setpoint?
-
 impl From<NormallyClosedValve> for DatapointValue {
     fn from(value: NormallyClosedValve) -> Self {
         Self::Actuator(ActuatorValue::Digital {
