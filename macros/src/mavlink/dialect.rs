@@ -123,7 +123,7 @@ fn generate_describe_messages_impl(
 
     quote! {
         impl ::data_core::mavlink::hal::description::DescribeMessages for #ident {
-            const MESSAGES: &[::data_core::mavlink::hal::description::Message] = &::data_core::mavlink::hal::macro_util::concat_slices::<_, {
+            const MESSAGES: &[::data_core::mavlink::hal::description::Message] = &::data_core::macro_util::concat_slices::<_, {
                     #(<#types as ::data_core::mavlink::hal::description::DescribeMessages>::MESSAGES.len() +)* 0
                 }>(
                     &[#(<#types as ::data_core::mavlink::hal::description::DescribeMessages>::MESSAGES,)*]
