@@ -1,5 +1,6 @@
 //! System status, state information, and identifiers.
 
+#[cfg(feature = "derive_datapoint_information")]
 use data_core::data::datapoint::DigitalDatapointKind;
 #[cfg(feature = "derive_mavlink")]
 use data_core::mavlink;
@@ -167,6 +168,7 @@ pub enum SensorStatus {
     Online = 1,
 }
 
+#[cfg(feature = "derive_datapoint_information")]
 impl DigitalDatapointKind for SensorStatus {
     const DEFAULT_ENABLED: bool = false;
 }
@@ -187,6 +189,7 @@ pub enum ValveState {
     Inactive = 1,
 }
 
+#[cfg(feature = "derive_datapoint_information")]
 impl DigitalDatapointKind for ValveState {
     const DEFAULT_ENABLED: bool = false;
 }

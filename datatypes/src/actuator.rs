@@ -1,5 +1,6 @@
 //! Actuator control types and configurations.
 
+#[cfg(feature = "derive_datapoint_information")]
 use data_core::data::datapoint::DigitalDatapointKind;
 #[cfg(feature = "derive_mavlink")]
 use data_core::mavlink;
@@ -74,6 +75,7 @@ impl Settable for NormallyOpenValve {
         Ok(())
     }
 }
+#[cfg(feature = "derive_datapoint_information")]
 impl DigitalDatapointKind for NormallyOpenValve {
     const DEFAULT_ENABLED: bool = true;
 }
@@ -118,6 +120,7 @@ impl Settable for NormallyClosedValve {
         Ok(())
     }
 }
+#[cfg(feature = "derive_datapoint_information")]
 impl DigitalDatapointKind for NormallyClosedValve {
     const DEFAULT_ENABLED: bool = false;
 }
