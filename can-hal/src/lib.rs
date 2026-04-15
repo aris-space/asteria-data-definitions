@@ -3,7 +3,6 @@
 pub use embedded_can::StandardId;
 
 pub mod codec;
-pub mod macro_util;
 
 /// The max data length which CAN FD supports (64 bytes).
 pub const FD_DATA_LENGTH: usize = 64;
