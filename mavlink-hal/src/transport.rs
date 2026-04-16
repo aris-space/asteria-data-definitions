@@ -33,11 +33,13 @@ pub enum RecvError {
 }
 
 /// Sends a generic `msg` fully to the given `socket`, using the header value from `endpoint`.
+///
+/// Returns the number of bytes sent on success.
 pub fn send_message<M: mavio::Message>(
     msg: &M,
     endpoint: &Endpoint<V2>,
     socket: &std::net::UdpSocket,
-) -> Result<(), SendError> {
+) -> Result<usize, SendError> {
     // the reason this doesn't use `mavio::Sender`,
     // is that it would send the header and payload in two different calls, potentially resulting in two datagrams.
     let frame = endpoint.next_frame(msg)?;
@@ -46,7 +48,7 @@ pub fn send_message<M: mavio::Message>(
         .serialize(&mut buf)
         .expect("`buf` was made to accomodate all messages");
     socket.send(&buf[0..len])?;
-    Ok(())
+    Ok(len)
 }
 
 /// Reads a single datagram and tries to decode it as a mavlink message.
