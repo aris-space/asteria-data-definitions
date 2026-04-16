@@ -161,6 +161,19 @@ pub struct UplinkTelemetryHealth {
     pub num_msg_processed: u32,
 }
 
+/// Telemetry statistics for a downlink.
+#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DownlinkTelemetryStats {
+    /// The total number of bytes sent.
+    pub num_bytes_sent: u64,
+    /// The total number of messages sent.
+    pub num_messages_sent: u32,
+}
+
 /// Enum representing the status of a sensor.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
