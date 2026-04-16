@@ -7,7 +7,7 @@ use data_core::can;
 use data_core::mavlink;
 use datatypes::status::{
     BuildInformationCommon, ConfigHash, ManualActuatorChange, ManualStateTransition,
-    StateMachineState,
+    StateMachineState, UplinkTelemetryHealth,
 };
 use gated_derive::gated_derive;
 
@@ -87,6 +87,13 @@ pub enum Message {
     /// The current state of the flight computer state machine.
     #[mavlink(id = 0x10_01_02)]
     StateMachineState(StateMachineState),
+
+    /// Statistics about the health of the telemetry uplink received by the Flight Computer.
+    ///
+    /// Emitted periodically by the flight computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_01_04)]
+    UplinkTelemetryHealth(UplinkTelemetryHealth),
 
     // ======================== RX ========================
     /// Command a manual state transition on the FC.
