@@ -1,5 +1,3 @@
-use core::mem::MaybeUninit;
-
 use crate::datapoint::DatapointInformation;
 
 /// Manually compare bytes of two static strings for equality.
