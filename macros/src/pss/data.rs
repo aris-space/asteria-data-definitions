@@ -500,7 +500,7 @@ fn concatenate_datapoints(datapoints: &[TokenStream], lengths: &[TokenStream]) -
             // concatenate slices without storing intermediates
             datapoints.iter().zip(lengths).fold((quote!(&[]), quote!(0)), |(acc, acc_len), (info, length)| {
                 let next = quote! {
-                    &::data_core::data::macro_util::concat_slices::<_, { #acc_len + #length }>(&[#acc, #info])
+                    &::data_core::macro_util::concat_slices::<_, { #acc_len + #length }>(&[#acc, #info])
                 };
                 (next, quote! { #acc_len + #length })
             }).0

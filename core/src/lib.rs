@@ -4,6 +4,7 @@
 //! (unless specified otherwise by the macro itself)
 
 pub use data_macros::Message;
+pub mod macro_util;
 
 #[cfg(feature = "can")]
 pub mod can {
