@@ -9,5 +9,9 @@ mavio = { version = "0.5.10", features = ["dlct-minimal"] }
 tbytes = "0.1.0"
 thiserror = { version = "2.0.11", default-features = false }
 
+[features]
+default = []
+std = ["mavio/std"]
+
 [lints]
 workspace = true
