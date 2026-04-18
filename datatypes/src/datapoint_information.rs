@@ -1,6 +1,9 @@
 use core::f32;
 
-use datapoint_information::datapoint::{ActuatorValue, DatapointValue, SensorValue};
+use datapoint_information::datapoint::{
+    ActuatorKind, ActuatorValue, DatapointKind, DatapointValue, IntoDatapointValue, SensorKind,
+    SensorValue,
+};
 
 use crate::{
     actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
@@ -8,33 +11,47 @@ use crate::{
     units::{BarG, Celsius},
 };
 
-impl From<NormallyClosedValve> for DatapointValue {
-    fn from(value: NormallyClosedValve) -> Self {
-        Self::Actuator(ActuatorValue::Digital {
-            enabled: matches!(value, NormallyClosedValve::Open),
+impl IntoDatapointValue for NormallyClosedValve {
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, NormallyClosedValve::Open),
         })
     }
 }
 
-impl From<NormallyOpenValve> for DatapointValue {
-    fn from(value: NormallyOpenValve) -> Self {
-        Self::Actuator(ActuatorValue::Digital {
-            enabled: matches!(value, NormallyOpenValve::Open),
+impl IntoDatapointValue for NormallyOpenValve {
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+        default_enabled: true,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, NormallyOpenValve::Open),
         })
     }
 }
 
-impl From<ValveState> for DatapointValue {
-    fn from(value: ValveState) -> Self {
-        Self::Actuator(ActuatorValue::Digital {
-            enabled: matches!(value, ValveState::Active),
+impl IntoDatapointValue for ValveState {
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, ValveState::Active),
         })
     }
 }
 
-impl From<DPRValve> for DatapointValue {
-    fn from(value: DPRValve) -> Self {
-        let actuator = match value {
+impl IntoDatapointValue for DPRValve {
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::DPR);
+
+    fn into_value(self) -> DatapointValue {
+        let actuator = match self {
             DPRValve::Enabled { setpoint } => ActuatorValue::DPR {
                 enabled: true,
                 setpoint,
@@ -48,30 +65,44 @@ impl From<DPRValve> for DatapointValue {
     }
 }
 
-impl From<ThrottleableValve> for DatapointValue {
-    fn from(value: ThrottleableValve) -> Self {
-        Self::Actuator(ActuatorValue::Fractional {
-            percent: f32::from(value.openness_percent),
+impl IntoDatapointValue for ThrottleableValve {
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Fractional);
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Fractional {
+            percent: f32::from(self.openness_percent),
         })
     }
 }
 
-impl From<SensorStatus> for DatapointValue {
-    fn from(value: SensorStatus) -> Self {
-        Self::Sensor(SensorValue::Digital {
-            enabled: matches!(value, SensorStatus::Online),
+impl IntoDatapointValue for SensorStatus {
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Digital {
+            enabled: matches!(self, SensorStatus::Online),
         })
     }
 }
 
-impl From<BarG> for DatapointValue {
-    fn from(value: BarG) -> Self {
-        Self::Sensor(SensorValue::Analog { value: value.0 })
+impl IntoDatapointValue for BarG {
+    // FIXME: Once we have an `Unit` trait, we should be able to set this to `BarG::UNIT`
+    // to prevent duplication of unit names.
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Analog { unit: "barg" });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Analog { value: self.0 })
     }
 }
 
-impl From<Celsius> for DatapointValue {
-    fn from(value: Celsius) -> Self {
-        Self::Sensor(SensorValue::Analog { value: value.0 })
+impl IntoDatapointValue for Celsius {
+    // FIXME: Once we have an `Unit` trait, we should be able to set this to `Celsius::UNIT`
+    // to prevent duplication of unit names.
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Analog { unit: "°C" });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Analog { value: self.0 })
     }
 }

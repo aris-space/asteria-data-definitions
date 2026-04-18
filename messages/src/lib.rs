@@ -44,13 +44,17 @@ pub mod datapoints {
 #[serde(tag = "board", content = "message")]
 pub enum Message {
     FlightComputer(dp_flight_computer::Message),
+    #[pss(flatten)]
     RfsComputer(dp_rfs_computer::Message),
     SystemManagement(dp_system_management::Message),
     RecoveryBoard(dp_recovery_board::Message),
     PowerBoard(dp_power_board::Message),
     SensorCarrier(dp_sensor_carrier::Message),
+    #[pss(flatten)]
     FuelControlBoard(dp_fuel_control_board::Message),
+    #[pss(flatten)]
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
+    #[pss(flatten)]
     EngineControlBoard(dp_engine_control_board::Message),
 }
 

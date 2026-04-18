@@ -1,61 +1,10 @@
-use darling::{
-    FromDeriveInput, FromField, FromMeta, FromVariant,
-    ast::Fields,
-    util::{Flag, SpannedValue},
-};
+use darling::{FromDeriveInput, FromField, FromVariant, ast::Fields, util::Flag};
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote};
+use quote::quote;
 use syn::{Ident, LitStr};
 
-use crate::util::{GetUnit, Unit};
-
-#[derive(FromMeta)]
-#[darling(rename_all = "snake_case")]
-enum DataKind {
-    DigitalActuator,
-    DprActuator,
-    FractionalActuator,
-    AnalogSensor,
-    DigitalSensor,
-}
-
-struct DataKindWithUnitAndType<'a>(&'a SpannedValue<DataKind>, Option<&'a Unit>, &'a syn::Type);
-
-impl ToTokens for DataKindWithUnitAndType<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let data = quote!(::data_core::data::datapoint);
-        let ty = self.2;
-        let ident = match (self.0.as_ref(), self.1) {
-            (DataKind::DigitalActuator, _) => quote! {
-                Actuator(#data::ActuatorKind::Digital {
-                    default_enabled: <#ty as #data::DigitalDatapointKind>::DEFAULT_ENABLED,
-                })
-            },
-            (DataKind::DprActuator, _) => quote!(Actuator(#data::ActuatorKind::DPR)),
-            (DataKind::FractionalActuator, _) => quote!(Actuator(#data::ActuatorKind::Fractional)),
-            (DataKind::AnalogSensor, Some(unit)) => {
-                quote!(Sensor(#data::SensorKind::Analog { unit: #unit }))
-            }
-            (DataKind::AnalogSensor, _) => {
-                let err = darling::Error::custom(
-                    "Analog sensor requires an `#[unit(\"...\")]` attribute",
-                )
-                .with_span(&self.0.span());
-                tokens.extend(err.write_errors());
-                return;
-            }
-            (DataKind::DigitalSensor, _) => quote! {
-                Sensor(#data::SensorKind::Digital {
-                    default_enabled: <#ty as #data::DigitalDatapointKind>::DEFAULT_ENABLED,
-                })
-            },
-        };
-        tokens.extend(quote!(#data::DatapointKind::#ident));
-    }
-}
-
 #[derive(FromField)]
-#[darling(attributes(pss), forward_attrs(unit))]
+#[darling(attributes(pss))]
 pub struct PssDataField {
     /// Unique name of the PSS datapoint
     ///
@@ -65,20 +14,15 @@ pub struct PssDataField {
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
     label: Option<LitStr>,
-    /// Type of the PSS datapoint
-    ///
-    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
-    kind: Option<SpannedValue<DataKind>>,
     /// Boolean flag whether this field should be flattened
     flatten: Flag,
 
     ident: Option<Ident>,
     ty: syn::Type,
-    attrs: Vec<syn::Attribute>,
 }
 
 #[derive(FromVariant)]
-#[darling(attributes(pss), forward_attrs(unit))]
+#[darling(attributes(pss))]
 pub struct PssDataVariant {
     /// Unique name of the PSS datapoint
     ///
@@ -88,23 +32,17 @@ pub struct PssDataVariant {
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
     label: Option<LitStr>,
-    /// Type of the PSS datapoint
-    ///
-    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
-    kind: Option<SpannedValue<DataKind>>,
     /// Boolean flag whether this variant should be flattened
     flatten: Flag,
 
     ident: Ident,
     fields: Fields<PssDataField>,
-    attrs: Vec<syn::Attribute>,
 }
 
 #[derive(FromDeriveInput)]
 #[darling(
     supports(enum_named, enum_newtype, enum_unit, struct_named, struct_newtype),
-    attributes(pss),
-    forward_attrs(unit)
+    attributes(pss)
 )]
 pub struct PssData {
     /// Unique name of the PSS datapoint
@@ -115,16 +53,11 @@ pub struct PssData {
     ///
     /// **Important**: This can only be set on newtype enums and structs
     label: Option<LitStr>,
-    /// Type of the PSS datapoint
-    ///
-    /// **Note**: This can only be set on newtype enums and structs
-    kind: Option<SpannedValue<DataKind>>,
     /// Boolean flag whether this newtype should be flattened
     flatten: Flag,
 
     ident: Ident,
     data: darling::ast::Data<PssDataVariant, PssDataField>,
-    attrs: Vec<syn::Attribute>,
 }
 
 pub fn handle(pss_data: PssData) -> TokenStream {
@@ -132,14 +65,9 @@ pub fn handle(pss_data: PssData) -> TokenStream {
         ident,
         name,
         label,
-        kind,
         flatten,
         ..
     } = pss_data;
-    let unit = match pss_data.attrs.get_unit() {
-        Ok(unit) => unit,
-        Err(err) => return err.write_errors(),
-    };
 
     let impl_tokenstream = if pss_data.data.is_enum() {
         let mut errors = darling::Error::accumulator();
@@ -167,14 +95,7 @@ pub fn handle(pss_data: PssData) -> TokenStream {
                 .with_span(&ident),
             );
         }
-        if kind.is_some() {
-            errors.push(
-                darling::Error::custom(
-                    "Attribute `#[pss(kind = ...)]` cannot be set on enum container",
-                )
-                .with_span(&ident),
-            );
-        }
+
         if let Err(err) = errors.finish() {
             return err.write_errors();
         }
@@ -190,15 +111,7 @@ pub fn handle(pss_data: PssData) -> TokenStream {
         handle_enum(&ident, &variants)
     } else {
         let fields = pss_data.data.take_struct().expect("should be struct");
-        handle_struct(
-            &ident,
-            flatten,
-            name.as_ref(),
-            label.as_ref(),
-            kind.as_ref(),
-            unit.as_ref(),
-            &fields,
-        )
+        handle_struct(&ident, flatten, name.as_ref(), label.as_ref(), &fields)
     };
 
     quote! {
@@ -222,15 +135,8 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
         if variant.fields.is_newtype() {
             let field = variant.fields.fields.first().expect("newtype variant should have exactly one field");
             let ty = &field.ty;
-            let unit = match variant.attrs.get_unit() {
-                Ok(unit) => unit,
-                Err(err) => {
-                    errors.push(err);
-                    return None;
-                },
-            };
 
-            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.label.as_ref(), variant.kind.as_ref(), unit.as_ref()) {
+            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.label.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -241,7 +147,12 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
 
             let value = if let Some(name) = &variant.name {
                 quote! {
-                    #ident::#variant_ident(value) => vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: (*value).into() }]
+                    #ident::#variant_ident(value) => vec![
+                        ::data_core::data::datapoint::NamedDatapointValue {
+                            name: #name,
+                            value: ::data_core::data::datapoint::IntoDatapointValue::into_value(*value)
+                        }
+                    ]
                 }
             } else {
                 quote! {
@@ -254,22 +165,12 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
             if variant.name.is_some() {
                 errors.push(darling::Error::custom("Attribute `#[pss(name = ...)]` cannot be used on struct enum variants").with_span(&variant_ident));
             }
-            if variant.kind.is_some() {
-                errors.push(darling::Error::custom("Attribute `#[pss(kind = ...)]` cannot be used on struct enum variants").with_span(&variant_ident));
-            }
 
             let (idents, datapoints, lengths, values) = variant.fields.iter().filter_map(|field| {
                 let field_ident = field.ident.as_ref().expect("non-newtype field should always have a name");
                 let ty = &field.ty;
-                let unit = match field.attrs.get_unit() {
-                    Ok(unit) => unit,
-                    Err(err) => {
-                        errors.push(err);
-                        return None;
-                    },
-                };
 
-                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
+                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref()) {
                     Ok(Some((datapoints, len))) => (datapoints, len),
                     Ok(None) => return None,
                     Err(err) => {
@@ -280,7 +181,12 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
 
                 let value = if let Some(name) = &field.name {
                     quote! {
-                        values.extend(vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: #field_ident.into() }]);
+                        values.extend(vec![
+                            ::data_core::data::datapoint::NamedDatapointValue {
+                                name: #name,
+                                value: ::data_core::data::datapoint::IntoDatapointValue::into_value(#field_ident)
+                            }
+                        ]);
                     }
                 } else {
                     quote! {
@@ -334,8 +240,6 @@ fn handle_struct(
     flatten: Flag,
     name: Option<&LitStr>,
     label: Option<&LitStr>,
-    kind: Option<&SpannedValue<DataKind>>,
-    unit: Option<&Unit>,
     fields: &Fields<PssDataField>,
 ) -> TokenStream {
     let (datapoints, values) = if fields.is_newtype() {
@@ -354,9 +258,6 @@ fn handle_struct(
         if field.label.is_some() {
             errors.push(darling::Error::custom("Attribute `#[pss(label = ...)]` cannot be used on newtype structs, use this attribute on the container-level instead!").with_span(&field.name));
         }
-        if let Some(kind) = &field.kind {
-            errors.push(darling::Error::custom("Attribute `#[pss(kind = ...)]` cannot be used on newtype structs, use this attribute on the container-level instead!").with_span(&kind.span()));
-        }
 
         if let Err(err) = errors.finish() {
             return err.write_errors();
@@ -364,7 +265,7 @@ fn handle_struct(
 
         let ty = &field.ty;
 
-        let datapoints = match get_datapoints(ty, flatten, name, label, kind, unit) {
+        let datapoints = match get_datapoints(ty, flatten, name, label) {
             Ok(datapoints) => datapoints,
             Err(err) => return err.write_errors(),
         };
@@ -372,7 +273,12 @@ fn handle_struct(
         if let Some((datapoints, _)) = datapoints {
             let value = if let Some(name) = name {
                 quote! {
-                    values.extend(vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: (self.0).into() }]);
+                    values.extend(vec![
+                        ::data_core::data::datapoint::NamedDatapointValue {
+                            name: #name,
+                            value: ::data_core::data::datapoint::IntoDatapointValue::into_value(self.0)
+                        }
+                    ]);
                 }
             } else {
                 quote! {
@@ -388,15 +294,8 @@ fn handle_struct(
         let (datapoints, lengths, values) = fields.fields.iter().filter_map(|field| {
             let field_ident = field.ident.as_ref().expect("non-newtype field should always have a name");
             let ty = &field.ty;
-            let unit = match field.attrs.get_unit() {
-                Ok(unit) => unit,
-                Err(err) => {
-                    errors.push(err);
-                    return None;
-                },
-            };
 
-            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
+            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -407,7 +306,12 @@ fn handle_struct(
 
             let value = if let Some(name) = &field.name {
                 quote! {
-                    values.extend(vec![::data_core::data::datapoint::NamedDatapointValue { name: #name, value: (self.#field_ident).into() }]);
+                    values.extend(vec![
+                        ::data_core::data::datapoint::NamedDatapointValue {
+                            name: #name,
+                            value: ::data_core::data::datapoint::IntoDatapointValue::into_value(self.#field_ident)
+                        }
+                    ]);
                 }
             } else {
                 quote! {
@@ -450,37 +354,22 @@ fn get_datapoints(
     flatten: Flag,
     name: Option<&LitStr>,
     label: Option<&LitStr>,
-    kind: Option<&SpannedValue<DataKind>>,
-    unit: Option<&Unit>,
 ) -> darling::Result<Option<(TokenStream, TokenStream)>> {
-    if flatten.is_present() && (kind.is_some() || name.is_some() || label.is_some()) {
-        Err(darling::Error::custom("Attribute `#[pss(flatten)]` cannot be combined with `#[pss(name = ...)]`, `#[pss(label = ...)]` or `#[pss(kind = ...)]`").with_span(&flatten.span()))?;
+    if flatten.is_present() && (name.is_some() || label.is_some()) {
+        Err(darling::Error::custom("Attribute `#[pss(flatten)]` cannot be combined with `#[pss(name = ...)]` or `#[pss(label = ...)]`").with_span(&flatten.span()))?;
     }
 
-    if !flatten.is_present() && kind.is_none() && name.is_none() {
+    if !flatten.is_present() && name.is_none() {
         return Ok(None);
     }
 
     let Some(name) = name else {
-        let mut errors = darling::Error::accumulator();
         if let Some(label) = label {
-            errors.push(
-                darling::Error::custom(
-                    "Attribute `#[pss(label = ...)]` cannot be used without `#[pss(name = ...)]`",
-                )
-                .with_span(&label.span()),
-            );
+            return Err(darling::Error::custom(
+                "Attribute `#[pss(label = ...)]` cannot be used without `#[pss(name = ...)]`",
+            )
+            .with_span(&label.span()));
         }
-        if let Some(kind) = kind {
-            errors.push(
-                darling::Error::custom(
-                    "Attribute `#[pss(kind = ...)]` cannot be used without `#[pss(name = ...)]`",
-                )
-                .with_span(&kind.span()),
-            );
-        }
-
-        errors.finish()?;
 
         let datapoints = quote! {
             <#ty as ::data_core::data::datapoint::DatapointHolder>::DATAPOINTS
@@ -488,20 +377,17 @@ fn get_datapoints(
         let datapoints_len = quote!(#datapoints.len());
         return Ok(Some((datapoints, datapoints_len)));
     };
-    let Some((kind, label)) = kind
-        .map(|kind| DataKindWithUnitAndType(kind, unit, ty))
-        .zip(label)
-    else {
+    let Some(label) = label else {
         return Err(darling::Error::custom(
-            "Attribute `#[pss(kind = ...)]` and `#[pss(label = ...)]` are required when `#[pss(name = ...)]` is set",
+            "Attribute `#[pss(label = ...)]` is required when `#[pss(name = ...)]` is set",
         )
-        .with_span(name))?;
+        .with_span(name));
     };
 
     let datapoints = quote! {
         &[
             ::data_core::data::datapoint::DatapointInformation {
-                kind: #kind,
+                kind: <#ty as ::data_core::data::datapoint::IntoDatapointValue>::KIND,
                 label: #label,
                 name: #name
             }

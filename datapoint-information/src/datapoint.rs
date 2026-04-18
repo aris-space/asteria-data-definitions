@@ -131,8 +131,13 @@ pub trait DatapointHolder {
     }
 }
 
-/// Trait to collect the default states of digital datapoint kinds.
-pub trait DigitalDatapointKind {
-    /// Boolean whether the datapoint kind is enabled by default.
-    const DEFAULT_ENABLED: bool;
+/// Trait to turn instances of datapoint types into [`DatapointValue`]s.
+/// At the same time, it's also used to get the [`DatapointKind`] to which the
+/// datapoint type maps.
+pub trait IntoDatapointValue {
+    /// The [`DatapointKind`] to which the current type maps.
+    const KIND: DatapointKind;
+
+    /// Convert an instance of the current type into a [`DatapointValue`].
+    fn into_value(self) -> DatapointValue;
 }

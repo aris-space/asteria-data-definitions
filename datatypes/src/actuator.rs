@@ -1,7 +1,5 @@
 //! Actuator control types and configurations.
 
-#[cfg(feature = "derive_datapoint_information")]
-use data_core::data::datapoint::DigitalDatapointKind;
 #[cfg(feature = "derive_mavlink")]
 use data_core::mavlink;
 use gated_derive::gated_derive;
@@ -75,10 +73,6 @@ impl Settable for NormallyOpenValve {
         Ok(())
     }
 }
-#[cfg(feature = "derive_datapoint_information")]
-impl DigitalDatapointKind for NormallyOpenValve {
-    const DEFAULT_ENABLED: bool = true;
-}
 
 /// The state of a valve that is normally closed.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -119,10 +113,6 @@ impl Settable for NormallyClosedValve {
         }?;
         Ok(())
     }
-}
-#[cfg(feature = "derive_datapoint_information")]
-impl DigitalDatapointKind for NormallyClosedValve {
-    const DEFAULT_ENABLED: bool = false;
 }
 
 // TODO: remove
