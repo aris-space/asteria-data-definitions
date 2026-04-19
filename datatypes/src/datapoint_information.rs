@@ -7,7 +7,7 @@ use datapoint_information::datapoint::{
 
 use crate::{
     actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
-    status::{SensorStatus, ValveState},
+    status::ValveState,
     units::{BarG, Celsius},
 };
 
@@ -71,18 +71,6 @@ impl IntoDatapointValue for ThrottleableValve {
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Fractional {
             percent: f32::from(self.openness_percent),
-        })
-    }
-}
-
-impl IntoDatapointValue for SensorStatus {
-    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
-        default_enabled: false,
-    });
-
-    fn into_value(self) -> DatapointValue {
-        DatapointValue::Sensor(SensorValue::Digital {
-            enabled: matches!(self, SensorStatus::Online),
         })
     }
 }
