@@ -83,6 +83,46 @@ pub enum Message {
     #[can(id = 0x322)]
     #[mavlink(id = 0x10_02_02)]
     ValveStates(FuelControlBoardValveStates),
+
+    /// # `PressurizationLinePressure`
+    /// Periodic telemetry message emitted by the Fuel Control Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the pressure of the Pressurization Line (COPV).
+    ///
+    /// ## Reaction
+    /// No action required.
+    #[can(id = 0x450)]
+    #[mavlink(id = 0x10_02_03)]
+    PressurizationLinePressure(PressurizationLinePressure),
+
+    /// # `FuelTankPressure`
+    /// Periodic telemetry message emitted by the Fuel Control Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports Fuel Tank Pressures.
+    /// These are mainly used as an input to the Control Loop running on the Fuel Control Board.
+    ///
+    /// ## Reaction
+    /// No action required.
+    #[can(id = 0x452)]
+    #[mavlink(id = 0x10_02_04)]
+    FuelTankPressure(FuelTankPressure),
+
     /// # `FuelPressurizationCompleted`
     /// Event message sent by the FuelControlBoard.
     ///
