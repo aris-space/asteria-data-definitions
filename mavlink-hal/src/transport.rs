@@ -13,38 +13,23 @@ use mavio::{
 
 #[derive(Debug, thiserror::Error)]
 pub enum SendError {
-    #[cfg_attr(feature = "std", error("Encoding of message failed: {0}"))]
-    #[cfg_attr(not(feature = "std"), error("Encoding of message failed: {0:?}"))]
-    Encode(mavio::Error),
+    #[error("Encoding of message failed: {0}")]
+    Encode(#[from] mavio::Error),
     #[error("Sending of frame to UDP failed: {0}")]
     Send(#[from] std::io::Error),
 }
 
-impl From<mavio::Error> for SendError {
-    fn from(value: mavio::Error) -> Self {
-        SendError::Encode(value)
-    }
-}
-
 #[derive(Debug, thiserror::Error)]
 pub enum RecvError {
-    #[cfg_attr(feature = "std", error("Decoding of message failed: {error}"))]
-    #[cfg_attr(not(feature = "std"), error("Decoding of message failed: {error:?}"))]
+    #[error("Decoding of message failed: {error}")]
     Decode {
         error: mavio::Error,
         sequence: Wrapping<u8>,
     },
-    #[cfg_attr(feature = "std", error("Decoding of frame failed: {0}"))]
-    #[cfg_attr(not(feature = "std"), error("Decoding of frame failed: {0:?}"))]
-    Framing(mavio::error::FrameError),
+    #[error("Decoding of frame failed: {0}")]
+    Framing(#[from] mavio::error::FrameError),
     #[error("Receive of frame from UDP failed: {0}")]
     Recv(#[from] std::io::Error),
-}
-
-impl From<mavio::error::FrameError> for RecvError {
-    fn from(value: mavio::error::FrameError) -> Self {
-        RecvError::Framing(value)
-    }
 }
 
 /// Sends a generic `msg` fully to the given `socket`, using the header value from `endpoint`.
