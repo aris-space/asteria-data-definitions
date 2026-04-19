@@ -94,3 +94,21 @@ impl IntoDatapointValue for Celsius {
         DatapointValue::Sensor(SensorValue::Analog { value: self.0 })
     }
 }
+
+impl From<crate::units::BarG> for DatapointValue {
+    fn from(value: crate::units::BarG) -> Self {
+        Self::Sensor(SensorValue::Analog { value: value.0 })
+    }
+}
+
+impl From<crate::units::Celsius> for DatapointValue {
+    fn from(value: crate::units::Celsius) -> Self {
+        Self::Sensor(SensorValue::Analog { value: value.0 })
+    }
+}
+
+impl From<crate::units::HPa> for DatapointValue {
+    fn from(value: crate::units::HPa) -> Self {
+        Self::Sensor(SensorValue::Analog { value: value.0 })
+    }
+}
