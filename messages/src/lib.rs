@@ -3,7 +3,7 @@
 //! It is also used to check IDs are unique and to generate the full mavlink dialect.
 //!
 //! Like other crates, various cargo features can enable certain components,
-//! currently `can` and `mavlink`.
+//! currently `can`, `pss` and `mavlink`.
 //!
 //! ## MavLink Messages
 //! The generated MavLink dialect is a MavLink V2 dialect. This means that the message id's
@@ -19,6 +19,8 @@ use gated_derive::gated_derive;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
+#[cfg(feature = "pss")]
+use data_core::pss;
 
 /// Reexport all datapoints to simplify imports
 pub mod datapoints {
@@ -36,18 +38,23 @@ pub mod datapoints {
 /// All messages in the full system
 #[gated_derive(can::Decode, can::Encode, mavlink::Dialect)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize, Debug)]
+#[gated_derive(pss::Data)]
 #[dialect(name = "ASTERIA", id = 900, version = 1)]
 #[can(dispatch)]
 #[serde(tag = "board", content = "message")]
 pub enum Message {
     FlightComputer(dp_flight_computer::Message),
+    #[pss(flatten)]
     RfsComputer(dp_rfs_computer::Message),
     SystemManagement(dp_system_management::Message),
     RecoveryBoard(dp_recovery_board::Message),
     PowerBoard(dp_power_board::Message),
     SensorCarrier(dp_sensor_carrier::Message),
+    #[pss(flatten)]
     FuelControlBoard(dp_fuel_control_board::Message),
+    #[pss(flatten)]
     OxidizerControlBoard(dp_oxidizer_control_board::Message),
+    #[pss(flatten)]
     EngineControlBoard(dp_engine_control_board::Message),
 }
 

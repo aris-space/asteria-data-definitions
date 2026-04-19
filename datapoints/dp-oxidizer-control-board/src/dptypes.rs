@@ -1,5 +1,7 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
+#[cfg(feature = "pss")]
+use data_core::pss;
 use datatypes::actuator::DPRValve;
 use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
 use gated_derive::gated_derive;
@@ -25,6 +27,7 @@ pub struct OxidizerControlBoardStatus {
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
+#[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct OxidizerControlBoardValveStates {

@@ -53,9 +53,11 @@ unit_newtypes! {
     Celsius(f32),
 
     /// A pressure in bar relative to atmospheric pressure (`barg`).
+    #[unit("barg")]
     BarG(f32),
 
     /// Atmospheric pressure in hPa.
+    #[unit("hPa")]
     HPa(f32),
 }
 

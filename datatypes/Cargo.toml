@@ -21,7 +21,7 @@ watchable = { version = "1.1.2", optional = true }
 [features]
 default = []
 std = ["bincode/std"]
-derive_datapoint_information = ["dep:datapoint-information"]
+derive_datapoint_information = ["dep:datapoint-information", "data-core/datapoint-information"]
 derive_serde = ["dep:serde", "dep:thiserror", "datapoint-information?/derive_serde"]
 derive_mavlink = ["data-core/mavlink"]
 derive_defmt = ["dep:defmt"]

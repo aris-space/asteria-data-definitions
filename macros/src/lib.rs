@@ -425,22 +425,20 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
 /// Derive macro for implementing [`pss::data::DatapointHolder`] for an enum or a struct.
 ///
 /// The macro supports the following attributes:
-/// - `#[pss(name = "...", label = "...", kind = "...")]`: The name specifies to which name this PSS datapoint field should be mapped, the
-///   label field specifies the display name of the datapoint and the kind field specifies which kind of PSS datapoint this field is
-///   (e.g. DPR actuator, digital sensor, ...).
+/// - `#[pss(name = "...", label = "...")]`: The name specifies to which name this PSS datapoint field should be mapped and the
+///   label field specifies the display name of the datapoint. Once a field, variant or newtype struct is annotated with this attribute,
+///   the corresponding type needs to implement [`::data_core::data::datapoint::IntoDatapointValue`].
 /// - `#[pss(flatten)]`: Optional flag which needs to be added to fields which should be flattened into the current container. This is needed
 ///   for the recursion.
-/// - `#[unit("...")]`: Optional unit of the datapoint field which is required by some `#[pss(kind = "...")]`. If it's required but missing
-///   an appropriate error will be thrown at compile time.
 ///
 /// **Note**: When using this macro on newtype structs, the attributes need to be set on the container-level
 ///           instead of the field-level
 ///
-/// **Note**: This macro only considers fields which have either the `#[pss(name = "...", kind = "...")]` or `#[pss(flatten)]` attribute
+/// **Note**: This macro only considers fields which have the `#[pss(name = "...")]` or `#[pss(flatten)]` attribute
 ///
 /// The macro also ensures that all datapoint ids are unique.
 ///
-/// **Important**: This macro only works for newtype and named structed as well as newtype and named enums
+/// **Important**: This macro only works for newtype and named structed as well as newtype, unit and named enums
 ///
 #[cfg(feature = "pss")]
 #[proc_macro_derive(PssData, attributes(unit, pss))]
