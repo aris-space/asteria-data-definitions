@@ -11,7 +11,6 @@ members = [
     "fuzz",
     "macro-gated-derive",
     "macros",
-    "mavlink",
     "mavlink-hal",
     "messages",
     "datapoint-information",
