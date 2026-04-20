@@ -2,8 +2,7 @@
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::DPRValve;
-use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::status::{SensorStatus, StatusCommonMessage};
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
@@ -11,6 +10,7 @@ use gated_derive::gated_derive;
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
+#[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FuelControlBoardStatus {
@@ -18,9 +18,19 @@ pub struct FuelControlBoardStatus {
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
     #[mavlink(refine)]
+    #[pss(
+        name = "fcb_tc_stat",
+        label = "Thermocouple Status",
+        kind = "digital_sensor"
+    )]
     pub thermocouple_status: SensorStatus,
     /// State of the Keller BUS used to read pressure, indicates whether a single sensor is online or not.
     #[mavlink(refine)]
+    #[pss(
+        name = "fcb_pt_bus_stat",
+        label = "Pressure Bus Status",
+        kind = "digital_sensor"
+    )]
     pub pressure_bus: SensorStatus,
 }
 
@@ -28,11 +38,18 @@ pub struct FuelControlBoardStatus {
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
+#[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct PressurizationLinePressure {
     /// Pressurization Line (COPV) pressure in barg.
     #[mavlink(refine)]
+    #[pss(
+        name = "prz_copv_p",
+        label = "Pressurization Pressure Sensor",
+        kind = "analog_sensor"
+    )]
+    #[unit("barg")]
     pub pressurization_pressure_sensor: BarG,
 }
 
@@ -40,16 +57,35 @@ pub struct PressurizationLinePressure {
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
+#[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FuelTankPressure {
     /// Fuel Tank pressure sensor 1 in barg.
     #[mavlink(refine)]
+    #[pss(
+        name = "fss_tnk_p1",
+        label = "Fuel Tank Pressure Sensor 1",
+        kind = "analog_sensor"
+    )]
+    #[unit("barg")]
     pub fuel_tank_pressure_sensor_1: BarG,
     /// Fuel Tank pressure sensor 2 in barg.
     #[mavlink(refine)]
+    #[pss(
+        name = "fss_tnk_p2",
+        label = "Fuel Tank Pressure Sensor 2",
+        kind = "analog_sensor"
+    )]
+    #[unit("barg")]
     pub fuel_tank_pressure_sensor_2: BarG,
     /// Filtered Fuel Tank pressure used as DPR control loop input in barg.
     #[mavlink(refine)]
+    #[pss(
+        name = "fss_tnk_p_flt",
+        label = "Fuel Tank Pressure Filtered",
+        kind = "analog_sensor"
+    )]
+    #[unit("barg")]
     pub fuel_tank_pressure_filtered: BarG,
 }

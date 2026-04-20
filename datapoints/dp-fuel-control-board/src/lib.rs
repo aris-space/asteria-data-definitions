@@ -19,7 +19,7 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 
 #[derive(Message)]
 #[gated_derive(can::Message, Debug)]
-#[gated_derive(mavlink::Message, pss::Data)]
+#[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
@@ -62,6 +62,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x320)]
     #[mavlink(id = 0x10_02_01)]
+    #[pss(flatten)]
     BoardStatus(FuelControlBoardStatus),
 
     /// # `FuelDprValveState`
@@ -81,7 +82,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
     #[mavlink(id = 0x10_02_02)]
-    #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr")]
+    #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr", kind = "digital_actuator")]
     FuelDprValveState(NormallyClosedValve),
 
     /// # `PressurizationVentValveState`
@@ -101,7 +102,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
     #[mavlink(id = 0x10_02_05)]
-    #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt")]
+    #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt", kind = "digital_actuator")]
     PressurizationVentValveState(NormallyOpenValve),
 
     /// # `FuelVentValveState`
@@ -121,7 +122,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
     #[mavlink(id = 0x10_02_06)]
-    #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt")]
+    #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt", kind = "digital_actuator")]
     FuelVentValveState(NormallyOpenValve),
 
     /// # `PressurizationLinePressure`
@@ -141,6 +142,7 @@ pub enum Message {
     /// No action required.
     #[can(id = 0x450)]
     #[mavlink(id = 0x10_02_03)]
+    #[pss(flatten)]
     PressurizationLinePressure(PressurizationLinePressure),
 
     /// # `FuelTankPressure`
@@ -161,5 +163,6 @@ pub enum Message {
     /// No action required.
     #[can(id = 0x452)]
     #[mavlink(id = 0x10_02_04)]
+    #[pss(flatten)]
     FuelTankPressure(FuelTankPressure),
 }
