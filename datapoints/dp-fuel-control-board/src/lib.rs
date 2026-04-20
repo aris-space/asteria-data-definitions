@@ -5,18 +5,10 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-<<<<<<< HEAD
-#[cfg(feature = "pss")]
-use data_core::pss;
-use datatypes::actuator::{DPRValve, PressurizationGain};
-use datatypes::status::{BuildInformationCommon, ValveState};
-use datatypes::units::BarG;
-=======
 #[cfg(feature = "derive_pss")]
 use data_core::pss;
 use datatypes::actuator::{NormallyClosedValve, NormallyOpenValve};
 use datatypes::status::BuildInformationCommon;
->>>>>>> 10c5d78 (Implemented Cyrills feedback and used the pss macro)
 use gated_derive::gated_derive;
 
 mod dptypes;

@@ -10,7 +10,6 @@ workspace = true
 datatypes = { version = "0.1.0", path = "../../datatypes" }
 data-core = { version = "0.1.0", path = "../../core" }
 gated-derive = { path = "../../macro-gated-derive" }
-data-macros = { path = "../../macros", features = ["pss"] }
 
 # for types:
 serde = { workspace = true, optional = true }
@@ -33,8 +32,4 @@ derive_utoipa = ["dep:utoipa", "datatypes/derive_utoipa", "std"]
 derive_can = []
 derive_mavlink = []
 derive_debug = []
-<<<<<<< HEAD
 derive_pss = []
-=======
-derive_pss = ["data-core/pss", "std"]
->>>>>>> 10c5d78 (Implemented Cyrills feedback and used the pss macro)
