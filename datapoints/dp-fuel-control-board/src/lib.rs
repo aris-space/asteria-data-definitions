@@ -82,7 +82,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
     #[mavlink(id = 0x10_02_02)]
-    #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr", kind = "digital_actuator")]
+    #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr")]
     FuelDprValveState(NormallyClosedValve),
 
     /// # `PressurizationVentValveState`
@@ -102,7 +102,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
     #[mavlink(id = 0x10_02_05)]
-    #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt", kind = "digital_actuator")]
+    #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt")]
     PressurizationVentValveState(NormallyOpenValve),
 
     /// # `FuelVentValveState`
@@ -122,7 +122,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
     #[mavlink(id = 0x10_02_06)]
-    #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt", kind = "digital_actuator")]
+    #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt")]
     FuelVentValveState(NormallyOpenValve),
 
     /// # `PressurizationLinePressure`
