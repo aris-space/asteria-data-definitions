@@ -14,7 +14,7 @@ use gated_derive::gated_derive;
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FuelControlBoardStatus {
-    #[mavlink(refine)]
+    #[mavlink(flatten)]
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
     #[mavlink(refine)]
