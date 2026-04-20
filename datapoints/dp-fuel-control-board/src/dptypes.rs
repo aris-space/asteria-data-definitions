@@ -1,13 +1,9 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-<<<<<<< HEAD
 #[cfg(feature = "pss")]
 use data_core::pss;
 use datatypes::actuator::DPRValve;
 use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
-=======
-use datatypes::status::{SensorStatus, StatusCommonMessage};
->>>>>>> 10c5d78 (Implemented Cyrills feedback and used the pss macro)
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
