@@ -5,9 +5,9 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-#[cfg(feature = "derive_pss")]
+#[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::{NormallyClosedValve, NormallyOpenValve};
+use datatypes::actuator::{DPRValve, NormallyOpenValve};
 use datatypes::status::BuildInformationCommon;
 use gated_derive::gated_derive;
 
@@ -83,7 +83,7 @@ pub enum Message {
     #[can(id = 0x322)]
     #[mavlink(id = 0x10_02_02)]
     #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr")]
-    FuelDprValveState(NormallyClosedValve),
+    FuelDprValveState(DPRValve),
 
     /// # `PressurizationVentValveState`
     /// Periodic status message emitted by the Fuel Control Board.
