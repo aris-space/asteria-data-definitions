@@ -10,7 +10,6 @@ use gated_derive::gated_derive;
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
-#[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FuelControlBoardStatus {
@@ -18,11 +17,9 @@ pub struct FuelControlBoardStatus {
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
     #[mavlink(refine)]
-    #[pss(name = "fcb_tc_stat", label = "Thermocouple Status")]
     pub thermocouple_status: SensorStatus,
     /// State of the Keller BUS used to read pressure, indicates whether a single sensor is online or not.
     #[mavlink(refine)]
-    #[pss(name = "fcb_pt_bus_stat", label = "Pressure Bus Status")]
     pub pressure_bus: SensorStatus,
 }
 
