@@ -33,20 +33,6 @@ pub struct FuelControlBoardStatus {
 #[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct PressurizationLinePressure {
-    /// Pressurization Line (COPV) pressure in barg.
-    #[mavlink(refine)]
-    #[pss(name = "prz_copv_p", label = "Pressurization Pressure Sensor")]
-    pub pressurization_pressure_sensor: BarG,
-}
-
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
-#[gated_derive(pss::Data)]
-#[derive(Clone, Debug, PartialEq, Default)]
-#[serde(rename_all = "camelCase")]
 pub struct FuelTankPressure {
     /// Fuel Tank pressure sensor 1 in barg.
     #[mavlink(refine)]

@@ -9,6 +9,7 @@ use data_core::mavlink;
 use data_core::pss;
 use datatypes::actuator::{DPRValve, NormallyOpenValve};
 use datatypes::status::BuildInformationCommon;
+use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -26,9 +27,6 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[schema(as = FueldControlBoardMessage)]
 pub enum Message {
     // ======================== TX ========================
-    /// # `FuelControlBoardBuildInfo`
-    /// Firmware build metadata emitted by the Fuel Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 0.2 Hz`
     ///
@@ -45,9 +43,6 @@ pub enum Message {
     #[mavlink(id = 0x10_02_00)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `FuelControlBoardStatus`
-    /// Periodic status message emitted by the Fuel Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 1 Hz`
     ///
@@ -62,12 +57,39 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x320)]
     #[mavlink(id = 0x10_02_01)]
-    #[pss(flatten)]
     BoardStatus(FuelControlBoardStatus),
 
-    /// # `FuelDprValveState`
-    /// Periodic status message emitted by the Fuel Control Board.
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
     ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the pressure of the Pressurization Line (COPV).
+    ///
+    #[can(id = 0x450)]
+    #[mavlink(id = 0x10_02_03)]
+    #[pss(name = "prz_copv_p", label = "Pressurization Pressure Sensor")]
+    PressurizationLinePressure(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports Fuel Tank Pressures.
+    /// These are mainly used as an input to the Control Loop running on the Fuel Control Board.
+    ///
+    #[can(id = 0x452)]
+    #[mavlink(id = 0x10_02_04)]
+    #[pss(flatten)]
+    FuelTankPressure(FuelTankPressure),
+
     /// ## Type
     /// - `Periodic @ 5 Hz`
     ///
@@ -85,9 +107,6 @@ pub enum Message {
     #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr")]
     FuelDprValveState(DPRValve),
 
-    /// # `PressurizationVentValveState`
-    /// Periodic status message emitted by the Fuel Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 5 Hz`
     ///
@@ -105,9 +124,6 @@ pub enum Message {
     #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt")]
     PressurizationVentValveState(NormallyOpenValve),
 
-    /// # `FuelVentValveState`
-    /// Periodic status message emitted by the Fuel Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 5 Hz`
     ///
@@ -124,45 +140,4 @@ pub enum Message {
     #[mavlink(id = 0x10_02_06)]
     #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt")]
     FuelVentValveState(NormallyOpenValve),
-
-    /// # `PressurizationLinePressure`
-    /// Periodic telemetry message emitted by the Fuel Control Board.
-    ///
-    /// ## Type
-    /// - `Periodic @ 20 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FuelControlBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Reports the pressure of the Pressurization Line (COPV).
-    ///
-    /// ## Reaction
-    /// No action required.
-    #[can(id = 0x450)]
-    #[mavlink(id = 0x10_02_03)]
-    #[pss(flatten)]
-    PressurizationLinePressure(PressurizationLinePressure),
-
-    /// # `FuelTankPressure`
-    /// Periodic telemetry message emitted by the Fuel Control Board.
-    ///
-    /// ## Type
-    /// - `Periodic @ 20 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FuelControlBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Reports Fuel Tank Pressures.
-    /// These are mainly used as an input to the Control Loop running on the Fuel Control Board.
-    ///
-    /// ## Reaction
-    /// No action required.
-    #[can(id = 0x452)]
-    #[mavlink(id = 0x10_02_04)]
-    #[pss(flatten)]
-    FuelTankPressure(FuelTankPressure),
 }
