@@ -119,7 +119,7 @@ pub enum Message {
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
-    #[can(id = 0x323)]
+    #[can(id = 0x326)]
     #[mavlink(id = 0x10_02_05)]
     #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt")]
     PressurizationVentValveState(NormallyOpenValve),
@@ -136,7 +136,7 @@ pub enum Message {
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
-    #[can(id = 0x324)]
+    #[can(id = 0x327)]
     #[mavlink(id = 0x10_02_06)]
     #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt")]
     FuelVentValveState(NormallyOpenValve),
