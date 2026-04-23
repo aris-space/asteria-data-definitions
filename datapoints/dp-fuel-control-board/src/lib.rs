@@ -70,7 +70,7 @@ pub enum Message {
     /// Reports the pressure of the Pressurization Line (COPV).
     ///
     #[can(id = 0x450)]
-    #[mavlink(id = 0x10_02_03)]
+    #[mavlink(id = 0x10_02_02)]
     #[pss(name = "prz_copv_p", label = "Pressurization Pressure Sensor")]
     PressurizationLinePressure(BarG),
 
@@ -86,7 +86,7 @@ pub enum Message {
     /// These are mainly used as an input to the Control Loop running on the Fuel Control Board.
     ///
     #[can(id = 0x452)]
-    #[mavlink(id = 0x10_02_04)]
+    #[mavlink(id = 0x10_02_03)]
     #[pss(flatten)]
     FuelTankPressure(FuelTankPressure),
 
@@ -103,7 +103,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
-    #[mavlink(id = 0x10_02_02)]
+    #[mavlink(id = 0x10_02_04)]
     #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr")]
     FuelDprValveState(DPRValve),
 
@@ -119,7 +119,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x326)]
-    #[mavlink(id = 0x10_02_03)]
+    #[mavlink(id = 0x10_02_05)]
     #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt")]
     PressurizationVentValveState(NormallyOpenValve),
 
@@ -136,7 +136,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x327)]
-    #[mavlink(id = 0x10_02_04)]
+    #[mavlink(id = 0x10_02_06)]
     #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt")]
     FuelVentValveState(NormallyOpenValve),
 
