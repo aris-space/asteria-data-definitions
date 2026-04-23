@@ -98,7 +98,7 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the Fuel DPR control loop state and setpoint.
+    /// Communicates the DPR Valve State including setpoint.
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
@@ -115,12 +115,11 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the state of the Pressurization Vent Valve.
-    ///
+    /// Communicates the Pressurization Valve State
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x326)]
-    #[mavlink(id = 0x10_02_05)]
+    #[mavlink(id = 0x10_02_03)]
     #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt")]
     PressurizationVentValveState(NormallyOpenValve),
 
@@ -132,12 +131,103 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the state of the Fuel Vent Valve.
+    /// Communicates the Fuel Vent Valve State
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x327)]
-    #[mavlink(id = 0x10_02_06)]
+    #[mavlink(id = 0x10_02_04)]
     #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt")]
     FuelVentValveState(NormallyOpenValve),
+
+    // ======================== RX ========================
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Set ETH Pressure Regulator configuration
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
+    #[can(id = 0x211)]
+    FuelDprValveControlFC(DPRValve),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the N2 Vent Valve to a certain state.
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
+    #[can(id = 0x212)]
+    PressurizationVentValveControlFC(NormallyOpenValve),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the Fuel Vent Valve to a certain state.
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
+    #[can(id = 0x213)]
+    FuelVentValveControlFC(NormallyOpenValve),
+
+    /// ## Type
+    /// - `Event`: sent by the RFS
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RemoteFillingStation`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Set ETH Pressure Regulator configuration
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
+    #[can(id = 0x21b)]
+    FuelDprValveControlRFS(DPRValve),
+
+    /// ## Type
+    /// - `Event`: sent by the RFS
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RemoteFillingStation`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the N2 Vent Valve to a certain state.
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
+    #[can(id = 0x21c)]
+    PressurizationVentValveControlRFS(NormallyOpenValve),
+
+    /// ## Type
+    /// - `Event`: sent by the RFS
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RemoteFillingStation`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the Fuel Vent Valve to a certain state.
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
+    #[can(id = 0x21d)]
+    FuelVentValveControlRFS(NormallyOpenValve),
 }
