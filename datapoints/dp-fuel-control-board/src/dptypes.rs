@@ -2,8 +2,8 @@
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::DPRValve;
-use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::status::{SensorStatus, StatusCommonMessage};
+use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -16,10 +16,10 @@ pub struct FuelControlBoardStatus {
     #[mavlink(flatten)]
     pub common: StatusCommonMessage,
     /// State of the ADS1120 device used to read thermocouples
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub thermocouple_status: SensorStatus,
     /// State of the Keller BUS used to read pressure, indicates whether a single sensor is online or not.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     pub pressure_bus: SensorStatus,
 }
 
@@ -30,14 +30,17 @@ pub struct FuelControlBoardStatus {
 #[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct FuelControlBoardValveStates {
-    /// Fuel DPR Control loop state
-    #[mavlink(flatten)]
-    pub fss_dpr: DPRValve,
-    /// Pressurization Valve state
-    #[mavlink(flatten)]
-    pub prz_vnt_vlv: ValveState,
-    /// Fuel Vent Valve state
-    #[mavlink(flatten)]
-    pub fss_vnt_vlv: ValveState,
+pub struct FuelTankPressure {
+    /// Fuel Tank pressure sensor 1 in barg.
+    #[mavlink(refine)]
+    #[pss(name = "fss_tnk_p1", label = "Fuel Tank Pressure Sensor 1")]
+    pub fuel_tank_pressure_sensor_1: BarG,
+    /// Fuel Tank pressure sensor 2 in barg.
+    #[mavlink(refine)]
+    #[pss(name = "fss_tnk_p2", label = "Fuel Tank Pressure Sensor 2")]
+    pub fuel_tank_pressure_sensor_2: BarG,
+    /// Filtered Fuel Tank pressure used as DPR control loop input in barg.
+    #[mavlink(refine)]
+    #[pss(name = "fss_tnk_p_flt", label = "Fuel Tank Pressure Filtered")]
+    pub fuel_tank_pressure_filtered: BarG,
 }
