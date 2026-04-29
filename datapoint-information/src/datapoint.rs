@@ -15,7 +15,7 @@ pub enum ActuatorKind {
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
+#[serde(rename_all = "snake_case", tag = "kind")]
 #[schema(as = SensorKind)]
 pub enum SensorKind {
     Analog { unit: &'static str },
