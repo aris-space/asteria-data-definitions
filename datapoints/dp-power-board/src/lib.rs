@@ -7,7 +7,6 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::CameraPowerStatus;
 use datatypes::status::{BuildInformationCommon, StatusCommonMessage};
 use datatypes::units::RailStatus;
 
@@ -100,42 +99,4 @@ pub enum Message {
     #[can(id = 0x501)]
     #[mavlink(id = 0x10_04_03)]
     RailStatus24V(RailStatus),
-
-    // ======================== RX ========================
-    /// # `CameraPowerControl`
-    /// Controls the camera power lines.
-    ///
-    /// ## Type
-    /// - `Event`: triggered to toggle camera power outputs
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `PowerBoard`
-    ///
-    /// ## Purpose
-    /// Allows remote enabling/disabling of camera recording and live feed.
-    ///
-    /// ## Reaction
-    /// The Power Board sets the respective output pins according to the fields.
-    #[can(id = 0x201)]
-    CameraPowerControl(CameraPowerStatus),
-
-    /// # `CameraPowerStatus`
-    /// Periodic camera power status message emitted by the Power Board.
-    ///
-    /// ## Type
-    /// - `Periodic @ 5 Hz`, and instantly when the status changes.
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `PowerBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Communicates what the power state of the cameras should be as set by the power board.
-    ///
-    /// ## Reaction
-    /// No action required.
-    #[can(id = 0x330)]
-    #[mavlink(id = 0x10_04_05)]
-    CameraPowerStatus(CameraPowerStatus),
 }
