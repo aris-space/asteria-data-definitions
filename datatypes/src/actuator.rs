@@ -137,28 +137,6 @@ impl Settable for NormallyClosedValve {
     }
 }
 
-impl TryFrom<f32> for NormallyOpenValve {
-    type Error = OutOfRange;
-    fn try_from(v: f32) -> Result<Self, Self::Error> {
-        match v {
-            0.0 => Ok(NormallyOpenValve::Closed),
-            1.0 => Ok(NormallyOpenValve::Open),
-            _ => Err(OutOfRange),
-        }
-    }
-}
-
-impl TryFrom<f32> for NormallyClosedValve {
-    type Error = OutOfRange;
-    fn try_from(v: f32) -> Result<Self, Self::Error> {
-        match v {
-            0.0 => Ok(NormallyClosedValve::Closed),
-            1.0 => Ok(NormallyClosedValve::Open),
-            _ => Err(OutOfRange),
-        }
-    }
-}
-
 // TODO: remove
 /// Pressurization Proportional Gain in [barg/ms]
 /// opening_time = kp * (target_pressure - current_pressure), in milliseconds
