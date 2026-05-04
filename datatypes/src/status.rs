@@ -4,7 +4,10 @@
 use data_core::mavlink;
 use gated_derive::gated_derive;
 
-use crate::units::InstantUs;
+use crate::{
+    actuator::{NormallyClosedValve, NormallyOpenValve},
+    units::InstantUs,
+};
 
 /// The ID of a board in the rocket.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]

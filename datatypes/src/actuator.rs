@@ -55,6 +55,17 @@ impl NormallyOpenValve {
         matches!(self, Self::Closed)
     }
 }
+
+impl From<NormallyOpenValve> for crate::status::ValveState {
+    fn from(v: NormallyOpenValve) -> Self {
+        match v {
+            // Or whatever is the correct but it seemed more logical
+            NormallyOpenValve::Open => crate::status::ValveState::Inactive,
+            NormallyOpenValve::Closed => crate::status::ValveState::Active,
+        }
+    }
+}
+
 impl Energizable for NormallyOpenValve {
     fn is_active(&self) -> bool {
         matches!(self, Self::Closed)
@@ -96,6 +107,17 @@ impl NormallyClosedValve {
         matches!(self, Self::Closed)
     }
 }
+
+impl From<NormallyClosedValve> for crate::status::ValveState {
+    fn from(v: NormallyClosedValve) -> Self {
+        match v {
+            // same as above applies here
+            NormallyClosedValve::Open => crate::status::ValveState::Active,
+            NormallyClosedValve::Closed => crate::status::ValveState::Inactive,
+        }
+    }
+}
+
 impl Energizable for NormallyClosedValve {
     fn is_active(&self) -> bool {
         matches!(self, Self::Open)
@@ -112,6 +134,28 @@ impl Settable for NormallyClosedValve {
             _ => Err(OutOfRange),
         }?;
         Ok(())
+    }
+}
+
+impl TryFrom<f32> for NormallyOpenValve {
+    type Error = OutOfRange;
+    fn try_from(v: f32) -> Result<Self, Self::Error> {
+        if v <= 0.5 {
+            Ok(NormallyOpenValve::Open)
+        } else {
+            Ok(NormallyOpenValve::Closed)
+        }
+    }
+}
+
+impl TryFrom<f32> for NormallyClosedValve {
+    type Error = OutOfRange;
+    fn try_from(v: f32) -> Result<Self, Self::Error> {
+        if v <= 0.5 {
+            Ok(NormallyClosedValve::Closed)
+        } else {
+            Ok(NormallyClosedValve::Open)
+        }
     }
 }
 
