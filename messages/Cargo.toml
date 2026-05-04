@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 dp-engine-control-board = { version = "0.3.0", path = "../datapoints/dp-engine-control-board" }
-dp-fuel-control-board = { version = "0.3.0", path = "../datapoints/dp-fuel-control-board" }
+dp-fuel-control-board = { version = "0.4.0", path = "../datapoints/dp-fuel-control-board" }
 dp-power-board = { version = "0.3.0", path = "../datapoints/dp-power-board" }
 dp-rfs-computer = { version = "0.3.0", path = "../datapoints/dp-rfs-computer" }
 dp-system-management = { version = "0.3.0", path = "../datapoints/dp-system-management" }
@@ -63,7 +63,7 @@ derive_serde = [
     "dp-oxidizer-control-board/derive_serde",
     "dp-recovery-board/derive_serde",
     "dp-sensor-carrier/derive_serde",
-    "dep:serde"
+    "dep:serde",
 ]
 # Derive defmt for all datapoint specific types
 derive_defmt = [
