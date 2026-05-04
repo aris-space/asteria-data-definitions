@@ -18,7 +18,7 @@ mod version;
 pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 
 #[derive(Message)]
-#[gated_derive(can::Message, Debug)]
+#[gated_derive(can::Message, Debug, defmt::Format)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[gated_derive(pss::Data)]

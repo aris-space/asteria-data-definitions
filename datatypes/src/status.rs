@@ -95,7 +95,7 @@ pub struct ConfigHash {
 }
 
 /// Shared state machine state used by the FC and RFSC.
-#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -109,7 +109,7 @@ pub struct StateMachineState {
 }
 
 /// Shared manual state transition used by the FC and RFSC.
-#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -122,7 +122,7 @@ pub struct ManualStateTransition {
 }
 
 /// Shared manual actuator change used by the FC and RFSC.
-#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -140,7 +140,7 @@ pub struct ManualActuatorChange {
 }
 
 /// Telemetry health statistics for an uplink.
-#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
@@ -162,7 +162,7 @@ pub struct UplinkTelemetryHealth {
 }
 
 /// Telemetry statistics for a downlink.
-#[gated_derive(serde::Serialize, serde::Deserialize)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Clone, Debug, PartialEq, Default)]
