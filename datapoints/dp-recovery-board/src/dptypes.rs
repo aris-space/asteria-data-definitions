@@ -51,10 +51,10 @@ pub enum WatchdogState {
 #[serde(rename_all = "camelCase")]
 pub struct SteeringPositions {
     /// Current position of the left steering motor in steps (4096 steps = 1 revolution) from the
-    /// startup position (0).
+    /// startup position (0). Positive values mean pulling.
     pub left_pos: i32,
     /// Current position of the right steering motor in steps (4096 steps = 1 revolution) from the
-    /// startup position (0).
+    /// startup position (0). Positive values mean pulling.
     pub right_pos: i32,
 }
 

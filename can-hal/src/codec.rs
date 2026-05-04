@@ -16,12 +16,13 @@ pub const BINCODE_CONFIG: bincode::config::Configuration<
 /// Error type for CAN operations.
 #[allow(unused)]
 #[derive(Debug, thiserror::Error)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error {
     #[error("Encoding CAN message failed: {0}")]
-    Encode(bincode::error::EncodeError),
+    Encode(#[cfg_attr(feature = "defmt", defmt(Display2Format))] bincode::error::EncodeError),
 
     #[error("Decoding CAN message failed: {0}")]
-    Decode(bincode::error::DecodeError),
+    Decode(#[cfg_attr(feature = "defmt", defmt(Display2Format))] bincode::error::DecodeError),
 
     #[error("Invalid frame or Id sent/received")]
     Other,
