@@ -7,7 +7,8 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{BuildInformationCommon, ValveState};
+use datatypes::actuator::NormallyClosedValve;
+use datatypes::status::BuildInformationCommon;
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -63,9 +64,6 @@ pub enum Message {
     #[mavlink(id = 0x10_08_01)]
     BoardStatus(EngineControlBoardStatus),
 
-    /// # `EngineControlBoardValveStates`
-    /// Periodic status message emitted by the Engine Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 5 Hz`
     ///
@@ -74,13 +72,31 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the Valve State of all Valves controlled by the Engine Control Board.
-    /// This includes the Oxidizer Main and Fuel Main Valve.
+    /// Communicates the Fuel Main Valve State.
+    ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
     #[mavlink(id = 0x10_08_02)]
-    ValveStates(EngineControlBoardValveStates),
+    #[pss(label = "Fuel Main Valve", name = "fss_ml_vlv")]
+    FuelMainValveState(NormallyClosedValve),
+
+    /// ## Type
+    /// - `Periodic @ 5 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `EngineControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Communicates the Oxidizer Main Valve State.
+    ///
+    /// ## Reaction
+    /// Receivers may log the data or use it for diagnostics and system health checks.
+    #[can(id = 0x329)]
+    #[mavlink(id = 0x10_08_05)]
+    #[pss(label = "Oxidizer Main Valve", name = "oss_ml_vlv")]
+    OxidizerMainValveState(NormallyClosedValve),
 
     /// # `EnginePressure`
     /// Periodic telemetry message emitted by the Engine Control Board.
@@ -104,6 +120,7 @@ pub enum Message {
     /// The value will be `NaN` if reading the sensor fails.
     #[can(id = 0x460)]
     #[mavlink(id = 0x10_08_03)]
+    #[pss(flatten)]
     EnginePressure(EnginePressure),
 
     /// # `EngineBayTemperature`
@@ -130,6 +147,7 @@ pub enum Message {
     /// the value will be set to `NaN`.
     #[can(id = 0x461)]
     #[mavlink(id = 0x10_08_04)]
+    #[pss(flatten)]
     EngineBayTemperature(EngineBayTemperature),
 
     /// # `FiringAborted`
@@ -262,87 +280,63 @@ pub enum Message {
     // ======================== RX (cont.) ========================
     // The following 2 sets of messages have the same meaning, but are separate messages
     // sent from different systems such they can never collide.
-    /// # `OxidizerMainControlFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
-    /// - `Event`: sent by the FC to control the Oxidizer Main Valve
+    /// - `Event`: sent by the FC
     ///
     /// ## Direction
     /// - **Emitted by:** `FlightComputer`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Oxidizer Main valve to be active or inactive.
+    /// Sets the Oxidizer Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Oxidizer Main Valve position accordingly
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x225)]
-    OxidizerMainControlFC(ValveState),
+    OxidizerMainValveControlFC(NormallyClosedValve),
 
-    /// # `OxidizerMainControlRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
-    /// - `Event`: sent by the RFS to control the Oxidizer Main Valve
+    /// - `Event`: sent by the RFS
     ///
     /// ## Direction
     /// - **Emitted by:** `RemoteFillingStation`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Oxidizer Main valve to be active or inactive.
+    /// Sets the Oxidizer Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Oxidizer Main Valve position accordingly
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x227)]
-    OxidizerMainControlRFS(ValveState),
+    OxidizerMainValveControlRFS(NormallyClosedValve),
 
-    /// # `FuelMainControlFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
-    /// - `Event`: sent by the FC to control the Fuel Main Valve
+    /// - `Event`: sent by the FC
     ///
     /// ## Direction
     /// - **Emitted by:** `FlightComputer`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Fuel Main valve to be active or inactive.
+    /// Sets the Fuel Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x226)]
-    FuelMainControlFC(ValveState),
+    FuelMainValveControlFC(NormallyClosedValve),
 
-    /// # `FuelMainControlRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
-    /// - `Event`: sent by the RFS to control the Fuel Main Valve
+    /// - `Event`: sent by the RFS
     ///
     /// ## Direction
     /// - **Emitted by:** `RemoteFillingStation`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Fuel Main valve to be active or inactive.
+    /// Sets the Fuel Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x228)]
-    FuelMainControlRFS(ValveState),
+    FuelMainValveControlRFS(NormallyClosedValve),
 }
