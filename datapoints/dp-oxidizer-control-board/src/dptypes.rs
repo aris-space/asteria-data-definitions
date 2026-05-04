@@ -2,8 +2,8 @@
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::DPRValve;
-use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::status::{SensorStatus, StatusCommonMessage};
+use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -30,11 +30,17 @@ pub struct OxidizerControlBoardStatus {
 #[gated_derive(pss::Data)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct OxidizerControlBoardValveStates {
-    /// Oxidizer DPR Control loop state
+pub struct OxidizerTankPressure {
+    /// Oxidizer Tank pressure sensor 1 in barg.
     #[mavlink(refine)]
-    pub oss_dpr: DPRValve,
-    /// Oxidizer Vent Valve state
+    #[pss(name = "oss_tnk_p1", label = "Oxidizer Tank Pressure Sensor 1")]
+    pub oxidizer_tank_pressure_sensor_1: BarG,
+    /// Oxidizer Tank pressure sensor 2 in barg.
     #[mavlink(refine)]
-    pub oss_vnt_vlv: ValveState,
+    #[pss(name = "oss_tnk_p2", label = "Oxidizer Tank Pressure Sensor 2")]
+    pub oxidizer_tank_pressure_sensor_2: BarG,
+    /// Oxidizer Tank differential pressure in barg.
+    #[mavlink(refine)]
+    #[pss(name = "oss_tnk_dps", label = "Oxidizer Differential Pressure Sensor")]
+    pub oxidizer_tank_differential_pressure: BarG,
 }

@@ -7,8 +7,8 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::{DPRValve, PressurizationGain};
-use datatypes::status::{BuildInformationCommon, ValveState};
+use datatypes::actuator::{DPRValve, NormallyOpenValve};
+use datatypes::status::BuildInformationCommon;
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
@@ -27,9 +27,6 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[schema(as = OxidizerControlBoardMessage)]
 pub enum Message {
     // ======================== TX ========================
-    /// # `OxidizerControlBoardBuildInfo`
-    /// Firmware build metadata emitted by the Oxidizer Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 0.2 Hz`
     ///
@@ -46,9 +43,6 @@ pub enum Message {
     #[mavlink(id = 0x10_03_00)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `OxidizerControlBoardStatus`
-    /// Periodic status message emitted by the Oxidizer Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 1 Hz`
     ///
@@ -57,7 +51,7 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the runtime health of the Oxidizer Control Board, including sensor.
+    /// Communicates the runtime health of the Oxidizer Control Board, including sensor status.
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
@@ -65,9 +59,22 @@ pub enum Message {
     #[mavlink(id = 0x10_03_01)]
     BoardStatus(OxidizerControlBoardStatus),
 
-    /// # `OxidizerControlBoardValveStates`
-    /// Periodic status message emitted by the Oxidizer Control Board.
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
     ///
+    /// ## Direction
+    /// - **Emitted by:** `OxidizerControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports Oxidizer Tank Pressures and Differential Pressure.
+    /// These are mainly used as an input to the Control Loop running on the Oxidizer Control Board.
+    ///
+    #[can(id = 0x454)]
+    #[mavlink(id = 0x10_03_02)]
+    #[pss(flatten)]
+    OxidizerTankPressure(OxidizerTankPressure),
+
     /// ## Type
     /// - `Periodic @ 5 Hz`
     ///
@@ -76,92 +83,33 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the Valve State of all Valves controlled by the Oxidizer Control Board, including the DPR control loop state and setpoint.
+    /// Communicates the DPR Valve State including setpoint.
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x323)]
-    #[mavlink(id = 0x10_03_02)]
-    ValveStates(OxidizerControlBoardValveStates),
-    /// # `OxidizerPressurizationCompleted`
-    /// Event message sent by the OxidizerControlBoard
-    ///
+    #[mavlink(id = 0x10_03_03)]
+    #[pss(label = "Oxidizer DPR Valve", name = "prz_oss_dpr")]
+    OxidizerDprValveState(DPRValve),
+
     /// ## Type
-    /// - `Event`: sent by the OCB to signal completed pressurization on the OxidizerControlBoard
+    /// - `Periodic @ 5 Hz`
     ///
     /// ## Direction
     /// - **Emitted by:** `OxidizerControlBoard`
-    /// - **Received by:** `FlightComputer`
+    /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Signal completion of Oxidizer Tank pressurization
+    /// Communicates the Oxidizer Vent Valve State.
     ///
     /// ## Reaction
-    ///
-    #[can(id = 0x12a)]
-    OxidizerPressurizationCompleted,
+    /// Receivers may log the data or use it for diagnostics and system health checks.
+    #[can(id = 0x328)]
+    #[mavlink(id = 0x10_03_04)]
+    #[pss(label = "Oxidizer Vent Valve", name = "oss_tnk_vnt")]
+    OxidizerVentValveState(NormallyOpenValve),
 
     // ======================== RX ========================
-    /// # `OxidizerPressurization`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to initiate pressurization on the OxidizerControlBoard
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `OxidizerControlBoard`
-    ///
-    /// ## Purpose
-    /// Pressurize the Oxidizer Tank to a desired setpoint
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x124)]
-    OxidizerPressurization(BarG),
-
-    /// # `OxidizerPressurizationGain`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to configure the pressurization gain on the OxidizerControlBoard
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `OxidizerControlBoard`
-    ///
-    /// ## Purpose
-    /// Configure the Oxidizer Pressurization Gain
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x126)]
-    OxidizerPressurizationGain(PressurizationGain),
-
-    /// # `OxidizerPressurizationAbort`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to abort pressurization on the OxidizerControlBoard
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `OxidizerControlBoard`
-    ///
-    /// ## Purpose
-    /// Abort Oxidizer Tank pressurization
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x128)]
-    OxidizerPressurizationAbort,
-
-    // ======================== RX (cont.) ========================
-    // The following 3 sets of messages have the same meaning, but are separate messages
-    // sent from different systems such they can never collide.
-    /// # `OxidizerDprConfigFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
     /// - `Event`: sent by the FC
     ///
@@ -171,16 +119,12 @@ pub enum Message {
     ///
     /// ## Purpose
     /// Set OXD Pressure Regulator configuration
-    /// Configures whether the control loop should be active, and what reference point (setpoint) it should assume.
     ///
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x210)]
-    OxidizerDprConfigFC(DPRValve),
+    OxidizerDprValveControlFC(DPRValve),
 
-    /// # `OxidizerVentControlFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
     /// - `Event`: sent by the FC
     ///
@@ -194,48 +138,8 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x214)]
-    OxidizerVentControlFC(ValveState),
+    OxidizerVentValveControlFC(NormallyOpenValve),
 
-    /// # `OxidizerDprConfigECU`
-    /// Event message sent by the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `OxidizerControlBoard`
-    ///
-    /// ## Purpose
-    /// Set OXD Pressure Regulator configuration
-    /// Configures whether the control loop should be active, and what reference point (setpoint) it should assume.
-    ///
-    /// ## Reaction
-    /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
-    #[can(id = 0x215)]
-    OxidizerDprConfigECU(DPRValve),
-
-    /// # `OxidizerVentControlECU`
-    /// Event message sent by the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `OxidizerControlBoard`
-    ///
-    /// ## Purpose
-    /// Sets the Oxidizer Vent Valve to a certain state.
-    ///
-    /// ## Reaction
-    /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
-    #[can(id = 0x219)]
-    OxidizerVentControlECU(ValveState),
-
-    /// # `OxidizerDprConfigRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
     /// - `Event`: sent by the RFS
     ///
@@ -249,11 +153,8 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the OXD DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x21a)]
-    OxidizerDprConfigRFS(DPRValve),
+    OxidizerDprValveControlRFS(DPRValve),
 
-    /// # `OxidizerVentControlRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
     /// - `Event`: sent by the RFS
     ///
@@ -267,5 +168,5 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x21e)]
-    OxidizerVentControlRFS(ValveState),
+    OxidizerVentValveControlRFS(NormallyOpenValve),
 }
