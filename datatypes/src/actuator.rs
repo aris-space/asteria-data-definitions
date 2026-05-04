@@ -140,10 +140,10 @@ impl Settable for NormallyClosedValve {
 impl TryFrom<f32> for NormallyOpenValve {
     type Error = OutOfRange;
     fn try_from(v: f32) -> Result<Self, Self::Error> {
-        if v <= 0.5 {
-            Ok(NormallyOpenValve::Open)
-        } else {
-            Ok(NormallyOpenValve::Closed)
+        match v {
+            0.0 => Ok(NormallyOpenValve::Closed),
+            1.0 => Ok(NormallyOpenValve::Open),
+            _ => Err(OutOfRange),
         }
     }
 }
@@ -151,10 +151,10 @@ impl TryFrom<f32> for NormallyOpenValve {
 impl TryFrom<f32> for NormallyClosedValve {
     type Error = OutOfRange;
     fn try_from(v: f32) -> Result<Self, Self::Error> {
-        if v <= 0.5 {
-            Ok(NormallyClosedValve::Closed)
-        } else {
-            Ok(NormallyClosedValve::Open)
+        match v {
+            0.0 => Ok(NormallyClosedValve::Closed),
+            1.0 => Ok(NormallyClosedValve::Open),
+            _ => Err(OutOfRange),
         }
     }
 }
