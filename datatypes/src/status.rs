@@ -216,7 +216,7 @@ pub enum ValveState {
     Inactive = 1,
 }
 
-/// Enum representing the state of a dpr loop.
+/// Enum representing the active power source.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
@@ -224,39 +224,20 @@ pub enum ValveState {
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-pub enum DprLoopInfo {
-    /// The DPR Loop is Active under Nominal Operations
-    ActiveNominal = 0,
-    /// The DPR Loop is Active but disabled due to Overpressurization
-    ActiveOverPressure = 1,
-    /// The DPR Loop is Passive, the corresponding valve is in a constant `Disabled` state
+pub enum ActivePowerSource {
+    /// Battery power is currently active.
+    Battery = 0,
+    /// External power is currently active.
+    External = 1,
+    /// No valid power source is currently active.
     #[default]
-    Passive = 2,
-}
-/// Struct representing the gains of the dpr controller
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
-#[derive(Copy, Clone, Debug, PartialEq, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct DprGainInfo {
-    /// The DPR proportional gain
-    pub p: f32,
-    /// The DPR integral gain
-    pub i: f32,
-    /// The DPR derivative gain
-    pub d: f32,
-    /// The DPR min opening time in ms
-    pub min_ms: f32,
-    /// The DPR max opening time in ms
-    pub max_ms: f32,
+    None = 2,
 }
 
 #[cfg(feature = "derive_bincode")]
 /// We implement these traits manually, otherwise bincode uses a u32 for the enum ¯\_(ツ)_/¯
 mod encoding_impls {
-    use crate::status::{BoardId, DprLoopInfo, SensorStatus, ValveState};
+    use crate::status::{ActivePowerSource, BoardId, SensorStatus, ValveState};
 
     impl ::bincode::Encode for BoardId {
         fn encode<__E: ::bincode::enc::Encoder>(
@@ -421,64 +402,61 @@ mod encoding_impls {
             }
         }
     }
-    impl ::bincode::Encode for DprLoopInfo {
+
+    impl ::bincode::Encode for ActivePowerSource {
         fn encode<__E: ::bincode::enc::Encoder>(
             &self,
             encoder: &mut __E,
         ) -> core::result::Result<(), ::bincode::error::EncodeError> {
             match self {
-                Self::ActiveNominal => {
+                Self::Battery => {
                     <u8 as ::bincode::Encode>::encode(&(0u8), encoder)?;
                     core::result::Result::Ok(())
                 }
-                Self::ActiveOverPressure => {
+                Self::External => {
                     <u8 as ::bincode::Encode>::encode(&(1u8), encoder)?;
                     core::result::Result::Ok(())
                 }
-                Self::Passive => {
+                Self::None => {
                     <u8 as ::bincode::Encode>::encode(&(2u8), encoder)?;
                     core::result::Result::Ok(())
                 }
             }
         }
     }
-    impl<__Context> ::bincode::Decode<__Context> for DprLoopInfo {
+    impl<__Context> ::bincode::Decode<__Context> for ActivePowerSource {
         fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
             decoder: &mut __D,
         ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
             let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
             match variant_index {
-                0u8 => core::result::Result::Ok(Self::ActiveNominal {}),
-                1u8 => core::result::Result::Ok(Self::ActiveOverPressure {}),
-                2u8 => core::result::Result::Ok(Self::Passive {}),
+                0u8 => core::result::Result::Ok(Self::Battery {}),
+                1u8 => core::result::Result::Ok(Self::External {}),
+                2u8 => core::result::Result::Ok(Self::None {}),
                 variant => {
                     core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
                         found: u32::from(variant),
-                        type_name: "DprLoopInfo",
-                        allowed: &::bincode::error::AllowedEnumVariants::Allowed(&[
-                            0u32, 1u32, 2u32,
-                        ]),
+                        type_name: "ActivePowerSource",
+                        allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 2 },
                     })
                 }
             }
         }
     }
-    impl<'__de, __Context> ::bincode::BorrowDecode<'__de, __Context> for DprLoopInfo {
+    impl<'__de, __Context> ::bincode::BorrowDecode<'__de, __Context> for ActivePowerSource {
         fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de, Context = __Context>>(
             decoder: &mut __D,
         ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
             let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
             match variant_index {
-                0u8 => core::result::Result::Ok(Self::ActiveNominal {}),
-                1u8 => core::result::Result::Ok(Self::ActiveOverPressure {}),
-                2u8 => core::result::Result::Ok(Self::Passive {}),
+                0u8 => core::result::Result::Ok(Self::Battery {}),
+                1u8 => core::result::Result::Ok(Self::External {}),
+                2u8 => core::result::Result::Ok(Self::None {}),
                 variant => {
                     core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
                         found: u32::from(variant),
-                        type_name: "DprLoopInfo",
-                        allowed: &::bincode::error::AllowedEnumVariants::Allowed(&[
-                            0u32, 1u32, 2u32,
-                        ]),
+                        type_name: "ActivePowerSource",
+                        allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 2 },
                     })
                 }
             }
