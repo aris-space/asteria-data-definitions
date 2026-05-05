@@ -7,7 +7,7 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::{DPRValve, PressurizationGain};
+use datatypes::actuator::{DPRValve, NormallyClosedValve, PressurizationGain};
 use datatypes::status::{BuildInformationCommon, ValveState};
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
@@ -194,7 +194,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x214)]
-    OxidizerVentControlFC(ValveState),
+    OxidizerVentControlFC(NormallyClosedValve),
 
     /// # `OxidizerDprConfigECU`
     /// Event message sent by the ECU.

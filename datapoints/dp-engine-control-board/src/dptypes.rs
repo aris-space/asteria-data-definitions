@@ -1,6 +1,7 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{ArmingState, SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::actuator::NormallyClosedValve;
+use datatypes::status::{ArmingState, SensorStatus, StatusCommonMessage};
 use datatypes::units::{BarG, Celsius};
 use gated_derive::gated_derive;
 
@@ -32,10 +33,10 @@ pub struct EngineControlBoardStatus {
 pub struct EngineControlBoardValveStates {
     /// Fuel Main Valve state
     #[mavlink(flatten)]
-    pub fss_mnl_vlv: ValveState,
+    pub fss_mnl_vlv: NormallyClosedValve,
     /// Oxidizer Main Valve state
     #[mavlink(flatten)]
-    pub oss_mnl_vlv: ValveState,
+    pub oss_mnl_vlv: NormallyClosedValve,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]

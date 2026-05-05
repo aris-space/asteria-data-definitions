@@ -2,8 +2,8 @@
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::DPRValve;
-use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::actuator::{DPRValve, NormallyClosedValve};
+use datatypes::status::{SensorStatus, StatusCommonMessage};
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -36,5 +36,5 @@ pub struct OxidizerControlBoardValveStates {
     pub oss_dpr: DPRValve,
     /// Oxidizer Vent Valve state
     #[mavlink(refine)]
-    pub oss_vnt_vlv: ValveState,
+    pub oss_vnt_vlv: NormallyClosedValve,
 }

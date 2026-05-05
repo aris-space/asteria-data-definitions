@@ -7,7 +7,7 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{BuildInformationCommon, ValveState};
+use datatypes::{actuator::NormallyClosedValve, status::{BuildInformationCommon, ValveState}};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -281,7 +281,7 @@ pub enum Message {
     /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
     /// The Valve is Normally Closed
     #[can(id = 0x225)]
-    OxidizerMainControlFC(ValveState),
+    OxidizerMainControlFC(NormallyClosedValve),
 
     /// # `OxidizerMainControlRFS`
     /// Event message sent by the RFS.
@@ -323,7 +323,7 @@ pub enum Message {
     /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
     /// The Valve is Normally Closed
     #[can(id = 0x226)]
-    FuelMainControlFC(ValveState),
+    FuelMainControlFC(NormallyClosedValve),
 
     /// # `FuelMainControlRFS`
     /// Event message sent by the RFS.
