@@ -7,10 +7,13 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{ActivePowerSource, BuildInformationCommon, StatusCommonMessage};
+use datatypes::status::{BuildInformationCommon, StatusCommonMessage};
 use datatypes::units::RailStatus;
 
 use gated_derive::gated_derive;
+
+mod dptypes;
+pub use dptypes::*;
 
 mod version;
 pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
