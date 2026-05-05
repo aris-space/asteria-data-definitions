@@ -7,7 +7,7 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{BuildInformationCommon, StatusCommonMessage};
+use datatypes::status::{ActivePowerSource, BuildInformationCommon, StatusCommonMessage};
 use datatypes::units::RailStatus;
 
 use gated_derive::gated_derive;
@@ -24,9 +24,6 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[schema(as = PowerBoardMessage)]
 pub enum Message {
     // ======================== TX ========================
-    /// # `PowerBoardBuildInfo`
-    /// Firmware build metadata emitted by the Power Board.
-    ///
     /// ## Type
     /// - `Periodic @ 0.2 Hz`
     ///
@@ -43,9 +40,6 @@ pub enum Message {
     #[mavlink(id = 0x10_04_00)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `PowerBoardStatus`
-    /// Periodic status message emitted by the Power Board.
-    ///
     /// ## Type
     /// - `Periodic @ 1 Hz`
     ///
@@ -62,9 +56,6 @@ pub enum Message {
     #[mavlink(id = 0x10_04_01)]
     BoardStatus(StatusCommonMessage),
 
-    /// # `RailStatus5V`
-    /// Periodic telemetry message reporting the 5V rail parameters.
-    ///
     /// ## Type
     /// - Periodic @ 10Hz
     ///
@@ -81,9 +72,6 @@ pub enum Message {
     #[mavlink(id = 0x10_04_02)]
     RailStatus5V(RailStatus),
 
-    /// # `RailStatus24V`
-    /// Periodic telemetry message reporting the 24V rail parameters.
-    ///
     /// ## Type
     /// - Periodic @ 10Hz
     ///
@@ -99,4 +87,20 @@ pub enum Message {
     #[can(id = 0x501)]
     #[mavlink(id = 0x10_04_03)]
     RailStatus24V(RailStatus),
+
+    /// ## Type
+    /// - Periodic @ 1 Hz
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `PowerBoard`
+    /// - **Received by:** unspecified
+    ///
+    /// ## Purpose
+    /// Reports which power source is currently active.
+    ///
+    /// ## Reaction
+    /// Receivers may log, display, or track this value. They may trigger warnings if the power source is not valid.
+    #[can(id = 0x300)]
+    #[mavlink(id = 0x10_04_04)]
+    ActivePowerSource(ActivePowerSource),
 }
