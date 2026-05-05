@@ -52,7 +52,7 @@ pub struct Message {
     ///
     /// # Usage
     /// ```rust,ignore
-    /// #[derive(Message)]
+    /// #[derive(Message, Clone)]
     /// #[message(struct_derives = [Debug])]
     /// #[message(struct_derives = [Clone])]
     /// enum Message { ... }
