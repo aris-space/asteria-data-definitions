@@ -39,6 +39,7 @@ pub mod datapoints {
 #[gated_derive(can::Decode, can::Encode, mavlink::Dialect)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize, Debug)]
 #[gated_derive(pss::Data)]
+#[derive(Clone)]
 #[dialect(name = "ASTERIA", id = 900, version = 1)]
 #[can(dispatch)]
 #[serde(tag = "board", content = "message")]

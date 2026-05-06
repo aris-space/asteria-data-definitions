@@ -70,7 +70,7 @@ mod util;
 ///
 /// # Usage
 /// ```rust,ignore
-/// #[derive(Message)]
+/// #[derive(Message, Clone)]
 /// // implement `Debug` for the struct which will be generated
 /// // for `Variant3`
 /// #[message(struct_derives = [Debug])]
