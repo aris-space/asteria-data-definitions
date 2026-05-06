@@ -9,7 +9,6 @@ use data_core::mavlink;
 use data_core::pss;
 use datatypes::actuator::NormallyClosedValve;
 use datatypes::status::BuildInformationCommon;
-use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -99,6 +98,9 @@ pub enum Message {
     #[pss(label = "Oxidizer Main Valve", name = "oss_ml_vlv")]
     OxidizerMainValveState(NormallyClosedValve),
 
+    /// # `EnginePressure`
+    /// Periodic telemetry message emitted by the Engine Control Board.
+    ///
     /// ## Type
     /// - `Periodic @ 20 Hz`
     ///
@@ -107,48 +109,19 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Reports the Chamber Pressure Sensor reading.
+    /// Reports various Pressures from the Engine.
+    /// This includes the Combustion Chamber Pressure, Injector Fuel Pressure and Injector Oxidizer Pressure.
     ///
     /// ## Reaction
+    /// No action required.
     ///
+    /// ## Data Origin
+    /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
+    /// The value will be `NaN` if reading the sensor fails.
     #[can(id = 0x460)]
     #[mavlink(id = 0x10_08_03)]
-    #[pss(label = "Chamber Pressure Sensor", name = "eng_cc_p")]
-    ChamberPressureSensor(BarG),
-
-    /// ## Type
-    /// - `Periodic @ 20 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Reports the Injector Fuel Pressure Sensor reading.
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x462)]
-    #[mavlink(id = 0x10_08_06)]
-    #[pss(label = "Injector Fuel Pressure Sensor", name = "eng_inj_p")]
-    InjectorFuelPressureSensor(BarG),
-
-    /// ## Type
-    /// - `Periodic @ 20 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Reports the Injector Oxidizer Pressure Sensor reading.
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x463)]
-    #[mavlink(id = 0x10_08_07)]
-    #[pss(label = "Injector Oxidizer Pressure Sensor", name = "oss_inj_p")]
-    InjectorOxidizerPressureSensor(BarG),
+    #[pss(flatten)]
+    EnginePressure(EnginePressure),
 
     /// # `EngineBayTemperature`
     /// Periodic telemetry message emitted by the Engine Control Board.
