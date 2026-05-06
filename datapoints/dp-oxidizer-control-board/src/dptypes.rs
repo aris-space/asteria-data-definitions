@@ -39,7 +39,7 @@ pub struct OxidizerTankPressure {
     #[mavlink(refine)]
     #[pss(name = "oss_tnk_p2", label = "Oxidizer Tank Pressure Sensor 2")]
     pub oxidizer_tank_pressure_sensor_2: BarG,
-    /// Oxidizer Tank differential pressure in barg.
+    /// Absolute valued Oxidizer Tank differential pressure in barg.
     #[mavlink(refine)]
     #[pss(name = "oss_tnk_dps", label = "Oxidizer Differential Pressure Sensor")]
     pub oxidizer_tank_differential_pressure: BarG,
