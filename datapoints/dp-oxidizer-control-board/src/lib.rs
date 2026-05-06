@@ -109,6 +109,8 @@ pub enum Message {
     OxidizerVentValveState(NormallyClosedValve),
 
     // ======================== RX ========================
+    // The following 2 sets of messages have the same meaning, but are separate messages
+    // sent from different systems such they can never collide.
     /// ## Type
     /// - `Event`: sent by the FC
     ///
