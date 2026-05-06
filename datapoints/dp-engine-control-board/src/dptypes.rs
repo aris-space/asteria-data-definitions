@@ -18,8 +18,6 @@ pub struct EngineControlBoardStatus {
     /// State of the ADS1120 device used to read thermocouples
     #[mavlink(flatten)]
     pub thermocouple_status: SensorStatus,
-    /// Hash of the Thrust Curve used for this flight. Defined by
-    pub thrust_curve_hash: u64,
     /// `Armed` if the engine is armed and the main valves receive power, ie engine arming Pin is pulled
     #[mavlink(flatten)]
     pub armed: ArmingState,
