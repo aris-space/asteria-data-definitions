@@ -13,6 +13,7 @@ default = []
 mission-control = ["derive_utoipa", "derive_serde"]
 derive_utoipa = ["dep:utoipa"]
 derive_serde = ["dep:serde"]
+csv = ["derive_serde", "dep:csv-async"]
 
 [lints]
 workspace = true
