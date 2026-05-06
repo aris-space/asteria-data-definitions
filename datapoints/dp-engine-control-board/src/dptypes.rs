@@ -34,15 +34,15 @@ pub struct EngineControlBoardStatus {
 #[serde(rename_all = "camelCase")]
 pub struct EnginePressure {
     /// Engine Chamber pressure in barg.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     #[pss(name = "eng_cc_p", label = "Chamber Pressure Sensor")]
     pub eng_cc_p: BarG,
     /// Injector Fuel pressure in barg.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     #[pss(name = "eng_inj_p", label = "Injector Fuel Pressure Sensor")]
     pub eng_inj_p: BarG,
     /// Injector Oxidizer pressure in barg.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     #[pss(name = "oss_inj_p", label = "Injector Oxidizer Pressure Sensor")]
     pub oss_inj_p: BarG,
 }
@@ -56,11 +56,11 @@ pub struct EnginePressure {
 #[serde(rename_all = "camelCase")]
 pub struct EngineBayTemperature {
     /// Injector Fuel temperature in °C.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     #[pss(name = "eng_inj_t", label = "Injector Fuel Temperature Sensor")]
     pub eng_inj_t: Celsius,
     /// Oxidizer Tank Bottom temperature in °C.
-    #[mavlink(flatten)]
+    #[mavlink(refine)]
     #[pss(name = "oss_tnk_t", label = "Oxidizer Tank Temperature Sensor")]
     pub oss_tnk_t: Celsius,
 }
