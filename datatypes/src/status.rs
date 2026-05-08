@@ -131,7 +131,7 @@ pub struct ManualActuatorChange {
     /// The target value of the actuator.
     /// This depends on the actuator type, for valves 0.0 is fully closed
     /// and 1.0 is fully open.
-    #[serde(default = "f32_nan")]
+    #[serde(deserialize_with = "f32_nan_deser")]
     pub value: f32,
     /// The index in the state path where the current state is.
     /// For the initial state this is 0 and increments with every transition.
@@ -140,8 +140,13 @@ pub struct ManualActuatorChange {
     pub actuator: [u8; 20],
 }
 
-const fn f32_nan() -> f32 {
-    f32::NAN
+#[cfg(feature = "derive_serde")]
+fn f32_nan_deser<'de, D>(de: D) -> Result<f32, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    let x = <Option<f32> as serde::Deserialize>::deserialize(de)?;
+    Ok(x.unwrap_or(f32::NAN))
 }
 
 /// Telemetry health statistics for an uplink.
