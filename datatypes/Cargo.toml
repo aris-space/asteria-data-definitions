@@ -17,6 +17,7 @@ arbitrary = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 thiserror = { version = "2.0.17", optional = true }
 watchable = { version = "1.1.2", optional = true }
+facet = "0.46.0"
 
 [features]
 default = []
