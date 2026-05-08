@@ -132,7 +132,7 @@ pub struct PressurizationGain(pub f32);
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-#[serde(try_from = "f32", into = "f32")]
+#[serde(try_from = "Option<f32>", into = "f32")]
 pub enum DPRValve {
     /// Enabled with pressure setpoint in Barg. 0-60.
     Enabled {
@@ -148,6 +148,19 @@ pub enum DPRValve {
 impl TryFrom<f32> for DPRValve {
     type Error = OutOfRange;
     fn try_from(value: f32) -> Result<Self, Self::Error> {
+        if value.is_nan() {
+            Ok(DPRValve::Disabled)
+        } else if (0.0..=60.0).contains(&value) {
+            Ok(DPRValve::Enabled { setpoint: value })
+        } else {
+            Err(OutOfRange)
+        }
+    }
+}
+impl TryFrom<Option<f32>> for DPRValve {
+    type Error = OutOfRange;
+    fn try_from(value: Option<f32>) -> Result<Self, Self::Error> {
+        let Some(value) = value else { return Ok(DPRValve::Disabled) };
         if value.is_nan() {
             Ok(DPRValve::Disabled)
         } else if (0.0..=60.0).contains(&value) {
@@ -181,10 +194,7 @@ mod dpr_state_mavlink_impl {
     use data_core::mavlink::hal::{
         codec::{
             Decode, Encode,
-            tbytes::{
-                TBytesReader, TBytesReaderBackend, TBytesWriter, TBytesWriterBackend,
-                errors::TBytesError,
-            },
+            tbytes::{TBytesReader, TBytesReaderBackend, TBytesWriter, TBytesWriterBackend, errors::TBytesError},
         },
         description::{DescribeFieldSet, MessageField},
         typing::Typeable,
@@ -201,10 +211,7 @@ mod dpr_state_mavlink_impl {
     }
 
     impl Encode for super::DPRValve {
-        fn encode_4_aligned(
-            &self,
-            writer: &mut TBytesWriter<impl TBytesWriterBackend>,
-        ) -> Result<usize, TBytesError> {
+        fn encode_4_aligned(&self, writer: &mut TBytesWriter<impl TBytesWriterBackend>) -> Result<usize, TBytesError> {
             use data_core::mavlink::hal::codec::tbytes::TBytesWriterFor as _;
             let value: f32 = (*self).into();
             writer.write(value)
