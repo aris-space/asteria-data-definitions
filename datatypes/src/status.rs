@@ -131,12 +131,17 @@ pub struct ManualActuatorChange {
     /// The target value of the actuator.
     /// This depends on the actuator type, for valves 0.0 is fully closed
     /// and 1.0 is fully open.
+    #[serde(default = "f32_nan")]
     pub value: f32,
     /// The index in the state path where the current state is.
     /// For the initial state this is 0 and increments with every transition.
     pub path_index: u32,
     /// The name of the actuator whose value should be changed.
     pub actuator: [u8; 20],
+}
+
+const fn f32_nan() -> f32 {
+    f32::NAN
 }
 
 /// Telemetry health statistics for an uplink.
