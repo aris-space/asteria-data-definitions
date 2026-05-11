@@ -163,9 +163,6 @@ pub struct SensorsHealth {
 #[can_message(0x310)]
 pub struct FlightComputerStatus {
     pub common: StatusCommonMessage,
-    /// `true` if the flight computer asserts control over the PSS valves via CAN.
-    /// In other words, if passive mode is disabled.
-    pub has_pss_control: bool,
     /// `Armed` if the flight computer is in the `Armed` state for launch,
     /// which enables REC actuator power and allows an ignition command.
     pub is_software_armed: ArmingState,
@@ -191,9 +188,6 @@ pub struct FlightComputerStatus {
 #[can_message(0x311)]
 pub struct RfsComputerStatus {
     pub common: StatusCommonMessage,
-    /// `true` if the remote filling station asserts control over the PSS valves via CAN.
-    /// In other words, if passive mode is disabled.
-    pub has_pss_control: bool,
     /// `Armed` if the remote filling station is in a `Armed` state for ignition
     /// This is a software arming state of the RFS state machine that is part of the RFS hardware arming
     pub is_ignition_armed: ArmingState,

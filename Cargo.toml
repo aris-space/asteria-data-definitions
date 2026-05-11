@@ -4,7 +4,7 @@ resolver = "3"
 members = [
     "can",
     "can-hal",
-    "can/hermes-can-derive",
+    "can/hermes-can-missing_panics_doc",
     "core",
     "datapoints/*",
     "datatypes",

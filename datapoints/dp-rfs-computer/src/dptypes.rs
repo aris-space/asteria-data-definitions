@@ -12,9 +12,6 @@ use gated_derive::gated_derive;
 pub struct RfsComputerStatus {
     #[mavlink(flatten)]
     pub common: StatusCommonMessage,
-    /// `true` if the remote filling station asserts control over the PSS valves via CAN.
-    /// In other words, if passive mode is disabled.
-    pub has_pss_control: bool,
     /// `Armed` if the remote filling station is in a `Armed` state for ignition
     /// This is a software arming state of the RFS state machine that is part of the RFS hardware arming
     #[mavlink(refine)]
