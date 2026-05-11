@@ -28,7 +28,7 @@ pub struct EngineControlBoardStatus {
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[gated_derive(pss::Data)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct EnginePressure {
     /// Engine Chamber pressure in barg.
@@ -50,7 +50,7 @@ pub struct EnginePressure {
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
 #[gated_derive(pss::Data)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct EngineBayTemperature {
     /// Injector Fuel temperature in °C.
