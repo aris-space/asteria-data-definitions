@@ -9,6 +9,7 @@ use data_core::mavlink;
 use data_core::pss;
 use datatypes::actuator::{DPRValve, NormallyClosedValve};
 use datatypes::status::BuildInformationCommon;
+use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -66,13 +67,44 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Reports Oxidizer Tank Pressures and Differential Pressure.
-    /// These are mainly used as an input to the Control Loop running on the Oxidizer Control Board.
+    /// Reports Oxidizer Tank Pressure Sensor 1.
+    /// This is mainly used as an input to the Control Loop running on the Oxidizer Control Board.
     ///
-    #[can(id = 0x454)]
+    #[can(id = 0x455)]
     #[mavlink(id = 0x10_03_02)]
-    #[pss(flatten)]
-    OxidizerTankPressure(OxidizerTankPressure),
+    #[pss(name = "oss_tnk_p1", label = "Oxidizer Tank Pressure Sensor 1")]
+    OxidizerTankPressureSensor1(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `OxidizerControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports Oxidizer Tank Pressure Sensor 2.
+    /// This is mainly used as an input to the Control Loop running on the Oxidizer Control Board.
+    ///
+    #[can(id = 0x456)]
+    #[mavlink(id = 0x10_03_05)]
+    #[pss(name = "oss_tnk_p2", label = "Oxidizer Tank Pressure Sensor 2")]
+    OxidizerTankPressureSensor2(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `OxidizerControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the absolute valued Oxidizer Tank differential pressure.
+    ///
+    #[can(id = 0x457)]
+    #[mavlink(id = 0x10_03_06)]
+    #[pss(name = "oss_tnk_dps", label = "Oxidizer Differential Pressure Sensor")]
+    OxidizerTankDifferentialPressure(BarG),
 
     /// ## Type
     /// - `Periodic @ 5 Hz`
