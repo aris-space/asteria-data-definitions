@@ -2,7 +2,7 @@
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{SensorStatus, StatusCommonMessage};
+use datatypes::status::{DprLoopInfo, SensorStatus, StatusCommonMessage};
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
@@ -21,6 +21,9 @@ pub struct FuelControlBoardStatus {
     /// State of the Keller BUS used to read pressure, indicates whether a single sensor is online or not.
     #[mavlink(refine)]
     pub pressure_bus: SensorStatus,
+    /// State of the DPR Control Loop
+    #[mavlink(refine)]
+    pub dpr_info: DprLoopInfo,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]

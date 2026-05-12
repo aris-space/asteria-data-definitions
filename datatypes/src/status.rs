@@ -216,10 +216,28 @@ pub enum ValveState {
     Inactive = 1,
 }
 
+/// Enum representing the state of a dpr loop.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
+#[gated_derive(utoipa::ToSchema)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum DprLoopInfo {
+    /// The DPR Loop is Active under Nominal Operations
+    ActiveNominal = 0,
+    /// The DPR Loop is Active but disabled due to Overpressurization
+    ActiveOverPressure = 1,
+    /// The DPR Loop is Passive, the corresponding valve is in a constant `Disabled` state
+    #[default]
+    Passive = 2,
+}
+
 #[cfg(feature = "derive_bincode")]
 /// We implement these traits manually, otherwise bincode uses a u32 for the enum ¯\_(ツ)_/¯
 mod encoding_impls {
-    use crate::status::{BoardId, SensorStatus, ValveState};
+    use crate::status::{BoardId, DprLoopInfo, SensorStatus, ValveState};
 
     impl ::bincode::Encode for BoardId {
         fn encode<__E: ::bincode::enc::Encoder>(
@@ -379,6 +397,69 @@ mod encoding_impls {
                         found: u32::from(variant),
                         type_name: "ValveState",
                         allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 1 },
+                    })
+                }
+            }
+        }
+    }
+    impl ::bincode::Encode for DprLoopInfo {
+        fn encode<__E: ::bincode::enc::Encoder>(
+            &self,
+            encoder: &mut __E,
+        ) -> core::result::Result<(), ::bincode::error::EncodeError> {
+            match self {
+                Self::ActiveNominal => {
+                    <u8 as ::bincode::Encode>::encode(&(0u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+                Self::ActiveOverPressure => {
+                    <u8 as ::bincode::Encode>::encode(&(1u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+                Self::Passive => {
+                    <u8 as ::bincode::Encode>::encode(&(2u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+            }
+        }
+    }
+    impl<__Context> ::bincode::Decode<__Context> for DprLoopInfo {
+        fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
+            decoder: &mut __D,
+        ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => core::result::Result::Ok(Self::ActiveNominal {}),
+                1u8 => core::result::Result::Ok(Self::ActiveOverPressure {}),
+                2u8 => core::result::Result::Ok(Self::Passive {}),
+                variant => {
+                    core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
+                        found: u32::from(variant),
+                        type_name: "DprLoopInfo",
+                        allowed: &::bincode::error::AllowedEnumVariants::Allowed(&[
+                            0u32, 1u32, 2u32,
+                        ]),
+                    })
+                }
+            }
+        }
+    }
+    impl<'__de, __Context> ::bincode::BorrowDecode<'__de, __Context> for DprLoopInfo {
+        fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de, Context = __Context>>(
+            decoder: &mut __D,
+        ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => core::result::Result::Ok(Self::ActiveNominal {}),
+                1u8 => core::result::Result::Ok(Self::ActiveOverPressure {}),
+                2u8 => core::result::Result::Ok(Self::Passive {}),
+                variant => {
+                    core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
+                        found: u32::from(variant),
+                        type_name: "DprLoopInfo",
+                        allowed: &::bincode::error::AllowedEnumVariants::Allowed(&[
+                            0u32, 1u32, 2u32,
+                        ]),
                     })
                 }
             }

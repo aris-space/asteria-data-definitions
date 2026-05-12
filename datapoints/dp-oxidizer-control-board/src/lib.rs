@@ -170,4 +170,49 @@ pub enum Message {
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x21e)]
     OxidizerVentValveControlRFS(NormallyClosedValve),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the proportional Oxidizer DPR Gain
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the proportional DPR gain accordingly
+    #[can(id = 0x22a)]
+    OxidizerDprGainP(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the integral Oxidizer DPR Gain
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the integral DPR gain accordingly
+    #[can(id = 0x22b)]
+    OxidizerDprGainI(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the derivative Oxidizer DPR Gain
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the derivative DPR gain accordingly
+    #[can(id = 0x22c)]
+    OxidizerDprGainD(f32),
 }
