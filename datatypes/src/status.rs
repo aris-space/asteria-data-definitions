@@ -234,6 +234,25 @@ pub enum DprLoopInfo {
     Passive = 2,
 }
 
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DprGainInfo {
+    /// The DPR proportional gain
+    p: f32,
+    /// The DPR integral gain
+    i: f32,
+    /// The DPR derivative gain
+    d: f32,
+    /// The DPR min opening time in ms
+    min_ms: f32,
+    /// The DPR max opening time in ms
+    max_ms: f32,
+}
+
 #[cfg(feature = "derive_bincode")]
 /// We implement these traits manually, otherwise bincode uses a u32 for the enum ¯\_(ツ)_/¯
 mod encoding_impls {

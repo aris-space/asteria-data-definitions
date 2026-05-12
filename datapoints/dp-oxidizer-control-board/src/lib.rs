@@ -215,4 +215,34 @@ pub enum Message {
     /// The Oxidizer Control Board shall adjust the derivative DPR gain accordingly
     #[can(id = 0x22c)]
     OxidizerDprGainD(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the minimum opening time [ms] of the DPR
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the derivative DPR minimum opening time accordingly
+    #[can(id = 0x22d)]
+    OxidizerDprMinOpeningTime(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the maximum opening time [ms] of the DPR
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the derivative DPR maximum opening time accordingly
+    #[can(id = 0x22e)]
+    OxidizerDprMaxOpeningTime(f32),
 }

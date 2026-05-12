@@ -2,7 +2,7 @@
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{DprLoopInfo, SensorStatus, StatusCommonMessage};
+use datatypes::status::{DprGainInfo, DprLoopInfo, SensorStatus, StatusCommonMessage};
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
@@ -23,7 +23,10 @@ pub struct OxidizerControlBoardStatus {
     pub pressure_bus: SensorStatus,
     /// State of the DPR Control Loop
     #[mavlink(refine)]
-    pub dpr_info: DprLoopInfo,
+    pub dpr_loop_info: DprLoopInfo,
+    /// State of the DPR Control Gain
+    #[mavlink(refine)]
+    pub dpr_gain_info: DprGainInfo,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
