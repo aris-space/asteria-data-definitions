@@ -9,6 +9,7 @@ use data_core::mavlink;
 use data_core::pss;
 use datatypes::status::{
     BuildInformationCommon, ManualActuatorChange, ManualStateTransition, ValveState,
+    UplinkTelemetryHealth, DownlinkTelemetryStats,
 };
 use gated_derive::gated_derive;
 
@@ -85,6 +86,20 @@ pub enum Message {
     #[mavlink(id = 0x10_06_02)]
     ValveStates(RfsComputerValveStates),
 
+    /// Statistics about the health of the telemetry uplink received by the Flight Computer.
+    ///
+    /// Emitted periodically by the flight computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_03)]
+    UplinkTelemetryHealth(UplinkTelemetryHealth),
+
+    /// Statistics about the telemetry downlink sent by the Flight Computer.
+    ///
+    /// Emitted periodically by the flight computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_04)]
+    DownlinkTelemetryStats(DownlinkTelemetryStats),
+
     // ======================== RX ========================
     /// # `GoxIgniterValveControl`
     /// Controls the GOX igniter valve on the RFS from the ECU.
@@ -122,7 +137,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the H2 igniter valve state accordingly.
     #[can(id = 0x20b)]
-    #[mavlink(id = 0x10_06_03)]
+    #[mavlink(id = 0x10_06_05)]
     H2IgniterValveControl(ValveState),
 
     /// # `IgniterSparkPlugControl`
@@ -142,7 +157,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust spark plug state accordingly.
     #[can(id = 0x20c)]
-    #[mavlink(id = 0x10_06_04)]
+    #[mavlink(id = 0x10_06_06)]
     IgniterSparkPlugControl(ValveState),
 
     /// # `IgniterPurgeControl`
@@ -162,7 +177,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the GOX and H2 purge valve state accordingly.
     #[can(id = 0x20d)]
-    #[mavlink(id = 0x10_06_05)]
+    #[mavlink(id = 0x10_06_07)]
     IgniterPurgeControl(ValveState),
 
     /// Command a manual state transition on the RFSC.
