@@ -64,7 +64,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the config hash.
     #[can(id = 0x630)]
-    #[mavlink(id = 0x10_01_01)]
+    #[mavlink(id = 0x10_06_01)]
     ConfigHash(ConfigHash),
 
     /// # `RfsComputerStatus`
@@ -107,7 +107,7 @@ pub enum Message {
     ValveStates(RfsComputerValveStates),
 
     /// The current state of the rfs computer state machine.
-    #[mavlink(id = 0x10_01_04)]
+    #[mavlink(id = 0x10_06_04)]
     StateMachineState(StateMachineState),
 
     /// Statistics about the health of the telemetry uplink received by the Rfs Computer.
