@@ -63,7 +63,7 @@ pub enum Message {
     ///
     /// ## Reaction
     /// Receivers may log or display the config hash.
-    #[can(id = 0x620)]
+    #[can(id = 0x630)]
     #[mavlink(id = 0x10_01_01)]
     ConfigHash(ConfigHash),
 
