@@ -8,8 +8,8 @@ use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
 use datatypes::status::{
-    BuildInformationCommon, DownlinkTelemetryStats, ManualActuatorChange, ManualStateTransition,
-    StateMachineState, UplinkTelemetryHealth, ValveState, ConfigHash,
+    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+    ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
 };
 use gated_derive::gated_derive;
 
