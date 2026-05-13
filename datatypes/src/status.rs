@@ -238,19 +238,19 @@ pub enum DprLoopInfo {
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Copy, Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DprGainInfo {
     /// The DPR proportional gain
-    p: f32,
+    pub p: f32,
     /// The DPR integral gain
-    i: f32,
+    pub i: f32,
     /// The DPR derivative gain
-    d: f32,
+    pub d: f32,
     /// The DPR min opening time in ms
-    min_ms: f32,
+    pub min_ms: f32,
     /// The DPR max opening time in ms
-    max_ms: f32,
+    pub max_ms: f32,
 }
 
 #[cfg(feature = "derive_bincode")]

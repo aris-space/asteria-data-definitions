@@ -275,7 +275,7 @@ pub enum Message {
     /// The Fuel Control Board shall adjust the derivative DPR gain accordingly
     #[can(id = 0x222)]
     FuelDprGainD(f32),
-    
+
     /// ## Type
     /// - `Event`: sent by the FC
     ///
