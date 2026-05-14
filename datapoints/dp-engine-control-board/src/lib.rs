@@ -121,7 +121,7 @@ pub enum Message {
     #[can(id = 0x462)]
     #[mavlink(id = 0x10_08_03)]
     #[pss(name = "eng_cc_p", label = "Chamber Pressure Sensor")]
-    EngineChamberPressure(BarG),
+    ChamberPressure(BarG),
 
     /// # `InjectorFuelPressure`
     /// Periodic telemetry message emitted by the Engine Control Board.
