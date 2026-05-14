@@ -82,13 +82,44 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Reports Fuel Tank Pressures.
-    /// These are mainly used as an input to the Control Loop running on the Fuel Control Board.
+    /// Reports Fuel Tank Pressure Sensor 1.
+    /// This is mainly used as an input to the Control Loop running on the Fuel Control Board.
     ///
-    #[can(id = 0x452)]
+    #[can(id = 0x458)]
     #[mavlink(id = 0x10_02_03)]
-    #[pss(flatten)]
-    FuelTankPressure(FuelTankPressure),
+    #[pss(name = "fss_tnk_p1", label = "Fuel Tank Pressure Sensor 1")]
+    FuelTankPressureSensor1(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports Fuel Tank Pressure Sensor 2.
+    /// This is mainly used as an input to the Control Loop running on the Fuel Control Board.
+    ///
+    #[can(id = 0x459)]
+    #[mavlink(id = 0x10_02_07)]
+    #[pss(name = "fss_tnk_p2", label = "Fuel Tank Pressure Sensor 2")]
+    FuelTankPressureSensor2(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the filtered Fuel Tank pressure used as DPR control loop input.
+    ///
+    #[can(id = 0x45a)]
+    #[mavlink(id = 0x10_02_08)]
+    #[pss(name = "fss_tnk_p_flt", label = "Fuel Tank Pressure Filtered")]
+    FuelTankPressureFiltered(BarG),
 
     /// ## Type
     /// - `Periodic @ 5 Hz`
