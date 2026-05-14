@@ -8,7 +8,8 @@ use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
 use datatypes::status::{
-    BuildInformationCommon, ManualActuatorChange, ManualStateTransition, ValveState,
+    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+    ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
 };
 use gated_derive::gated_derive;
 
@@ -46,6 +47,26 @@ pub enum Message {
     #[mavlink(id = 0x10_06_00)]
     BuildInfo(BuildInformationCommon),
 
+    /// # `RfsComputerConfigHash`
+    /// First 5 hex characters of the config file Git Object Hash currently
+    /// loaded by the Rfs Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 0.2 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Allows Rfs Computer config file tracking.
+    ///
+    /// ## Reaction
+    /// Receivers may log or display the config hash.
+    #[can(id = 0x630)]
+    #[mavlink(id = 0x10_06_01)]
+    ConfigHash(ConfigHash),
+
     /// # `RfsComputerStatus`
     /// Periodic status message emitted by the RFS Computer.
     ///
@@ -63,7 +84,7 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     /// It is also used to only ingite if the RFS is armed and ensure exclusive PSS control.
     #[can(id = 0x311)]
-    #[mavlink(id = 0x10_06_01)]
+    #[mavlink(id = 0x10_06_02)]
     Status(RfsComputerStatus),
 
     /// # `RfsComputerValveStates`
@@ -82,8 +103,26 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x325)]
-    #[mavlink(id = 0x10_06_02)]
+    #[mavlink(id = 0x10_06_03)]
     ValveStates(RfsComputerValveStates),
+
+    /// The current state of the rfs computer state machine.
+    #[mavlink(id = 0x10_06_04)]
+    StateMachineState(StateMachineState),
+
+    /// Statistics about the health of the telemetry uplink received by the Rfs Computer.
+    ///
+    /// Emitted periodically by the rfs computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_05)]
+    UplinkTelemetryHealth(UplinkTelemetryHealth),
+
+    /// Statistics about the telemetry downlink sent by the Rfs Computer.
+    ///
+    /// Emitted periodically by the Rfs computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_06)]
+    DownlinkTelemetryStats(DownlinkTelemetryStats),
 
     // ======================== RX ========================
     /// # `GoxIgniterValveControl`
@@ -122,7 +161,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the H2 igniter valve state accordingly.
     #[can(id = 0x20b)]
-    #[mavlink(id = 0x10_06_03)]
+    #[mavlink(id = 0x10_06_07)]
     H2IgniterValveControl(ValveState),
 
     /// # `IgniterSparkPlugControl`
@@ -142,7 +181,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust spark plug state accordingly.
     #[can(id = 0x20c)]
-    #[mavlink(id = 0x10_06_04)]
+    #[mavlink(id = 0x10_06_08)]
     IgniterSparkPlugControl(ValveState),
 
     /// # `IgniterPurgeControl`
@@ -162,7 +201,7 @@ pub enum Message {
     /// ## Reaction
     /// The remote filling station shall adjust the GOX and H2 purge valve state accordingly.
     #[can(id = 0x20d)]
-    #[mavlink(id = 0x10_06_05)]
+    #[mavlink(id = 0x10_06_09)]
     IgniterPurgeControl(ValveState),
 
     /// Command a manual state transition on the RFSC.
