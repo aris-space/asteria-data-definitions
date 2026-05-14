@@ -1,9 +1,6 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-#[cfg(feature = "pss")]
-use data_core::pss;
-use datatypes::actuator::DPRValve;
-use datatypes::status::{SensorStatus, StatusCommonMessage, ValveState};
+use datatypes::status::{SensorStatus, StatusCommonMessage};
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -21,20 +18,4 @@ pub struct OxidizerControlBoardStatus {
     /// State of the Keller BUS used to read pressure, indicates whether a single sensor is online or not.
     #[mavlink(refine)]
     pub pressure_bus: SensorStatus,
-}
-
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
-#[gated_derive(pss::Data)]
-#[derive(Clone, Debug, PartialEq, Default)]
-#[serde(rename_all = "camelCase")]
-pub struct OxidizerControlBoardValveStates {
-    /// Oxidizer DPR Control loop state
-    #[mavlink(refine)]
-    pub oss_dpr: DPRValve,
-    /// Oxidizer Vent Valve state
-    #[mavlink(refine)]
-    pub oss_vnt_vlv: ValveState,
 }
