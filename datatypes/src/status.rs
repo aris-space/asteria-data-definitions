@@ -62,7 +62,7 @@ pub struct StatusCommonMessage {
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema)]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct BuildInformationCommon {
     /// Unix timestamp when the build was compiled, provided in seconds since
