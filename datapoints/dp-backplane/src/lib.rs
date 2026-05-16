@@ -24,18 +24,18 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
-#[schema(as = PowerBoardMessage)]
+#[schema(as = BackplaneMessage)]
 pub enum Message {
     // ======================== TX ========================
     /// ## Type
     /// - `Periodic @ 0.2 Hz`
     ///
     /// ## Direction
-    /// - **Emitted by:** `PowerBoard`
+    /// - **Emitted by:** `Backplane`
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Allows version tracking and verification of the Power Board firmware.
+    /// Allows version tracking and verification of the backplane firmware.
     ///
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
@@ -47,11 +47,11 @@ pub enum Message {
     /// - `Periodic @ 1 Hz`
     ///
     /// ## Direction
-    /// - **Emitted by:** `PowerBoard`
+    /// - **Emitted by:** `Backplane`
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the runtime health of the Power Board.
+    /// Communicates the runtime health of the backplane.
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
@@ -63,7 +63,7 @@ pub enum Message {
     /// - Periodic @ 10Hz
     ///
     /// ## Direction
-    /// - **Emitted by:** `PowerBoard`
+    /// - **Emitted by:** `Backplane`
     /// - **Received by:** unspecified
     ///
     /// ## Purpose
@@ -79,7 +79,7 @@ pub enum Message {
     /// - Periodic @ 10Hz
     ///
     /// ## Direction
-    /// - **Emitted by:** `PowerBoard`
+    /// - **Emitted by:** `Backplane`
     /// - **Received by:** unspecified
     ///
     /// ## Purpose
@@ -95,7 +95,7 @@ pub enum Message {
     /// - Periodic @ 1 Hz
     ///
     /// ## Direction
-    /// - **Emitted by:** `PowerBoard`
+    /// - **Emitted by:** `Backplane`
     /// - **Received by:** unspecified
     ///
     /// ## Purpose

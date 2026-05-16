@@ -37,11 +37,11 @@ use data_core::pss;
 
 /// Reexport all datapoints to simplify imports
 pub mod datapoints {
+    pub use dp_backplane;
     pub use dp_engine_control_board;
     pub use dp_flight_computer;
     pub use dp_fuel_control_board;
     pub use dp_oxidizer_control_board;
-    pub use dp_power_board;
     pub use dp_recovery_board;
     pub use dp_rfs_computer;
     pub use dp_sensor_carrier;
@@ -62,7 +62,7 @@ pub enum Message {
     RfsComputer(dp_rfs_computer::Message),
     SystemManagement(dp_system_management::Message),
     RecoveryBoard(dp_recovery_board::Message),
-    PowerBoard(dp_power_board::Message),
+    Backplane(dp_backplane::Message),
     SensorCarrier(dp_sensor_carrier::Message),
     #[pss(flatten)]
     FuelControlBoard(dp_fuel_control_board::Message),
