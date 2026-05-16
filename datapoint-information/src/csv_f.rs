@@ -1,33 +1,74 @@
+use std::{borrow::Cow, collections::BTreeMap};
+
 use facet::{EnumType, Facet, StructType, Type, UserType, Variant};
+use facet_format::FormatSerializer;
 use facet_reflect::{HasFields, Peek, PeekEnum};
 
-struct Out {}
+#[derive(Debug, Clone)]
+pub enum FieldValue {
+    // Includes binary enums ??
+    Bool(bool),
+    // Includes f32
+    F64(f64),
+    // Includes timestamps, and all other ints
+    I64(i64),
+    // Includes enums
+    String(Cow<'static, str>),
+}
 
-fn get_stuffs<M: Facet<'static>>(msg: &M) -> Result<Out, Box<dyn std::error::Error>> {
-    // goal: get nested type, and full variant name
+#[derive(Debug, Clone)]
+pub struct DataPoint {
+    measurement: Cow<'static, str>,
+    tags: BTreeMap<Cow<'static, str>, Cow<'static, str>>,
+    fields: BTreeMap<Cow<'static, str>, FieldValue>,
+    timestamp: Option<i64>,
+}
 
-    let peek = Peek::new(msg);
-    let peek_enum = peek.into_enum()?;
-    let (variant, variant_data) = peek_enum.fields().next().expect("TODO");
+struct Config {
+    mission_id: &'static str,
+}
 
-    let Type::User(UserType::Enum(EnumType { variants, .. })) = M::SHAPE.ty else {
-        panic!("expected enum");
-    };
+#[derive(Debug)]
+enum Error {
+    // e.g. unsupported type/struct
+}
 
-    let Type::User(UserType::Struct(StructType { fields, .. })) =
-        variants[0].data.fields[0].shape().ty
-    else {
-        panic!("expected struct");
-    };
+enum SerState {
+    Init,
+    DatapointEnum { board: &'static str },
+    Message { datapoint: DataPoint },
+    Finished(DataPoint),
+}
 
-    let field = &fields[0];
+struct InfluxSerializer {
+    config: Config,
+    state: SerState,
+}
 
-    let &sens_id = field
-        .get_attr(Some("datapoint"), "sensor_id")
-        .expect("attribute should exist")
-        .get_as::<&'static str>()
-        .expect("attribute should decode");
-    assert_eq!(sens_id, "lox-vent");
+impl FormatSerializer for InfluxSerializer {
+    type Error = Error;
 
-    todo!()
+    fn begin_struct(&mut self) -> Result<(), Self::Error> {
+        todo!()
+    }
+
+    fn field_key(&mut self, key: &str) -> Result<(), Self::Error> {
+        todo!()
+    }
+
+    fn end_struct(&mut self) -> Result<(), Self::Error> {
+        todo!()
+    }
+
+    fn begin_seq(&mut self) -> Result<(), Self::Error> {
+        todo!()
+    }
+
+    fn end_seq(&mut self) -> Result<(), Self::Error> {
+        todo!()
+    }
+
+    fn scalar(&mut self, scalar: facet_format::ScalarValue<'_>) -> Result<(), Self::Error> {
+        todo!()
+    }
 }

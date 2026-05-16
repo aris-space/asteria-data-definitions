@@ -12,6 +12,7 @@ tokio = "1.52.2"
 tokio-util = { version = "0.7.18", features = ["compat"] }
 facet = "0.46.0"
 facet-reflect = "0.46.0"
+facet-format = "0.47.1"
 
 [features]
 default = ["csv"]
