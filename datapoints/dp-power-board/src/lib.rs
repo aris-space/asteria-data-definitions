@@ -1,6 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 /// This is a legacy version for the HERMES Power Board
-
 use data_core::Message;
 #[cfg(feature = "can")]
 use data_core::can;
