@@ -5,13 +5,26 @@
 //! Like other crates, various cargo features can enable certain components,
 //! currently `can`, `pss` and `mavlink`.
 //!
-//! ## MavLink Messages
+//! ## MavLink Messages IDs
 //! The generated MavLink dialect is a MavLink V2 dialect. This means that the message id's
 //! are 24 bit (or 6 hex digits).
 //! The id's follow the following schema (from MSB to LSB):
 //! - Hex digits 0,1: `01` for downlink messages and `02` for uplink messages.
 //! - Hex digits 2,3: `xx` where `xx` is the ascending id for a specific board/message enum.
 //! - Hex digits 4,5: `xx` where `xx` is the ascending message number for the given board. Starts at `00` for every board/message enum.
+//! 
+//! ## CAN Messages IDs
+//! CAN IDs are not ordered by dataowner, but instead by priority (because this is how CAN works):
+//! 
+//! | ID Range      | Message Class                   | Priority    | Description                                  |
+//! | ------------- | ------------------------------- | ----------- | -------------------------------------------- |
+//! | `0x000–0x0FF` | **System Management**           | Very High   | Global commands like resets.                 |
+//! | `0x100–0x2FF` | **Event Messages**              | High        | Commands and feedback.                       |
+//! | `0x300–0x3FF` | **Board Status & Heartbeats**   | Medium-High | Presence and status messages for each board. |
+//! | `0x400–0x5FF` | **Sensor Data**                 | Medium      | Data produced by sensors.                    |
+//! | `0x600–0x6FF` | **Build Info / Debug Metadata** | Low         | Firmware version and diagnostics.            |
+//! | `0x700–0x7FF` | **Reserved / Unused**           | Very Low    | Reserved for future extensions or testing.   |
+//! 
 
 use gated_derive::gated_derive;
 

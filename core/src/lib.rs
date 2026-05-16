@@ -1,7 +1,8 @@
-#![cfg_attr(not(feature = "std"), no_std)]
 //! This crate should be used for using the macros from the `data_macros` crate.
 //! The reason for this is, that this crate reexports all crates needed by the macros
 //! (unless specified otherwise by the macro itself)
+
+#![cfg_attr(not(feature = "std"), no_std)]
 
 pub use data_macros::Message;
 pub mod macro_util;

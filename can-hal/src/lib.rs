@@ -1,3 +1,5 @@
+//! This crate defines the traits and utilities for en/decoding CAN messages.
+
 #![no_std]
 
 pub use embedded_can::StandardId;
