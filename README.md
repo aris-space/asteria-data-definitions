@@ -3,6 +3,13 @@
 This repository contains the message definitions that are used by the [firmware](http://github.com/aris-space/asteria-firmware/),
 the [remote computers](http://github.com/aris-space/asteria-remote-computers/), and [Mission Control](http://github.com/aris-space/asteria-mission-control/).
 
+> [!NOTE]
+> This software was developed by the ASTERIA Software team specifically for our purposes at ARIS for EuRoC 2026.
+> No guarantees are given, and external contributions are unlikely to be accepted.
+> Additionally, this will very likely not be maintained beyond 2026, see other repositories.
+>
+> Point of contact: ASTERIA Software, e.g. cyrill.bucher@aris-space.ch
+
 In order to use this framework, one should add messages in the various `datapoints/dp-*` crates, update `datatypes`,
 and then either use the `messages` crate, or use `core` to generate a sparse message set.
 
