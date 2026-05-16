@@ -384,5 +384,4 @@ mod encoding_impls {
             }
         }
     }
-
 }
