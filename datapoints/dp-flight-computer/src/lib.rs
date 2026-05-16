@@ -5,16 +5,25 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::BuildInformationCommon;
+#[cfg(feature = "pss")]
+use data_core::pss;
+use datatypes::status::{
+    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+    ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
+};
 use gated_derive::gated_derive;
 
 mod dptypes;
 pub use dptypes::*;
 
-#[derive(Message)]
-#[gated_derive(can::Message, Debug)]
+mod version;
+pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+
+#[derive(Message, Clone)]
+#[gated_derive(can::Message, Debug, defmt::Format)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = FlightComputerMessage)]
 pub enum Message {
@@ -35,7 +44,28 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x610)]
+    #[mavlink(id = 0x10_01_00)]
     BuildInfo(BuildInformationCommon),
+
+    /// # `FlightComputerConfigHash`
+    /// First 5 hex characters of the config file Git Object Hash currently
+    /// loaded by the Flight Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 0.2 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Allows Flight Computer config file tracking.
+    ///
+    /// ## Reaction
+    /// Receivers may log or display the config hash.
+    #[can(id = 0x620)]
+    #[mavlink(id = 0x10_01_03)]
+    ConfigHash(ConfigHash),
 
     /// # `FlightComputerStatus`
     /// Periodic status message emitted by the Flight Computer.
@@ -54,6 +84,39 @@ pub enum Message {
     /// Receivers may log the data or use it for diagnostics and system health checks.
     /// It is also used to only arm the RFS if the FC is armed and ensure exclusive PSS control.
     #[can(id = 0x310)]
+    #[mavlink(id = 0x10_01_01)]
     Status(FlightComputerStatus),
+
+    /// The current state of the flight computer state machine.
+    #[mavlink(id = 0x10_01_02)]
+    StateMachineState(StateMachineState),
+
+    /// Statistics about the health of the telemetry uplink received by the Flight Computer.
+    ///
+    /// Emitted periodically by the flight computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_01_04)]
+    UplinkTelemetryHealth(UplinkTelemetryHealth),
+
+    /// Statistics about the telemetry downlink sent by the Flight Computer.
+    ///
+    /// Emitted periodically by the flight computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_01_05)]
+    DownlinkTelemetryStats(DownlinkTelemetryStats),
+
     // ======================== RX ========================
+    /// Command a manual state transition on the FC.
+    /// The state machine will perform the state transition and emit a state change event.
+    #[mavlink(id = 0x20_01_00)]
+    ManualStateTransition(ManualStateTransition),
+
+    /// Command a specific actuator to move to a specific target position.
+    /// The actuator name and the semantics of the value are defined using
+    /// an `#[pss(name = "...", kind  = "...")]` attribute from the [`data_core::pss::Data`]
+    /// macro.
+    ///
+    /// Upon change, an "actuator states" message will be emitted.
+    #[mavlink(id = 0x20_01_01)]
+    ManualActuatorChange(ManualActuatorChange),
 }

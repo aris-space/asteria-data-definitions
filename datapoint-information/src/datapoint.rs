@@ -5,7 +5,9 @@ use gated_derive::gated_derive;
 #[serde(rename_all = "snake_case", tag = "kind")]
 #[schema(as = ActuatorKind)]
 pub enum ActuatorKind {
-    Digital,
+    Digital {
+        default_enabled: bool,
+    },
     #[serde(rename = "dpr")]
     DPR,
     Fractional,
@@ -13,11 +15,11 @@ pub enum ActuatorKind {
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
+#[serde(rename_all = "snake_case", tag = "kind")]
 #[schema(as = SensorKind)]
 pub enum SensorKind {
     Analog { unit: &'static str },
-    Digital,
+    Digital { default_enabled: bool },
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -44,11 +46,11 @@ pub struct DatapointInformation {
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 #[schema(as = ActuatorValue)]
 pub enum ActuatorValue {
     Digital {
-        active: bool,
+        enabled: bool,
     },
     #[serde(rename = "dpr")]
     DPR {
@@ -56,31 +58,60 @@ pub enum ActuatorValue {
         setpoint: f32,
     },
     Fractional {
-        precent: f32,
+        percent: f32,
     },
+}
+
+impl From<ActuatorValue> for f32 {
+    fn from(value: ActuatorValue) -> Self {
+        match value {
+            ActuatorValue::Digital { enabled } => enabled.into(),
+            ActuatorValue::DPR { enabled: false, .. } => f32::NAN,
+            ActuatorValue::DPR { setpoint, .. } => setpoint,
+            ActuatorValue::Fractional { percent } => percent,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(rename_all = "snake_case")]
+#[serde(rename_all = "snake_case", tag = "kind", content = "value")]
 #[schema(as = SensorValue)]
 pub enum SensorValue {
     Analog { value: f32 },
     Digital { enabled: bool },
 }
 
+impl From<SensorValue> for f32 {
+    fn from(value: SensorValue) -> Self {
+        match value {
+            SensorValue::Analog { value } => value,
+            SensorValue::Digital { enabled } => enabled.into(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "component", rename_all = "snake_case")]
 #[schema(as = DatapointValue)]
 pub enum DatapointValue {
     Actuator(ActuatorValue),
     Sensor(SensorValue),
 }
 
+impl From<DatapointValue> for f32 {
+    fn from(value: DatapointValue) -> Self {
+        match value {
+            DatapointValue::Actuator(actuator_value) => actuator_value.into(),
+            DatapointValue::Sensor(sensor_value) => sensor_value.into(),
+        }
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 #[gated_derive(serde::Serialize, utoipa::ToSchema)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(rename_all = "snake_case")]
 #[schema(as = NamedDatapointValue)]
 pub struct NamedDatapointValue {
     /// Unique name of the datapoint
@@ -98,4 +129,15 @@ pub trait DatapointHolder {
     fn get_datapoint_values(&self) -> Vec<NamedDatapointValue> {
         Vec::new()
     }
+}
+
+/// Trait to turn instances of datapoint types into [`DatapointValue`]s.
+/// At the same time, it's also used to get the [`DatapointKind`] to which the
+/// datapoint type maps.
+pub trait IntoDatapointValue {
+    /// The [`DatapointKind`] to which the current type maps.
+    const KIND: DatapointKind;
+
+    /// Convert an instance of the current type into a [`DatapointValue`].
+    fn into_value(self) -> DatapointValue;
 }

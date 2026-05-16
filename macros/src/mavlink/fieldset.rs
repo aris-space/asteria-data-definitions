@@ -183,7 +183,7 @@ pub fn handle_struct(ident: &Ident, fields: &Fields<MavlinkFieldSetField>) -> To
     quote! {
         impl ::data_core::mavlink::hal::description::DescribeFieldSet for #ident {
             const FIELDS: &[::data_core::mavlink::hal::description::MessageField] =
-                &::data_core::mavlink::hal::macro_util::concat_slices::<_, { #total_size }>(&[
+                &::data_core::macro_util::concat_slices::<_, { #total_size }>(&[
                     #(#fields),*
                 ]);
         }

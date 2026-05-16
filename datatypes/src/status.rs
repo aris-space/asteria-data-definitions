@@ -4,6 +4,8 @@
 use data_core::mavlink;
 use gated_derive::gated_derive;
 
+use crate::units::InstantUs;
+
 /// The ID of a board in the rocket.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
@@ -23,18 +25,6 @@ pub enum BoardId {
     FuelControlBoard = 7,
     OxidizerControlBoard = 8,
 }
-
-/// UTC timestamp given in microseconds since the Unix epoch (`1970-01-01T00:00:00Z`).
-///
-/// This value is derived from the GPS time sensors and is therefore highly accurate.
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
-#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
-#[serde(rename_all = "camelCase")]
-#[unit("us")]
-pub struct InstantUs(pub u64);
 
 /// Represents the current arming state of the subsystem
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -91,6 +81,107 @@ pub struct BuildInformationCommon {
     pub is_git_dirty: bool,
     /// CAN library version information (major, minor, patch).
     pub can_semver: [u8; 3],
+}
+
+/// First 5 hex characters of the config file Git Object Hash
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ConfigHash {
+    pub hash: [u8; 5],
+}
+
+/// Shared state machine state used by the FC and RFSC.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct StateMachineState {
+    /// The index in the state path where we are currently at.
+    /// This equals the number of transitions that have occured.
+    pub path_index: u32,
+    /// The name of the current state in zero-padded utf-8.
+    pub state: [u8; 30],
+}
+
+/// Shared manual state transition used by the FC and RFSC.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ManualStateTransition {
+    /// The index in the state path where the new state should end up at.
+    pub transition_index: u32,
+    /// The name of the state to which the state machine should transition.
+    pub state: [u8; 30],
+}
+
+/// Shared manual actuator change used by the FC and RFSC.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct ManualActuatorChange {
+    /// The target value of the actuator.
+    /// This depends on the actuator type, for valves 0.0 is fully closed
+    /// and 1.0 is fully open.
+    #[serde(deserialize_with = "f32_nan_deser")]
+    pub value: f32,
+    /// The index in the state path where the current state is.
+    /// For the initial state this is 0 and increments with every transition.
+    pub path_index: u32,
+    /// The name of the actuator whose value should be changed.
+    pub actuator: [u8; 20],
+}
+
+#[cfg(feature = "derive_serde")]
+fn f32_nan_deser<'de, D>(de: D) -> Result<f32, D::Error>
+where
+    D: serde::de::Deserializer<'de>,
+{
+    let x = <Option<f32> as serde::Deserialize>::deserialize(de)?;
+    Ok(x.unwrap_or(f32::NAN))
+}
+
+/// Telemetry health statistics for an uplink.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct UplinkTelemetryHealth {
+    /// The timestamp of the last message received, including malformed ones.
+    #[mavlink(refine)]
+    pub time_of_last_msg: InstantUs,
+    /// The total number of the messages received, including malformed ones.
+    pub num_msg_received: u32,
+    /// The number of message that were inferred to have been lost by the sequence number.
+    pub num_msg_lost: u32,
+
+    /// The timestamp of the last message that has been understood and processed successfully.
+    #[mavlink(refine)]
+    pub time_of_last_processed_msg: InstantUs,
+    /// The number of the messages received that have been understood and processed successfully.
+    pub num_msg_processed: u32,
+}
+
+/// Telemetry statistics for a downlink.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Clone, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct DownlinkTelemetryStats {
+    /// The total number of bytes sent.
+    pub num_bytes_sent: u64,
+    /// The total number of messages sent.
+    pub num_messages_sent: u32,
 }
 
 /// Enum representing the status of a sensor.

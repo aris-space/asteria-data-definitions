@@ -50,7 +50,7 @@ pub fn handle(can_message: CanMessage) -> TokenStream {
     let meta_can_decode_mod = Ident::new(CAN_DECODE_MESSAGE_META_IDENT, Span::call_site());
     let meta_can_encode_mod = Ident::new(CAN_ENCODE_MESSAGE_META_IDENT, Span::call_site());
 
-    let can_ids = generate_meta_can_ids(&ident, &variants);
+    let can_ids = generate_meta_can_ids(&variants);
     let can_decode =
         generate_can_decode_impl(&ident, &variants, &meta_can_ids_mod, &meta_types_mod);
     let can_encode =
@@ -85,25 +85,14 @@ pub fn handle(can_message: CanMessage) -> TokenStream {
 }
 
 /// Generate the mapping from every CAN message variant to a [`can_hal::StandardId`]
-fn generate_meta_can_ids(ident: &Ident, variants: &[CanMessageVariant]) -> TokenStream {
+fn generate_meta_can_ids(variants: &[CanMessageVariant]) -> TokenStream {
     let (idents, ids) = variants
         .iter()
         .map(|variant| (&variant.ident, variant.id))
         .collect::<(Vec<_>, Vec<_>)>();
 
-    let length = idents.len();
-
     quote! {
         #(pub const #idents: StandardId = StandardId::new(#ids).expect("must be in range of a 11-bit integer");)*
-
-        pub const ALL_IDS: [StandardId; #length] = [
-            #(#idents),*
-        ];
-
-        impl #ident {
-            /// All CAN id's used by variants of this message enum
-            pub const ALL_CAN_IDS: [StandardId; #length] = ALL_IDS;
-        }
     }
 }
 

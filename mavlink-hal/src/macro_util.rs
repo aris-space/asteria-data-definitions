@@ -2,49 +2,6 @@
 
 use crate::description::{Message, MessageField};
 
-/// A helper trait analogous to `Default` that is used as a safe initialization value.
-pub trait InvalidInitializable: Copy {
-    const INVALID: Self;
-}
-
-impl InvalidInitializable for MessageField {
-    const INVALID: MessageField = MessageField {
-        type_: crate::typing::MavType::Scalar(crate::typing::MavScalarType::UInt8),
-        name: "",
-        unit: None,
-        description: "",
-        enum_: None,
-    };
-}
-impl InvalidInitializable for crate::description::Message {
-    const INVALID: Self = Self {
-        id: 0,
-        name: "",
-        description: "",
-        fields: &[],
-    };
-}
-
-/// Concatenates slices at compile time, with final length `N`. Gives a owned array back.
-/// Panics if `N` does not match the sum of the lengths of `sets`,
-/// but you can easily compute this in a const fashion as well.
-pub const fn concat_slices<T: InvalidInitializable, const N: usize>(sets: &[&[T]]) -> [T; N] {
-    let mut x = [T::INVALID; N];
-    let mut rest: &mut [T] = &mut x;
-
-    let mut i = 0;
-    while i < sets.len() {
-        // iterators aren't const
-        let (this, new_rest) = rest.split_at_mut(sets[i].len());
-        rest = new_rest;
-        this.copy_from_slice(sets[i]);
-        i += 1;
-    }
-
-    assert!(rest.is_empty());
-    x
-}
-
 /// Refines a fieldset consisting of a single field with a new name and description, keeping the unit and type.
 /// Panics if `orig_fields` doesn't contain exactly one entry.
 pub const fn refine_field(

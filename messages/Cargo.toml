@@ -4,13 +4,13 @@ version = "0.3.0"
 edition = "2024"
 
 [dependencies]
-dp-engine-control-board = { version = "0.3.0", path = "../datapoints/dp-engine-control-board" }
-dp-fuel-control-board = { version = "0.3.0", path = "../datapoints/dp-fuel-control-board" }
+dp-engine-control-board = { version = "0.5.0", path = "../datapoints/dp-engine-control-board" }
+dp-fuel-control-board = { version = "0.5.0", path = "../datapoints/dp-fuel-control-board" }
 dp-power-board = { version = "0.3.0", path = "../datapoints/dp-power-board" }
 dp-rfs-computer = { version = "0.4.0", path = "../datapoints/dp-rfs-computer" }
 dp-system-management = { version = "0.3.0", path = "../datapoints/dp-system-management" }
 dp-flight-computer = { version = "0.3.0", path = "../datapoints/dp-flight-computer" }
-dp-oxidizer-control-board = { version = "0.3.0", path = "../datapoints/dp-oxidizer-control-board" }
+dp-oxidizer-control-board = { version = "0.5.0", path = "../datapoints/dp-oxidizer-control-board" }
 dp-recovery-board = { version = "0.3.0", path = "../datapoints/dp-recovery-board" }
 dp-sensor-carrier = { version = "0.3.0", path = "../datapoints/dp-sensor-carrier" }
 
@@ -25,6 +25,7 @@ default = ["can"]
 # Derive can related traits for all datapoints and datapoint specific types
 can = [
     "derive_can",
+    "derive_bincode",
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
     "dp-power-board/can",
@@ -37,13 +38,27 @@ can = [
     "data-core/can",
     "dep:thiserror",                 # required for CAN message macro
 ]
+# Derive pss related traits for all datapoints and datapoint specific types
+pss = [
+    "derive_pss",
+    "dp-engine-control-board/pss",
+    "dp-fuel-control-board/pss",
+    # "dp-power-board/pss",
+    "dp-rfs-computer/pss",
+    # "dp-system-management/pss",
+    # "dp-flight-computer/pss",
+    "dp-oxidizer-control-board/pss",
+    # "dp-recovery-board/pss",
+    # "dp-sensor-carrier/pss",
+    "data-core/pss",
+]
 # Derive serde for all datapoint specific types
 derive_serde = [
     "dp-engine-control-board/derive_serde",
     "dp-fuel-control-board/derive_serde",
-    # "dp-power-board/derive_serde",
+    "dp-power-board/derive_serde",
     "dp-rfs-computer/derive_serde",
-    # "dp-system-management/derive_serde",
+    "dp-system-management/derive_serde",
     "dp-flight-computer/derive_serde",
     "dp-oxidizer-control-board/derive_serde",
     "dp-recovery-board/derive_serde",
@@ -129,6 +144,8 @@ derive_utoipa = [
 ]
 derive_can = []
 derive_mavlink = []
+derive_bincode = []
+derive_pss = []
 
 [lints]
 workspace = true

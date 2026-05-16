@@ -5,16 +5,24 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{BuildInformationCommon, ValveState};
+#[cfg(feature = "pss")]
+use data_core::pss;
+use datatypes::actuator::NormallyClosedValve;
+use datatypes::status::BuildInformationCommon;
+use datatypes::units::{BarG, Celsius};
 use gated_derive::gated_derive;
 
 mod dptypes;
 pub use dptypes::*;
 
-#[derive(Message)]
-#[gated_derive(can::Message, Debug)]
+mod version;
+pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+
+#[derive(Message, Clone)]
+#[gated_derive(can::Message, Debug, defmt::Format)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = EngineControlBoardMessage)]
 pub enum Message {
@@ -35,6 +43,7 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x614)]
+    #[mavlink(id = 0x10_08_00)]
     BuildInfo(BuildInformationCommon),
 
     /// # `EngineControlBoardStatus`
@@ -53,11 +62,9 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x314)]
+    #[mavlink(id = 0x10_08_01)]
     BoardStatus(EngineControlBoardStatus),
 
-    /// # `EngineControlBoardValveStates`
-    /// Periodic status message emitted by the Engine Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 5 Hz`
     ///
@@ -66,14 +73,33 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the Valve State of all Valves controlled by the Engine Control Board.
-    /// This includes the Oxidizer Main and Fuel Main Valve.
+    /// Communicates the Fuel Main Valve State.
+    ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x324)]
-    ValveStates(EngineControlBoardValveStates),
+    #[mavlink(id = 0x10_08_02)]
+    #[pss(label = "Fuel Main Valve", name = "fss_ml_vlv")]
+    FuelMainValveState(NormallyClosedValve),
 
-    /// # `EnginePressure`
+    /// ## Type
+    /// - `Periodic @ 5 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `EngineControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Communicates the Oxidizer Main Valve State.
+    ///
+    /// ## Reaction
+    /// Receivers may log the data or use it for diagnostics and system health checks.
+    #[can(id = 0x329)]
+    #[mavlink(id = 0x10_08_05)]
+    #[pss(label = "Oxidizer Main Valve", name = "oss_ml_vlv")]
+    OxidizerMainValveState(NormallyClosedValve),
+
+    /// # `EngineChamberPressure`
     /// Periodic telemetry message emitted by the Engine Control Board.
     ///
     /// ## Type
@@ -84,8 +110,7 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Reports various Pressures from the Engine.
-    /// This includes the Combustion Chamber Pressure, Injector Fuel Pressure and Injector Oxidizer Pressure.
+    /// Reports the Combustion Chamber Pressure.
     ///
     /// ## Reaction
     /// No action required.
@@ -93,10 +118,60 @@ pub enum Message {
     /// ## Data Origin
     /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
     /// The value will be `NaN` if reading the sensor fails.
-    #[can(id = 0x460)]
-    EnginePressure(EnginePressure),
+    #[can(id = 0x462)]
+    #[mavlink(id = 0x10_08_03)]
+    #[pss(name = "eng_cc_p", label = "Chamber Pressure Sensor")]
+    ChamberPressure(BarG),
 
-    /// # `EngineBayTemperature`
+    /// # `InjectorFuelPressure`
+    /// Periodic telemetry message emitted by the Engine Control Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `EngineControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the Injector Fuel Pressure.
+    ///
+    /// ## Reaction
+    /// No action required.
+    ///
+    /// ## Data Origin
+    /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
+    /// The value will be `NaN` if reading the sensor fails.
+    #[can(id = 0x463)]
+    #[mavlink(id = 0x10_08_06)]
+    #[pss(name = "eng_inj_p", label = "Injector Fuel Pressure Sensor")]
+    InjectorFuelPressure(BarG),
+
+    /// # `InjectorOxidizerPressure`
+    /// Periodic telemetry message emitted by the Engine Control Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `EngineControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the Injector Oxidizer Pressure.
+    ///
+    /// ## Reaction
+    /// No action required.
+    ///
+    /// ## Data Origin
+    /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
+    /// The value will be `NaN` if reading the sensor fails.
+    #[can(id = 0x464)]
+    #[mavlink(id = 0x10_08_07)]
+    #[pss(name = "oss_inj_p", label = "Injector Oxidizer Pressure Sensor")]
+    InjectorOxidizerPressure(BarG),
+
+    /// # `InjectorFuelTemperature`
     /// Periodic telemetry message emitted by the Engine Control Board.
     ///
     /// ## Type
@@ -107,8 +182,7 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Reports various Data from Thermocouples in the Engine Bay.
-    /// This includes the OSS Runline Temperature and the OSS Tank Bottom Temperature.
+    /// Reports the Injector Fuel Temperature.
     ///
     /// ## Reaction
     /// No action required.
@@ -118,8 +192,36 @@ pub enum Message {
     /// Thermocouples installed can be either Type K or Type T.
     /// If the value read in firmware is outside the specific temperature range of [-200.0, 200.0] °C,
     /// the value will be set to `NaN`.
-    #[can(id = 0x461)]
-    EngineBayTemperature(EngineBayTemperature),
+    #[can(id = 0x465)]
+    #[mavlink(id = 0x10_08_04)]
+    #[pss(name = "eng_inj_t", label = "Injector Fuel Temperature Sensor")]
+    InjectorFuelTemperature(Celsius),
+
+    /// # `OxidizerTankTemperature`
+    /// Periodic telemetry message emitted by the Engine Control Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 10 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `EngineControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the Oxidizer Tank Bottom Temperature.
+    ///
+    /// ## Reaction
+    /// No action required.
+    ///
+    /// ## Data Origin
+    /// Data originates from high precision ADCs which read the differential thermocouple voltage together with a thermistor from which the temperature is calculated.
+    /// Thermocouples installed can be either Type K or Type T.
+    /// If the value read in firmware is outside the specific temperature range of [-200.0, 200.0] °C,
+    /// the value will be set to `NaN`.
+    #[can(id = 0x466)]
+    #[mavlink(id = 0x10_08_08)]
+    #[pss(name = "oss_tnk_t", label = "Oxidizer Tank Temperature Sensor")]
+    OxidizerTankTemperature(Celsius),
 
     /// # `FiringAborted`
     /// Event message sent by the ECU.
@@ -212,23 +314,6 @@ pub enum Message {
     CombustionDetected,
 
     // ======================== RX ========================
-    /// # `ThrustCurveConfig`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC configure the Launch Thrust Curve
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `EngineControlBoard`
-    ///
-    /// ## Purpose
-    /// Transmit the flight thrust curve to the Engine Control Board.
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x240)]
-    ThrustCurveConfig(ThrustCurveConfig),
     /// # `FiringAbortInitiation`
     /// Event message sent by the FC.
     ///
@@ -268,87 +353,63 @@ pub enum Message {
     // ======================== RX (cont.) ========================
     // The following 2 sets of messages have the same meaning, but are separate messages
     // sent from different systems such they can never collide.
-    /// # `OxidizerMainControlFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
-    /// - `Event`: sent by the FC to control the Oxidizer Main Valve
+    /// - `Event`: sent by the FC
     ///
     /// ## Direction
     /// - **Emitted by:** `FlightComputer`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Oxidizer Main valve to be active or inactive.
+    /// Sets the Oxidizer Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Oxidizer Main Valve position accordingly
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x225)]
-    OxidizerMainControlFC(ValveState),
+    OxidizerMainValveControlFC(NormallyClosedValve),
 
-    /// # `OxidizerMainControlRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
-    /// - `Event`: sent by the RFS to control the Oxidizer Main Valve
+    /// - `Event`: sent by the RFS
     ///
     /// ## Direction
     /// - **Emitted by:** `RemoteFillingStation`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Oxidizer Main valve to be active or inactive.
+    /// Sets the Oxidizer Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Oxidizer Main Valve position accordingly
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x227)]
-    OxidizerMainControlRFS(ValveState),
+    OxidizerMainValveControlRFS(NormallyClosedValve),
 
-    /// # `FuelMainControlFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
-    /// - `Event`: sent by the FC to control the Fuel Main Valve
+    /// - `Event`: sent by the FC
     ///
     /// ## Direction
     /// - **Emitted by:** `FlightComputer`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Fuel Main valve to be active or inactive.
+    /// Sets the Fuel Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x226)]
-    FuelMainControlFC(ValveState),
+    FuelMainValveControlFC(NormallyClosedValve),
 
-    /// # `FuelMainControlRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
-    /// - `Event`: sent by the RFS to control the Fuel Main Valve
+    /// - `Event`: sent by the RFS
     ///
     /// ## Direction
     /// - **Emitted by:** `RemoteFillingStation`
     /// - **Received by:** `EngineControlBoard`
     ///
     /// ## Purpose
-    /// Sets the Fuel Main valve to be active or inactive.
+    /// Sets the Fuel Main valve to a certain state.
     ///
     /// ## Reaction
     /// The Engine Control Board shall change the Fuel Main Valve position accordingly.
-    /// ## Note
-    /// The Engine Control Board might also change the valve position without input from this message, during the firing sequence
-    /// The Valve is Normally Closed
     #[can(id = 0x228)]
-    FuelMainControlRFS(ValveState),
+    FuelMainValveControlRFS(NormallyClosedValve),
 }

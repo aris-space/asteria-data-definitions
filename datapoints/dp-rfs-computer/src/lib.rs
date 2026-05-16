@@ -5,21 +5,25 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-#[cfg(feature = "derive_pss")]
+#[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::{DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve};
-use datatypes::sensor::DigitalIn;
-use datatypes::status::BuildInformationCommon;
-use datatypes::units::Celsius;
+use datatypes::status::{
+    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+    ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
+};
 use gated_derive::gated_derive;
 
 mod dptypes;
 pub use dptypes::*;
 
-#[derive(Message)]
-#[gated_derive(can::Message, Debug)]
-#[gated_derive(mavlink::Message, pss::Data)]
+mod version;
+pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+
+#[derive(Message, Clone)]
+#[gated_derive(can::Message, Debug, defmt::Format)]
+#[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = RfsComputerMessage)]
 pub enum Message {
@@ -30,8 +34,30 @@ pub enum Message {
     /// - **Kind**: Debug message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x611)]
+    #[mavlink(id = 0x10_06_00)]
     BuildInfo(BuildInformationCommon),
 
+    /// # `RfsComputerConfigHash`
+    /// First 5 hex characters of the config file Git Object Hash currently
+    /// loaded by the Rfs Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 0.2 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Allows Rfs Computer config file tracking.
+    ///
+    /// ## Reaction
+    /// Receivers may log or display the config hash.
+    #[can(id = 0x630)]
+    #[mavlink(id = 0x10_06_01)]
+    ConfigHash(ConfigHash),
+
+    /// # `RfsComputerStatus`
     /// Periodic status message emitted by the RFS Computer.
     ///
     /// Contains runtime health of the RFS Computer.
@@ -41,6 +67,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x311)]
+    #[mavlink(id = 0x10_06_02)]
     Status(RfsComputerStatus),
 
     /// The current active state of the normally off spark plug.
@@ -208,6 +235,32 @@ pub enum Message {
     /// Whether the spark plug is receiving power (arming relay state).
     #[pss(label = "Igniter Armed", name = "igniter_armed")]
     IgniterArmed(DigitalIn),
+    /// ## Purpose
+    /// Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
+    /// This includes the ingiter valves and the spark plug.
+    /// ## Reaction
+    /// Receivers may log the data or use it for diagnostics and system health checks.
+    #[can(id = 0x325)]
+    #[mavlink(id = 0x10_06_03)]
+    ValveStates(RfsComputerValveStates),
+
+    /// The current state of the rfs computer state machine.
+    #[mavlink(id = 0x10_06_04)]
+    StateMachineState(StateMachineState),
+
+    /// Statistics about the health of the telemetry uplink received by the Rfs Computer.
+    ///
+    /// Emitted periodically by the rfs computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_05)]
+    UplinkTelemetryHealth(UplinkTelemetryHealth),
+
+    /// Statistics about the telemetry downlink sent by the Rfs Computer.
+    ///
+    /// Emitted periodically by the Rfs computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_06)]
+    DownlinkTelemetryStats(DownlinkTelemetryStats),
 
     // ======================== RX ========================
     /// Controls the GOX igniter valve on the RFS from the FC.
@@ -230,7 +283,8 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20b)]
-    H2IgniterValveControl(NormallyClosedValve),
+    #[mavlink(id = 0x10_06_07)]
+    H2IgniterValveControl(ValveState),
 
     /// Controls the igniter spark plug on the RFS from the FC.
     ///
@@ -242,6 +296,8 @@ pub enum Message {
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20c)]
     IgniterSparkPlugControl(DigitalOut),
+    #[mavlink(id = 0x10_06_08)]
+    IgniterSparkPlugControl(ValveState),
 
     /// Controls the H2 purge valve on the RFS from the FC.
     ///
@@ -264,4 +320,20 @@ pub enum Message {
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20e)]
     GoxIgniterPurgeControl(NormallyClosedValve),
+    #[mavlink(id = 0x10_06_09)]
+    IgniterPurgeControl(ValveState),
+
+    /// Command a manual state transition on the RFSC.
+    /// The state machine will perform the state transition and emit a state change event.
+    #[mavlink(id = 0x20_06_00)]
+    ManualStateTransition(ManualStateTransition),
+
+    /// Command a specific actuator to move to a specific target position.
+    /// The actuator name and the semantics of the value are defined using
+    /// an `#[pss(name = "...", kind  = "...")]` attribute from the [`data_core::pss::Data`]
+    /// macro.
+    ///
+    /// Upon change, an "actuator states" message will be emitted.
+    #[mavlink(id = 0x20_06_01)]
+    ManualActuatorChange(ManualActuatorChange),
 }

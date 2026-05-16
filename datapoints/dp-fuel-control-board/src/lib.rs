@@ -5,25 +5,28 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::actuator::{DPRValve, PressurizationGain};
-use datatypes::status::{BuildInformationCommon, ValveState};
+#[cfg(feature = "pss")]
+use data_core::pss;
+use datatypes::actuator::{DPRValve, NormallyOpenValve};
+use datatypes::status::BuildInformationCommon;
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
 
 mod dptypes;
 pub use dptypes::*;
 
-#[derive(Message)]
-#[gated_derive(can::Message, Debug)]
+mod version;
+pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+
+#[derive(Message, Clone)]
+#[gated_derive(can::Message, Debug, defmt::Format)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = FueldControlBoardMessage)]
 pub enum Message {
     // ======================== TX ========================
-    /// # `FuelControlBoardBuildInfo`
-    /// Firmware build metadata emitted by the Fuel Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 0.2 Hz`
     ///
@@ -37,11 +40,9 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log or display the firmware version and build metadata.
     #[can(id = 0x617)]
+    #[mavlink(id = 0x10_02_00)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `FuelControlBoardStatus`
-    /// Periodic status message emitted by the Fuel Control Board.
-    ///
     /// ## Type
     /// - `Periodic @ 1 Hz`
     ///
@@ -55,11 +56,71 @@ pub enum Message {
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x320)]
+    #[mavlink(id = 0x10_02_01)]
     BoardStatus(FuelControlBoardStatus),
 
-    /// # `FuelControlBoardValveStates`
-    /// Periodic status message emitted by the Fuel Control Board.
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
     ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the pressure of the Pressurization Line (COPV).
+    ///
+    #[can(id = 0x450)]
+    #[mavlink(id = 0x10_02_02)]
+    #[pss(name = "prz_copv_p", label = "Pressurization Pressure Sensor")]
+    PressurizationLinePressure(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports Fuel Tank Pressure Sensor 1.
+    /// This is mainly used as an input to the Control Loop running on the Fuel Control Board.
+    ///
+    #[can(id = 0x458)]
+    #[mavlink(id = 0x10_02_03)]
+    #[pss(name = "fss_tnk_p1", label = "Fuel Tank Pressure Sensor 1")]
+    FuelTankPressureSensor1(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports Fuel Tank Pressure Sensor 2.
+    /// This is mainly used as an input to the Control Loop running on the Fuel Control Board.
+    ///
+    #[can(id = 0x459)]
+    #[mavlink(id = 0x10_02_07)]
+    #[pss(name = "fss_tnk_p2", label = "Fuel Tank Pressure Sensor 2")]
+    FuelTankPressureSensor2(BarG),
+
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the filtered Fuel Tank pressure used as DPR control loop input.
+    ///
+    #[can(id = 0x45a)]
+    #[mavlink(id = 0x10_02_08)]
+    #[pss(name = "fss_tnk_p_flt", label = "Fuel Tank Pressure Filtered")]
+    FuelTankPressureFiltered(BarG),
+
     /// ## Type
     /// - `Periodic @ 5 Hz`
     ///
@@ -68,91 +129,49 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Communicates the Valve State of all Valves controlled by the Fuel Control Board, including the DPR control loop state and setpoint.
+    /// Communicates the DPR Valve State including setpoint.
     ///
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
     #[can(id = 0x322)]
-    ValveStates(FuelControlBoardValveStates),
-    /// # `FuelPressurizationCompleted`
-    /// Event message sent by the FuelControlBoard.
-    ///
+    #[mavlink(id = 0x10_02_04)]
+    #[pss(label = "Fuel DPR Valve", name = "prz_fss_dpr")]
+    FuelDprValveState(DPRValve),
+
     /// ## Type
-    /// - `Event`: sent by the FCB to signal completed pressurization on the FuelControlBoard
+    /// - `Periodic @ 5 Hz`
     ///
     /// ## Direction
     /// - **Emitted by:** `FuelControlBoard`
-    /// - **Received by:** `FlightComputer`
+    /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Signal completion of Fuel Tank pressurization
-    ///
+    /// Communicates the Pressurization Valve State
     /// ## Reaction
-    ///
-    #[can(id = 0x12b)]
-    FuelPressurizationCompleted,
+    /// Receivers may log the data or use it for diagnostics and system health checks.
+    #[can(id = 0x326)]
+    #[mavlink(id = 0x10_02_05)]
+    #[pss(label = "Pressurization Vent Valve", name = "prz_copv_vnt")]
+    PressurizationVentValveState(NormallyOpenValve),
 
-    // ======================== TX ========================
-    /// # `FuelPressurization`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
-    /// - `Event`: sent by the FC to initiate pressurization on the FuelControlBoard
+    /// - `Periodic @ 5 Hz`
     ///
     /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `FuelControlBoard`
+    /// - **Emitted by:** `FuelControlBoard`
+    /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Pressurize the Fuel Tank to a desired setpoint
+    /// Communicates the Fuel Vent Valve State
     ///
     /// ## Reaction
-    ///
-    #[can(id = 0x125)]
-    FuelPressurization(BarG),
+    /// Receivers may log the data or use it for diagnostics and system health checks.
+    #[can(id = 0x327)]
+    #[mavlink(id = 0x10_02_06)]
+    #[pss(label = "Fuel Vent Valve", name = "fss_tnk_vnt")]
+    FuelVentValveState(NormallyOpenValve),
 
-    /// # `FuelPressurizationGain`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to configure the pressurization gain on the FuelControlBoard
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `FuelControlBoard`
-    ///
-    /// ## Purpose
-    /// Configure the Fuel Pressurization Gain
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x127)]
-    FuelPressurizationGain(PressurizationGain),
-
-    /// # `FuelPressurizationAbort`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to abort pressurization on the FuelControlBoard
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `FuelControlBoard`
-    ///
-    /// ## Purpose
-    /// Abort Fuel Tank pressurization
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x129)]
-    FuelPressurizationAbort,
-
-    // ======================== RX (cont.) ========================
-    // The following 3 sets of messages have the same meaning, but are separate messages
-    // sent from different systems such they can never collide.
-    /// # `FuelDprConfigFC`
-    /// Event message sent by the FC.
-    ///
+    // ======================== RX ========================
     /// ## Type
     /// - `Event`: sent by the FC
     ///
@@ -162,16 +181,12 @@ pub enum Message {
     ///
     /// ## Purpose
     /// Set ETH Pressure Regulator configuration
-    /// Configures whether the control loop should be active, and what reference point (setpoint) it should assume.
     ///
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x211)]
-    FuelDprConfigFC(DPRValve),
+    FuelDprValveControlFC(DPRValve),
 
-    /// # `PressurizationVentControlFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
     /// - `Event`: sent by the FC
     ///
@@ -185,11 +200,8 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
     #[can(id = 0x212)]
-    PressurizationVentControlFC(ValveState),
+    PressurizationVentValveControlFC(NormallyOpenValve),
 
-    /// # `FuelVentControlFC`
-    /// Event message sent by the FC.
-    ///
     /// ## Type
     /// - `Event`: sent by the FC
     ///
@@ -203,66 +215,8 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
     #[can(id = 0x213)]
-    FuelVentControlFC(ValveState),
+    FuelVentValveControlFC(NormallyOpenValve),
 
-    /// # `FuelDprConfigECU`
-    /// Event message sent by the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `FuelControlBoard`
-    ///
-    /// ## Purpose
-    /// Set ETH Pressure Regulator configuration
-    /// Configures whether the control loop should be active, and what reference point (setpoint) it should assume.
-    ///
-    /// ## Reaction
-    /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
-    #[can(id = 0x216)]
-    FuelDprConfigECU(DPRValve),
-
-    /// # `PressurizationVentControlECU`
-    /// Event message sent by the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `FuelControlBoard`
-    ///
-    /// ## Purpose
-    /// Sets the N2 Vent Valve to a certain state.
-    ///
-    /// ## Reaction
-    /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
-    #[can(id = 0x217)]
-    PressurizationVentControlECU(ValveState),
-
-    /// # `FuelVentControlECU`
-    /// Event message sent by the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `FuelControlBoard`
-    ///
-    /// ## Purpose
-    /// Sets the Fuel Vent Valve to a certain state.
-    ///
-    /// ## Reaction
-    /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
-    #[can(id = 0x218)]
-    FuelVentControlECU(ValveState),
-
-    /// # `FuelDprConfigRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
     /// - `Event`: sent by the RFS
     ///
@@ -276,11 +230,8 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the FUE DPR setpoint and enable/disable the controller accordingly
     #[can(id = 0x21b)]
-    FuelDprConfigRFS(DPRValve),
+    FuelDprValveControlRFS(DPRValve),
 
-    /// # `PressurizationVentControlRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
     /// - `Event`: sent by the RFS
     ///
@@ -294,11 +245,8 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust N2 Vent Valve state accordingly
     #[can(id = 0x21c)]
-    PressurizationVentControlRFS(ValveState),
+    PressurizationVentValveControlRFS(NormallyOpenValve),
 
-    /// # `FuelVentControlRFS`
-    /// Event message sent by the RFS.
-    ///
     /// ## Type
     /// - `Event`: sent by the RFS
     ///
@@ -312,5 +260,5 @@ pub enum Message {
     /// ## Reaction
     /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
     #[can(id = 0x21d)]
-    FuelVentControlRFS(ValveState),
+    FuelVentValveControlRFS(NormallyOpenValve),
 }

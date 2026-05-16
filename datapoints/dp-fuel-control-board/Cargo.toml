@@ -1,6 +1,6 @@
 [package]
 name = "dp-fuel-control-board"
-version = "0.3.0"
+version = "0.5.0"
 edition = "2024"
 
 [lints]
@@ -21,6 +21,7 @@ utoipa = { workspace = true, optional = true }
 [features]
 can = ["derive_can", "derive_bincode", "data-core/can"]
 mavlink = ["derive_mavlink", "data-core/mavlink", "datatypes/derive_mavlink"]
+pss = ["derive_pss", "std", "data-core/pss", "datatypes/pss"]
 std = ["bincode/std", "datatypes/std", "data-core/std"]
 mission-control = ["derive_serde", "derive_utoipa"]
 derive_serde = ["dep:serde", "datatypes/derive_serde"]
@@ -31,3 +32,4 @@ derive_utoipa = ["dep:utoipa", "datatypes/derive_utoipa", "std"]
 derive_can = []
 derive_mavlink = []
 derive_debug = []
+derive_pss = []

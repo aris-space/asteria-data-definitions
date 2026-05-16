@@ -25,31 +25,10 @@ pub const fn next_valid_length(length: usize) -> Option<u8> {
     }
 }
 
-/// Trait for types that can transmit CAN messages asynchronously.
-pub trait TypedCanTransmit {
-    type Error: core::error::Error;
-
-    /// Transmit a CAN message.
-    ///
-    /// Returns `Err(CanError)` if encoding or bus transmission fails.
-    #[allow(async_fn_in_trait)] // We'll try and maybe change it later
-    async fn transmit<M: CanEncode>(&mut self, msg: M) -> Result<(), Self::Error>;
-}
-
-/// Trait for types that can receive CAN messages asynchronously.
-pub trait TypedCanReceive {
-    type Error: core::error::Error;
-
-    /// Receive the next CAN message and its timestamp.
-    ///
-    /// Returns `Err(CanError)` if the frame is invalid or bus read fails.
-    #[allow(async_fn_in_trait)] // We'll try and maybe change it later
-    async fn recv<M: CanDecode>(&mut self) -> Result<M, Self::Error>;
-}
-
 /// Implementors of this trait can be created from a CAN id and raw data.
 pub trait CanDecode: Sized {
     type Error: core::error::Error;
+    const SUPPORTED_IDS: &[StandardId];
 
     /// Tries to decode an instance of `Self` from the provided byte slice.
     ///

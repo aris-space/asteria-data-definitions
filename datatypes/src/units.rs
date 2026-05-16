@@ -53,9 +53,11 @@ unit_newtypes! {
     Celsius(f32),
 
     /// A pressure in bar relative to atmospheric pressure (`barg`).
+    #[unit("barg")]
     BarG(f32),
 
     /// Atmospheric pressure in hPa.
+    #[unit("hPa")]
     HPa(f32),
 }
 
@@ -74,3 +76,13 @@ pub struct RailStatus {
     /// Power in watts.
     pub power: f32,
 }
+
+/// UTC timestamp given in microseconds since the Unix epoch (`1970-01-01T00:00:00Z`).
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
+#[serde(rename_all = "camelCase")]
+#[unit("us")]
+pub struct InstantUs(pub u64);

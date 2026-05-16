@@ -5,19 +5,35 @@ use data_core::Message;
 use data_core::can;
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{BoardId, InstantUs};
+#[cfg(feature = "pss")]
+use data_core::pss;
+use datatypes::status::BoardId;
+use datatypes::units::InstantUs;
 use gated_derive::gated_derive;
 
-#[derive(Message)]
-#[gated_derive(can::Message, Debug)]
+mod dptypes;
+pub use dptypes::*;
+
+mod version;
+pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+
+#[derive(Message, Clone)]
+#[gated_derive(can::Message, Debug, defmt::Format)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
+#[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = SystemManagementMessage)]
 pub enum Message {
+    /// Sends a mavlink compatible Heartbeat message.
+    #[mavlink(id = 0x0)]
+    Heartbeat(Heartbeat),
+
     // ======================== TX ========================
     /// # `UTCTimeUpdate`
     /// Synchronizes system time using GPS-derived UTC.
+    ///
+    /// This value is derived from the GPS time sensors and is therefore highly accurate.
     ///
     /// ## Type
     /// - `Periodic @ 10 Hz`
@@ -35,6 +51,7 @@ pub enum Message {
     /// be used to correct for drift, this may result in non-monotonic timekeeping
     /// and is therefore discouraged.
     #[can(id = 0x30)]
+    #[mavlink(id = 0x10_00_00)]
     UTCTimeUpdate(InstantUs),
 
     /// # `ResetSpecific`

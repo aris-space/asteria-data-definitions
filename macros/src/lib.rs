@@ -70,7 +70,7 @@ mod util;
 ///
 /// # Usage
 /// ```rust,ignore
-/// #[derive(Message)]
+/// #[derive(Message, Clone)]
 /// // implement `Debug` for the struct which will be generated
 /// // for `Variant3`
 /// #[message(struct_derives = [Debug])]
@@ -425,25 +425,37 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
 /// Derive macro for implementing [`pss::data::DatapointHolder`] for an enum or a struct.
 ///
 /// The macro supports the following attributes:
+<<<<<<< HEAD
 /// - `#[pss(name = "...", label = "...")]`: The name specifies to which name this PSS datapoint field should be
 ///   mapped and the label field specifies the display name of the datapoint.
 /// - `#[pss(kind = "...")]`: Specifies which kind of PSS datapoint this field is
 ///   (one of `digital_actuator, dpr_actuator, fractional_actuator, analog_sensor, digital_sensor`).
 ///   This attribute can be omitted for the following well-known types, whose kind is inferred automatically,
 ///   see the constant in the source of [`pss::data`].
+=======
+/// - `#[pss(name = "...", label = "...")]`: The name specifies to which name this PSS datapoint field should be mapped and the
+///   label field specifies the display name of the datapoint. Once a field, variant or newtype struct is annotated with this attribute,
+///   the corresponding type needs to implement [`::data_core::data::datapoint::IntoDatapointValue`].
+>>>>>>> main
 /// - `#[pss(flatten)]`: Optional flag which needs to be added to fields which should be flattened into the current container. This is needed
 ///   for the recursion.
-/// - `#[unit("...")]`: Optional unit of the datapoint field which is required by some `#[pss(kind = "...")]`. If it's required but missing
-///   an appropriate error will be thrown at compile time.
 ///
 /// **Note**: When using this macro on newtype structs, the attributes need to be set on the container-level
 ///           instead of the field-level
 ///
+<<<<<<< HEAD
 /// **Note**: This macro only considers fields which have either the `#[pss(name = "...")]` or `#[pss(flatten)]` attribute
 ///
 /// The macro also ensures that all datapoint ids are unique.
 ///
 /// **Important**: This macro only works for newtype and named structs as well as newtype and named enums
+=======
+/// **Note**: This macro only considers fields which have the `#[pss(name = "...")]` or `#[pss(flatten)]` attribute
+///
+/// The macro also ensures that all datapoint ids are unique.
+///
+/// **Important**: This macro only works for newtype and named structed as well as newtype, unit and named enums
+>>>>>>> main
 ///
 #[cfg(feature = "pss")]
 #[proc_macro_derive(PssData, attributes(unit, pss))]

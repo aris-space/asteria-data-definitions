@@ -4,6 +4,7 @@ use quote::{ToTokens, quote};
 use syn::{Attribute, LitStr};
 
 #[derive(Clone)]
+#[allow(dead_code)] // only used for mavlink, but don't want to feature gate
 pub struct Unit(pub LitStr);
 
 impl FromMeta for Unit {
@@ -30,6 +31,7 @@ impl ToTokens for Unit {
     }
 }
 
+#[allow(dead_code)] // only used for mavlink, but don't want to feature gate
 pub trait GetUnit {
     /// Get the value of the unit attribute
     fn get_unit(&self) -> darling::Result<Option<Unit>>;
@@ -47,6 +49,7 @@ impl GetUnit for Vec<Attribute> {
 pub trait GetDocs {
     /// Get all doc comments collected as a single, newline
     /// separated string
+    #[allow(dead_code)] // only used for mavlink, but don't want to feature gate
     fn get_docs_str(&self) -> String;
 
     /// Get all doc comments as an attribute tokenstream such that
