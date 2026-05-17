@@ -53,7 +53,7 @@ fn log_fc_status() {
             .fields
             .get("common.errors")
             .expect("must have error field"),
-        influx::FieldValue::U64(42)
+        influx::FieldValue::I64(42)
     ));
     let influx::FieldValue::String(val) = status
         .fields

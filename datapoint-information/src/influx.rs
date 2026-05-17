@@ -44,8 +44,6 @@ pub enum FieldValue {
     Bool(bool),
     /// A integer (including integers of less width)
     I64(i64),
-    /// A integer (including integers of less width)
-    U64(u64),
     /// A float (including floats of less width)
     F64(f64),
     /// Or a enum variant
@@ -333,7 +331,10 @@ fn scalar_to_field(s: ScalarValue<'_>) -> Result<Option<FieldValue>, Error> {
         ScalarValue::Unit | ScalarValue::Null => return Ok(None),
         ScalarValue::Bool(v) => FieldValue::Bool(v),
         ScalarValue::I64(v) => FieldValue::I64(v),
-        ScalarValue::U64(v) => FieldValue::U64(v),
+        ScalarValue::U64(v) => FieldValue::I64(
+            v.try_into()
+                .map_err(|_| Error::UnsupportedType("too large u64"))?,
+        ),
         ScalarValue::F64(v) => FieldValue::F64(v),
         ScalarValue::Str(v) => FieldValue::String(Cow::Owned(v.into_owned())),
         ScalarValue::Char(c) => FieldValue::String(Cow::Owned(c.to_string())),
