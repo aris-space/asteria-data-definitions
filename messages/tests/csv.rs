@@ -52,9 +52,17 @@ fn log_fc_status() {
         status
             .fields
             .get("common.errors")
-            .expect("must have open field"),
+            .expect("must have error field"),
         influx::FieldValue::U64(42)
     ));
+    let influx::FieldValue::String(val) = status
+        .fields
+        .get("is_software_armed")
+        .expect("must have armed field")
+    else {
+        panic!("must be a string");
+    };
+    assert_eq!(val.as_ref(), "Safe");
 }
 
 #[test]
@@ -71,5 +79,11 @@ fn log_enum_message() {
             datatypes::actuator::NormallyClosedValve::Open,
         ));
     let cmd = influx::to_datapoint(&msg, 42).expect("must serialize");
-    dbg!(cmd); // TODO: fails
+
+    assert_eq!(cmd.measurement, "NormallyClosedValve");
+    let influx::FieldValue::String(val) = cmd.fields.get("value").expect("must have value field")
+    else {
+        panic!("must be a string");
+    };
+    assert_eq!(val.as_ref(), "Open");
 }
