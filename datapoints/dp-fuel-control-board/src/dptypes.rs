@@ -1,7 +1,5 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-#[cfg(feature = "pss")]
-use data_core::pss;
 use datatypes::status::{DprGainInfo, DprLoopInfo, SensorStatus, StatusCommonMessage};
 use gated_derive::gated_derive;
 
