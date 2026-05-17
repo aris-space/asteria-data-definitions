@@ -5,8 +5,8 @@
 //! - If the message contains non-empty `get_datapoint_values()`,
 //!   then one [`DataPoint`] per PSS field via the name and kind there.
 //! - Else, the two enum variants become tags, the inner type the measurement,
-//!   and the fields become fields. Direct enums have a field called `value`.
-//!   FIXME: handle unit types (and newtypes)
+//!   and the fields become fields. Direct enums and newtypes have a field called `value`,
+//!   while unit types land it the measurement `event` with a `happened=true` dummy field.
 //!
 
 use std::borrow::Cow;
@@ -60,8 +60,6 @@ pub enum Error {
     InvalidUtf8,
     /// facet-format reported an error during serialisation.
     Serialize(String),
-    /// The struct produced no fields (all-unit or empty).
-    NoFields,
     /// The message did not conform to the expected two-level enum structure.
     MalformedMessage(&'static str),
     /// This extractor (intentionally) cannot handle legacy multi-datapoint messages.
@@ -84,7 +82,7 @@ impl From<SerializeError<Error>> for Error {
 ///
 /// Else, `M` must be a second level message enum (i.e. the one in `messages`).
 /// Board and message names are extracted automatically from the first two nested enum variant names.
-pub fn to_datapoint<M>(msg: &M, timestamp_ns: u64) -> Result<DataPoint, Error>
+pub fn to_datapoint<M>(msg: &M) -> Result<DataPoint, Error>
 where
     M: DatapointHolder + for<'a> Facet<'a>,
 {
@@ -126,7 +124,7 @@ impl InfluxSerializer {
             board,
             message,
             inner_type,
-            fields,
+            mut fields,
             path,
             pending_key: None,
         } = self.state
@@ -136,12 +134,15 @@ impl InfluxSerializer {
         if !path.is_empty() {
             return Err(Error::MalformedMessage("still has outstanding path"));
         }
-        if fields.is_empty() {
-            return Err(Error::NoFields);
-        }
         let mut tags = BTreeMap::new();
         tags.insert("board", Cow::Borrowed(board));
         tags.insert("message", Cow::Borrowed(message));
+
+        if fields.is_empty() {
+            // fabricate a field if none existed
+            let _ = fields.insert(Cow::Borrowed("happened"), FieldValue::Bool(true));
+        }
+
         Ok(DataPoint {
             measurement: Cow::Borrowed(inner_type),
             tags,
@@ -236,13 +237,23 @@ impl FormatSerializer for InfluxSerializer {
     fn variant_metadata(&mut self, variant: &'static Variant) -> Result<(), Self::Error> {
         self.state = match std::mem::replace(&mut self.state, SerState::Init) {
             SerState::GotBoard { board } => {
-                if variant.data.kind != StructKind::TupleStruct || variant.data.fields.len() != 1 {
-                    return Err(Error::MalformedMessage("not newtype enum after two levels"));
-                }
-                SerState::GotMessage {
-                    board,
-                    message: variant.effective_name(),
-                    inner_type: variant.data.fields[0].shape().effective_name(),
+                if variant.data.kind == StructKind::Unit {
+                    SerState::GotMessage {
+                        board,
+                        message: variant.effective_name(),
+                        inner_type: "event",
+                    }
+                } else {
+                    if variant.data.kind != StructKind::TupleStruct
+                        || variant.data.fields.len() != 1
+                    {
+                        return Err(Error::MalformedMessage("not newtype enum after two levels"));
+                    }
+                    SerState::GotMessage {
+                        board,
+                        message: variant.effective_name(),
+                        inner_type: variant.data.fields[0].shape().effective_name(),
+                    }
                 }
             }
             other => other,
