@@ -261,4 +261,79 @@ pub enum Message {
     /// The Fuel Control Board shall adjust the Fuel Vent Valve state accordingly
     #[can(id = 0x21d)]
     FuelVentValveControlRFS(NormallyOpenValve),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the proportional Fuel DPR Gain
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the proportional DPR gain accordingly
+    #[can(id = 0x220)]
+    FuelDprGainP(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the integral Fuel DPR Gain
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the integral DPR gain accordingly
+    #[can(id = 0x221)]
+    FuelDprGainI(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the derivative Fuel DPR Gain
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the derivative DPR gain accordingly
+    #[can(id = 0x222)]
+    FuelDprGainD(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the minimum opening time ms of the DPR
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the derivative DPR minimum opening time accordingly
+    #[can(id = 0x223)]
+    FuelDprMinOpeningTime(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `FuelControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the maximum opening time ms of the DPR
+    ///
+    /// ## Reaction
+    /// The Fuel Control Board shall adjust the derivative DPR maximum opening time accordingly
+    #[can(id = 0x224)]
+    FuelDprMaxOpeningTime(f32),
 }

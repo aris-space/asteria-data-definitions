@@ -202,4 +202,79 @@ pub enum Message {
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x21e)]
     OxidizerVentValveControlRFS(NormallyClosedValve),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the proportional Oxidizer DPR Gain
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the proportional DPR gain accordingly
+    #[can(id = 0x22a)]
+    OxidizerDprGainP(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the integral Oxidizer DPR Gain
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the integral DPR gain accordingly
+    #[can(id = 0x22b)]
+    OxidizerDprGainI(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the derivative Oxidizer DPR Gain
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the derivative DPR gain accordingly
+    #[can(id = 0x22c)]
+    OxidizerDprGainD(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the minimum opening time ms of the DPR
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the derivative DPR minimum opening time accordingly
+    #[can(id = 0x22d)]
+    OxidizerDprMinOpeningTime(f32),
+
+    /// ## Type
+    /// - `Event`: sent by the FC
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `FlightComputer`
+    /// - **Received by:** `OxidizerControlBoard`
+    ///
+    /// ## Purpose
+    /// Sets the maximum opening time ms of the DPR
+    ///
+    /// ## Reaction
+    /// The Oxidizer Control Board shall adjust the derivative DPR maximum opening time accordingly
+    #[can(id = 0x22e)]
+    OxidizerDprMaxOpeningTime(f32),
 }
