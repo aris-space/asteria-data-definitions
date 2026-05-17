@@ -5,14 +5,14 @@
 //! - If the message contains non-empty `get_datapoint_values()`,
 //!   then one [`DataPoint`] per PSS field via the name and kind there.
 //! - Else, the two enum variants become tags, the inner type the measurement,
-//!   and the fields become fields
-//!   (FIXME: how to handle enums/unit messages)
+//!   and the fields become fields. Direct enums have a field called `value`.
+//!   FIXME: handle unit types (and newtypes)
 //!
 
 use std::borrow::Cow;
 use std::collections::BTreeMap;
 
-use facet::Facet;
+use facet::{Facet, StructKind, Variant};
 use facet_format::{EnumVariantEncoding, FormatSerializer, ScalarValue, SerializeError};
 use facet_reflect::Peek;
 
@@ -65,7 +65,7 @@ pub enum Error {
     /// The struct produced no fields (all-unit or empty).
     NoFields,
     /// The message did not conform to the expected two-level enum structure.
-    MalformedMessage,
+    MalformedMessage(&'static str),
     /// This extractor (intentionally) cannot handle legacy multi-datapoint messages.
     TooManyDatapoints,
 }
@@ -124,22 +124,28 @@ struct InfluxSerializer {
 impl InfluxSerializer {
     /// Retuns the serialized datapoint, without a timestamp, or mission_id
     fn finish(self) -> Result<DataPoint, Error> {
-        let SerState::Done {
+        let SerState::Collecting {
             board,
             message,
+            inner_type,
             fields,
+            path,
+            pending_key: None,
         } = self.state
         else {
-            return Err(Error::MalformedMessage);
+            return Err(Error::MalformedMessage("didn't get two level enum"));
         };
+        if !path.is_empty() {
+            return Err(Error::MalformedMessage("still has outstanding path"));
+        }
         if fields.is_empty() {
             return Err(Error::NoFields);
         }
         let mut tags = BTreeMap::new();
-        tags.insert("board", Cow::Owned(board));
-        tags.insert("message", Cow::Owned(message.clone()));
+        tags.insert("board", Cow::Borrowed(board));
+        tags.insert("message", Cow::Borrowed(message));
         Ok(DataPoint {
-            measurement: Cow::Owned(to_snake_case(&message)), // FIXME: this should be inner's type
+            measurement: Cow::Borrowed(inner_type),
             tags,
             fields,
             timestamp_ns: None,
@@ -147,34 +153,29 @@ impl InfluxSerializer {
     }
 }
 
-// FIXME: waaaay to many allocated strings, most of them are always (or at least sometimes) &'static
-
 #[derive(Debug, Default)]
 enum SerState {
     /// Initial state; awaiting the first (board-level) enum variant.
     #[default]
     Init,
     /// Got the board variant name; awaiting the inner (message-level) variant.
-    GotBoard { board: String },
-    // FIXME: remove probably -> innermost type can also be a primitive (or more common, a enum)
-    /// Got both names; the next `begin_struct` starts field collection.
-    GotMessage { board: String, message: String },
+    GotBoard { board: &'static str },
+    /// Get all message information, next enum variant will be the actual message.
+    GotMessage {
+        board: &'static str,
+        message: &'static str,
+        inner_type: &'static str,
+    },
     /// Collecting payload struct fields.
     Collecting {
-        board: String,
-        message: String,
-        /// Nesting path: `None` at the root, `Some(name)` for each nested struct.
-        // FIXME: should this just be Vec<&'static str>, with empty being the root?
-        path: Vec<Option<String>>,
+        board: &'static str,
+        message: &'static str,
+        inner_type: &'static str,
+        /// Nesting path: empty at the root, one entry for each nested struct.
+        path: Vec<String>,
         /// Field name from the most recent `field_key`; consumed by the next
-        /// `scalar` or `begin_struct`.
+        /// `scalar`, `begin_struct`, or `begin_enum_variant`.
         pending_key: Option<String>,
-        fields: BTreeMap<Cow<'static, str>, FieldValue>,
-    },
-    /// Collection complete; trailing `end_struct` calls are absorbed.
-    Done {
-        board: String,
-        message: String,
         fields: BTreeMap<Cow<'static, str>, FieldValue>,
     },
 }
@@ -191,19 +192,27 @@ impl FormatSerializer for InfluxSerializer {
     /// Core of the state machine. The first two calls establish `board` and
     /// `message`; subsequent calls (from payload enum fields) emit the variant
     /// name as the string value of the current pending field.
+    #[allow(clippy::match_wildcard_for_single_variants)]
     fn begin_enum_variant(&mut self, _index: usize, name: &'static str) -> Result<(), Error> {
         self.state = match std::mem::replace(&mut self.state, SerState::Init) {
-            SerState::Init => SerState::GotBoard {
-                board: name.to_owned(),
-            },
-            SerState::GotBoard { board } => SerState::GotMessage {
+            SerState::Init => SerState::GotBoard { board: name },
+            SerState::GotMessage {
                 board,
-                message: name.to_owned(),
+                message,
+                inner_type,
+            } => SerState::Collecting {
+                board,
+                message,
+                inner_type,
+                path: vec![], // root level
+                pending_key: None,
+                fields: BTreeMap::new(),
             },
             // Payload enum field: emit variant name as the string value.
             SerState::Collecting {
                 board,
                 message,
+                inner_type,
                 path,
                 mut pending_key,
                 mut fields,
@@ -213,77 +222,60 @@ impl FormatSerializer for InfluxSerializer {
                 SerState::Collecting {
                     board,
                     message,
+                    inner_type,
                     path,
                     pending_key,
                     fields,
                 }
             }
-            other => other, // absorb in Done or unexpected states
+            other => other, // absorb in other states
         };
         Ok(())
     }
 
-    fn begin_struct(&mut self) -> Result<(), Error> {
+    /// Provides variant metadata before serializing an enum variant.
+    /// Used to get the type name of the inner messsage type.
+    fn variant_metadata(&mut self, variant: &'static Variant) -> Result<(), Self::Error> {
         self.state = match std::mem::replace(&mut self.state, SerState::Init) {
-            // Payload struct begins: initialise collecting state.
-            SerState::GotMessage { board, message } => SerState::Collecting {
-                board,
-                message,
-                path: vec![None], // root level
-                pending_key: None,
-                fields: BTreeMap::new(),
-            },
-            // Nested struct within the payload: push current key as path segment.
-            SerState::Collecting {
-                board,
-                message,
-                mut path,
-                mut pending_key,
-                fields,
-            } => {
-                path.push(pending_key.take());
-                SerState::Collecting {
+            SerState::GotBoard { board } => {
+                if variant.data.kind != StructKind::TupleStruct || variant.data.fields.len() != 1 {
+                    return Err(Error::MalformedMessage("not newtype enum after two levels"));
+                }
+                SerState::GotMessage {
                     board,
-                    message,
-                    path,
-                    pending_key,
-                    fields,
+                    message: variant.effective_name(),
+                    inner_type: variant.data.fields[0].shape().effective_name(),
                 }
             }
-            other => other, // absorb
+            other => other,
         };
         Ok(())
     }
 
-    fn end_struct(&mut self) -> Result<(), Error> {
-        // Phase 1: pop path (active borrow ends here).
-        let complete = if let SerState::Collecting { path, .. } = &mut self.state {
-            path.pop();
-            path.is_empty()
-        } else {
-            false
-        };
-        // Phase 2: if the root struct closed, consume state (no active borrow).
-        if complete {
-            match std::mem::replace(&mut self.state, SerState::Init) {
-                SerState::Collecting {
-                    board,
-                    message,
-                    fields,
-                    ..
-                } => {
-                    self.state = SerState::Done {
-                        board,
-                        message,
-                        fields,
-                    };
-                }
-                _ => unreachable!(),
+    /// Pushes the path
+    #[allow(clippy::collapsible_if)] // requires newer rust version
+    fn begin_struct(&mut self) -> Result<(), Error> {
+        // Nested struct within the payload: push current key as path segment.
+        if let SerState::Collecting {
+            path, pending_key, ..
+        } = &mut self.state
+        {
+            if let Some(key) = pending_key.take() {
+                path.push(key);
             }
+        }
+        Ok(())
+    }
+
+    /// Pops the path
+    fn end_struct(&mut self) -> Result<(), Error> {
+        if let SerState::Collecting { path, .. } = &mut self.state {
+            path.pop();
         }
         Ok(()) // absorb in all other states (enum wrappers, outer wrapper)
     }
 
+    /// Stores the field name
     fn field_key(&mut self, key: &str) -> Result<(), Error> {
         if let SerState::Collecting { pending_key, .. } = &mut self.state {
             *pending_key = Some(key.to_owned());
@@ -291,39 +283,24 @@ impl FormatSerializer for InfluxSerializer {
         Ok(())
     }
 
+    /// Records a scalar field
     fn scalar(&mut self, scalar: ScalarValue<'_>) -> Result<(), Error> {
-        match &mut self.state {
-            SerState::Collecting {
-                path,
-                pending_key,
-                fields,
-                ..
-            } => {
-                let name = collecting_field_name(path, pending_key);
-                if let Some(value) = scalar_to_field(scalar)? {
-                    fields.insert(name, value);
-                }
+        if let SerState::Collecting {
+            path,
+            pending_key,
+            fields,
+            ..
+        } = &mut self.state
+        {
+            let name = collecting_field_name(path, pending_key);
+            if let Some(value) = scalar_to_field(scalar)? {
+                fields.insert(name, value);
             }
-            // Simple scalar payload at the message level (e.g. a Cat A PSS
-            // value that serialises as a bare f32). We don't collect it — Cat A
-            // uses get_datapoint_values() — but we need to reach Done.
-            SerState::GotMessage { .. } => {
-                match std::mem::replace(&mut self.state, SerState::Init) {
-                    SerState::GotMessage { board, message } => {
-                        self.state = SerState::Done {
-                            board,
-                            message,
-                            fields: BTreeMap::new(),
-                        };
-                    }
-                    _ => unreachable!(),
-                }
-            }
-            _ => {} // absorb
         }
         Ok(())
     }
 
+    /// Records a byte array field as a string
     fn serialize_byte_array(&mut self, bytes: &[u8]) -> Result<bool, Error> {
         if let SerState::Collecting {
             path,
@@ -423,27 +400,11 @@ fn infer_pss_measurement(kind: DatapointKind) -> Result<&'static str, Error> {
 }
 
 /// Build the dot-joined field name from the current path prefix and pending key.
-fn collecting_field_name(
-    path: &[Option<String>],
-    pending_key: &mut Option<String>,
-) -> Cow<'static, str> {
-    let key = pending_key.take().unwrap_or_default();
-    let prefix_parts: Vec<&str> = path.iter().filter_map(|p| p.as_deref()).collect();
-    if prefix_parts.is_empty() {
+fn collecting_field_name(path: &[String], pending_key: &mut Option<String>) -> Cow<'static, str> {
+    let key = pending_key.take().unwrap_or_else(|| "value".into());
+    if path.is_empty() {
         Cow::Owned(key)
     } else {
-        Cow::Owned(format!("{}.{key}", prefix_parts.join(".")))
+        Cow::Owned(format!("{}.{key}", path.join(".")))
     }
-}
-
-/// Helper to convert a string to snake_case
-fn to_snake_case(s: &str) -> String {
-    let mut out = String::with_capacity(s.len() + 4);
-    for (i, c) in s.chars().enumerate() {
-        if c.is_uppercase() && i != 0 {
-            out.push('_');
-        }
-        out.extend(c.to_lowercase());
-    }
-    out
 }
