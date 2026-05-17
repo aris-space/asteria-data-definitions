@@ -91,12 +91,16 @@ the sole series-identifying tag. It is unique across the entire system by constr
 
 ### 3.3 Fields
 
-Each annotated datapoint currently contributes exactly one field internally named `value`, holding the
-numeric reading coerced to a 64-bit float. Booleans (valve open/closed) are encoded
-as `1.0` / `0.0`. DPR valves in the disabled state are encoded as `NaN`.
+The field set depends on the datapoint kind:
 
-This should not be encoded that way in influxdb, instead valves should have the field `open` which is a boolean,
-sensors being a f64 is fine, and DPR valves have two fields: `open` and `setpoint`, where setpoint is null if not open.
+| Datapoint kind        | Fields                                         |
+| --------------------- | ---------------------------------------------- |
+| Analog sensor         | `value` (double)                               |
+| Digital sensor        | `open` (boolean)                               |
+| Digital actuator      | `open` (boolean)                               |
+| DPR actuator — open   | `open` (boolean, true), `setpoint` (double)    |
+| DPR actuator — closed | `open` (boolean, false) — `setpoint` is absent |
+| Fractional actuator   | `openness` (double, 0.0–1.0)                   |
 
 ---
 
