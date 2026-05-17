@@ -21,6 +21,10 @@ utoipa = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 facet = { workspace = true, optional = true }
 
+[dev-dependencies]
+datatypes = { path = "../datatypes" }
+datapoint-information = { path = "../datapoint-information" }
+
 [features]
 default = ["can"]
 # Derive can related traits for all datapoints and datapoint specific types
@@ -163,3 +167,7 @@ derive_pss = []
 
 [lints]
 workspace = true
+
+[[test]]
+name = "csv"
+required-features = ["derive_facet", "pss"]
