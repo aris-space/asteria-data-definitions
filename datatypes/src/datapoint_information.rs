@@ -6,19 +6,13 @@ use datapoint_information::datapoint::{
 };
 
 use crate::{
-<<<<<<< HEAD
     actuator::{
         DPRValve, DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve,
         ThrottleableValve,
     },
     sensor::DigitalIn,
     status::SensorStatus,
-    units::Celsius,
-=======
-    actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
-    status::ValveState,
     units::{BarG, Celsius},
->>>>>>> main
 };
 
 impl IntoDatapointValue for NormallyClosedValve {
@@ -45,7 +39,6 @@ impl IntoDatapointValue for NormallyOpenValve {
     }
 }
 
-<<<<<<< HEAD
 impl From<DigitalOut> for DatapointValue {
     fn from(value: DigitalOut) -> Self {
         Self::Actuator(ActuatorValue::Digital {
@@ -58,7 +51,10 @@ impl From<InvertedDigitalOut> for DatapointValue {
     fn from(value: InvertedDigitalOut) -> Self {
         Self::Actuator(ActuatorValue::Digital {
             active: matches!(value, InvertedDigitalOut::On),
-=======
+        })
+    }
+}
+            
 impl IntoDatapointValue for ValveState {
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
         default_enabled: false,
@@ -67,7 +63,7 @@ impl IntoDatapointValue for ValveState {
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, ValveState::Active),
->>>>>>> main
+
         })
     }
 }

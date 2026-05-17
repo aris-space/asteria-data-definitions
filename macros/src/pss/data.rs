@@ -3,7 +3,6 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Ident, LitStr};
 
-<<<<<<< HEAD
 use crate::util::{GetUnit, Unit};
 
 #[derive(FromMeta, Clone, Copy)]
@@ -68,8 +67,6 @@ impl ToTokens for DataKindWithUnit<'_> {
     }
 }
 
-=======
->>>>>>> main
 #[derive(FromField)]
 #[darling(attributes(pss))]
 pub struct PssDataField {
@@ -81,15 +78,12 @@ pub struct PssDataField {
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
     label: Option<LitStr>,
-<<<<<<< HEAD
     /// Type of the PSS datapoint
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set,
     /// unless the type is listed in [`TYPE_KIND_REGISTRY`] (e.g. `NormallyClosedValve`,
     /// `NormallyOpenValve`, `DigitalOut`, `InvertedDigitalOut`), in which case it is inferred.
     kind: Option<SpannedValue<DataKind>>,
-=======
->>>>>>> main
     /// Boolean flag whether this field should be flattened
     flatten: Flag,
 
@@ -108,15 +102,13 @@ pub struct PssDataVariant {
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
     label: Option<LitStr>,
-<<<<<<< HEAD
     /// Type of the PSS datapoint
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set,
     /// unless the type is listed in [`TYPE_KIND_REGISTRY`] (e.g. `NormallyClosedValve`,
     /// `NormallyOpenValve`, `DigitalOut`, `InvertedDigitalOut`), in which case it is inferred.
     kind: Option<SpannedValue<DataKind>>,
-=======
->>>>>>> main
+
     /// Boolean flag whether this variant should be flattened
     flatten: Flag,
 
@@ -462,7 +454,7 @@ fn get_datapoints(
         let datapoints_len = quote!(#datapoints.len());
         return Ok(Some((datapoints, datapoints_len)));
     };
-<<<<<<< HEAD
+
     let inferred: Option<SpannedValue<DataKind>> = kind
         .is_none()
         .then(|| infer_kind(ty))
@@ -476,11 +468,6 @@ fn get_datapoints(
         return Err(darling::Error::custom(
             "Attribute `#[pss(label = ...)]` is required when `#[pss(name = ...)]` is set. \
              Also set `#[pss(kind = ...)]` unless the type is listed in TYPE_KIND_REGISTRY.",
-=======
-    let Some(label) = label else {
-        return Err(darling::Error::custom(
-            "Attribute `#[pss(label = ...)]` is required when `#[pss(name = ...)]` is set",
->>>>>>> main
         )
         .with_span(name));
     };
