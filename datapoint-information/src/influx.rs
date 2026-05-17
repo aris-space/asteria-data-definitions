@@ -23,7 +23,6 @@ use crate::datapoint::{
 
 /// A fully-resolved InfluxDB data point ready for serialisation.
 // (copied from `influxdb2`)
-// TODO: maybe we can delay allocating for snake case except for the first occurance (for header).
 #[derive(Debug, Clone)]
 pub struct DataPoint {
     /// The measurement name (snake case)
@@ -82,6 +81,8 @@ impl From<SerializeError<Error>> for Error {
 ///
 /// Else, `M` must be a second level message enum (i.e. the one in `messages`).
 /// Board and message names are extracted automatically from the first two nested enum variant names.
+///
+/// This does not yet contain a timestamp or system tag.
 pub fn to_datapoint<M>(msg: &M) -> Result<DataPoint, Error>
 where
     M: DatapointHolder + for<'a> Facet<'a>,
@@ -106,7 +107,6 @@ where
     } else {
         Err(Error::TooManyDatapoints)
     }
-    // TODO set timestamp and mission id
 }
 
 /// [`facet_format`] serializer that walks a two level enum, and then collects all fields.
@@ -370,9 +370,11 @@ impl DataPoint {
             DatapointValue::Sensor(SensorValue::Analog { value }) => {
                 fields.insert(Cow::Borrowed("value"), FieldValue::F64(value.into()));
             }
-            DatapointValue::Sensor(SensorValue::Digital { enabled })
-            | DatapointValue::Actuator(ActuatorValue::Digital { enabled }) => {
+            DatapointValue::Actuator(ActuatorValue::Digital { enabled }) => {
                 fields.insert(Cow::Borrowed("open"), FieldValue::Bool(enabled));
+            }
+            DatapointValue::Sensor(SensorValue::Digital { enabled }) => {
+                fields.insert(Cow::Borrowed("enabled"), FieldValue::Bool(enabled));
             }
             DatapointValue::Actuator(ActuatorValue::DPR { enabled, setpoint }) => {
                 fields.insert(Cow::Borrowed("open"), FieldValue::Bool(enabled));
@@ -398,16 +400,14 @@ impl DataPoint {
 fn infer_pss_measurement(kind: DatapointKind) -> Result<&'static str, Error> {
     Ok(match kind {
         DatapointKind::Actuator(ActuatorKind::DPR) => "dpr_valve_state",
-        DatapointKind::Actuator(ActuatorKind::Digital { .. }) => "valve_state",
+        DatapointKind::Actuator(ActuatorKind::Digital { .. }) => "valve_state", // FIXME: this is not very specific
         DatapointKind::Actuator(ActuatorKind::Fractional) => "throttable_valve_state",
         DatapointKind::Sensor(SensorKind::Analog { unit: "barg" }) => "pressure_sensor",
         DatapointKind::Sensor(SensorKind::Analog { unit: "°C" }) => "temperature_sensor",
         DatapointKind::Sensor(SensorKind::Analog { unit }) => {
             return Err(Error::UnknownSensorUnit(unit.to_owned()));
         }
-        DatapointKind::Sensor(SensorKind::Digital { .. }) => {
-            todo!("digital sensor measurement name not yet decided")
-        }
+        DatapointKind::Sensor(SensorKind::Digital { .. }) => "proximity_sensor", // FIXME: this is not very specific
     })
 }
 
