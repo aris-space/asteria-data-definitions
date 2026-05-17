@@ -260,56 +260,98 @@ pub enum Message {
     EthPumpPowerState(DigitalOut),
 
     /// The current active state of the custom output 1.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
     #[can(id = 0x354)]
     #[pss(label = "Custom 1", name = "custom1")]
     Custom1State(DigitalOut),
 
     /// The current active state of the custom output 2.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
     #[can(id = 0x355)]
     #[pss(label = "Custom 2", name = "custom2")]
     Custom2State(DigitalOut),
 
     /// The current active state of the custom output 3.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
     #[can(id = 0x356)]
     #[pss(label = "Custom 3", name = "custom3")]
     Custom3State(DigitalOut),
 
     // ======================== Sensors ========================
     /// The temperature of the LOx line, from sensor `R-T-L-1`.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x357)]
     #[pss(label = "LOx Temperature", name = "r_t_l_1")]
     #[unit("°C")]
     LoxTemperature(Celsius),
 
     /// The temperature of the igniter, from sensor `I-T-I-1`.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x357)]
     #[pss(label = "Igniter Temperature", name = "i_t_i_1")]
     #[unit("°C")]
     IgniterTemperature(Celsius),
 
     /// The temperature inside the DACS cabinet.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x358)]
     #[pss(label = "Cabinet Temperature", name = "cabinet_t")]
     #[unit("°C")]
     CabinetTemperature(Celsius),
 
     /// The ambient temperature.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x359)]
     #[pss(label = "Ambient Temperature", name = "ambient_t")]
     #[unit("°C")]
     AmbientTemperature(Celsius),
 
     /// Whether the LOx decoupler is in its retracted state, from the proximity sensor.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x360)]
     #[pss(label = "LOx Decoupler Proximity", name = "lox_decoupler_prox")]
     LoxDecouplerProximity(DigitalIn),
 
     /// Whether the N2 decoupler is in its retracted state, from the proximity sensor.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x361)]
     #[pss(label = "N2 Decoupler Proximity", name = "n2_decoupler_prox")]
     N2DecouplerProximity(DigitalIn),
 
     /// Whether the valves are receiving power (arming relay state).
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x362)]
     #[pss(label = "Valves Armed", name = "valves_armed")]
     ValvesArmed(DigitalIn),
 
     /// Whether the spark plug is receiving power (arming relay state).
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x363)]
     #[pss(label = "Igniter Armed", name = "igniter_armed")]
     IgniterArmed(DigitalIn),
+    
     /// ## Purpose
     /// Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
     /// This includes the ingiter valves and the spark plug.
