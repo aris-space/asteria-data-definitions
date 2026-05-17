@@ -7,10 +7,10 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{
+use datatypes::{actuator::NormallyClosedValve, status::{
     BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-    ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
-};
+    ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
+}};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -359,7 +359,7 @@ pub enum Message {
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20b)]
     #[mavlink(id = 0x10_06_07)]
-    H2IgniterValveControl(ValveState),
+    H2IgniterValveControl(NormallyClosedValve),
 
     /// Controls the igniter spark plug on the RFS from the FC.
     ///
