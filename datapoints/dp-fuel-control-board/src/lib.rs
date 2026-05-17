@@ -284,7 +284,7 @@ pub enum Message {
     /// - **Received by:** `FuelControlBoard`
     ///
     /// ## Purpose
-    /// Sets the minimum opening time [ms] of the DPR
+    /// Sets the minimum opening time ms of the DPR
     ///
     /// ## Reaction
     /// The Fuel Control Board shall adjust the derivative DPR minimum opening time accordingly
@@ -299,7 +299,7 @@ pub enum Message {
     /// - **Received by:** `FuelControlBoard`
     ///
     /// ## Purpose
-    /// Sets the maximum opening time [ms] of the DPR
+    /// Sets the maximum opening time ms of the DPR
     ///
     /// ## Reaction
     /// The Fuel Control Board shall adjust the derivative DPR maximum opening time accordingly

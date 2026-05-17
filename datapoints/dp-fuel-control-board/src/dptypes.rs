@@ -22,10 +22,10 @@ pub struct FuelControlBoardStatus {
     #[mavlink(refine)]
     pub pressure_bus: SensorStatus,
     /// State of the DPR Control Loop
-    #[mavlink(refine)]
+    #[mavlink(flatten)]
     pub dpr_loop_info: DprLoopInfo,
     /// State of the DPR Control Gain
-    #[mavlink(refine)]
+    #[mavlink(flatten)]
     pub dpr_gain_info: DprGainInfo,
 }
 

@@ -233,7 +233,7 @@ pub enum DprLoopInfo {
     #[default]
     Passive = 2,
 }
-
+/// Struct representing the gains of the dpr controller
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
