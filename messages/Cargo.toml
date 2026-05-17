@@ -19,6 +19,7 @@ gated-derive = { path = "../macro-gated-derive" }
 thiserror = { version = "2.0.17", optional = true, default-features = false }
 utoipa = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
+facet = { workspace = true, optional = true }
 
 [features]
 default = ["can"]
@@ -128,6 +129,19 @@ mission-control = [
     "dp-sensor-carrier/mission-control",
     "derive_utoipa",
     "derive_serde",
+]
+# Derive the Facet trait for reflection (used for CSV)
+derive_facet = [
+    "dep:facet",
+    "dp-engine-control-board/derive_facet",
+    "dp-fuel-control-board/derive_facet",
+    "dp-power-board/derive_facet",
+    "dp-rfs-computer/derive_facet",
+    "dp-system-management/derive_facet",
+    "dp-flight-computer/derive_facet",
+    "dp-oxidizer-control-board/derive_facet",
+    "dp-recovery-board/derive_facet",
+    "dp-sensor-carrier/derive_facet",
 ]
 # Derive the Utoipa API schema generation for the message enum and all dependencies.
 derive_utoipa = [

@@ -51,7 +51,8 @@ pub mod datapoints {
 /// All messages in the full system
 #[gated_derive(can::Decode, can::Encode, mavlink::Dialect)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize, Debug)]
-#[gated_derive(pss::Data)]
+#[gated_derive(pss::Data, facet::Facet)]
+#[repr(u8)]
 #[derive(Clone)]
 #[dialect(name = "ASTERIA", id = 900, version = 1)]
 #[can(dispatch)]

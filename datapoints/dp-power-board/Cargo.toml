@@ -13,6 +13,7 @@ gated-derive = { path = "../../macro-gated-derive" }
 
 # for types
 serde = { workspace = true, optional = true }
+facet = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 defmt = { workspace = true, optional = true }
 
@@ -26,6 +27,7 @@ derive_serde = ["dep:serde", "datatypes/derive_serde"]
 derive_defmt = ["dep:defmt", "datatypes/derive_defmt"]
 derive_bincode = ["datatypes/derive_bincode"]
 derive_arbitrary = ["datatypes/derive_arbitrary"]
+derive_facet = ["dep:facet", "datatypes/derive_facet"]
 derive_utoipa = ["dep:utoipa", "datatypes/derive_utoipa", "std"]
 derive_can = []
 derive_mavlink = []
