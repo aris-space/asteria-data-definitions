@@ -116,86 +116,161 @@ pub enum Message {
     H2PurgeValveState(NormallyClosedValve),
 
     /// The current active state of the normally open N2 bleed valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x336)]
     #[pss(label = "N2 Bleed", name = "n2_bld_vlv")]
     N2BleedValveState(NormallyOpenValve),
 
     /// The current active state of the normally closed LOX purge valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x337)]
     #[pss(label = "LOX Purge", name = "lox_prg_vlv")]
     LoxPurgeValveState(NormallyClosedValve),
 
     /// The current active state of the normally open GOX bleed valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x338)]
     #[pss(label = "GOX Bleed", name = "gox_bld_vlv")]
     GoxBleedValveState(NormallyOpenValve),
 
     /// The current active state of the normally closed N2 purge valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x339)]
     #[pss(label = "N2 Purge", name = "n2_prg_vlv")]
     N2PurgeValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed N2 fill valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x340)]
     #[pss(label = "N2 Fill", name = "n2_fll_vlv")]
     N2FillValveState(NormallyClosedValve),
 
     /// The current active state of the normally open H2 bleed valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x341)]
     #[pss(label = "H2 Bleed", name = "h2_bld_vlv")]
     H2BleedValveState(NormallyOpenValve),
 
     /// The current active state of the normally closed LOX bleed valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x342)]
     #[pss(label = "LOX Bleed", name = "lox_bld_vlv")]
     LoxBleedValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed pneumatic booster valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x343)]
     #[pss(label = "Booster", name = "pnm_bstr_vlv")]
     BoosterValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed LOX decoupler extend valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x344)]
     #[pss(label = "LOX Dec. Extend", name = "pnm_loxdec_ext")]
     LoxDecouplerExtendValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed LOX decoupler retract valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x345)]
     #[pss(label = "LOX Dec. Retract", name = "pnm_loxdec_ret")]
     LoxDecouplerRetractValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed N2 decoupler extend valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x346)]
     #[pss(label = "N2 Dec. Extend", name = "pnm_n2dec_ext")]
     N2DecouplerExtendValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed N2 decoupler retract valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x347)]
     #[pss(label = "N2 Dec. Retract", name = "pnm_n2dec_ret")]
     N2DecouplerRetractValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed N2 release valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x348)]
     #[pss(label = "N2 Release", name = "pnm_n2rls_vlv")]
     N2ReleaseValveState(NormallyClosedValve),
 
     /// The current active state of the rocket power output.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x349)]
     #[pss(label = "Rocket Power", name = "rocket_power")]
     RocketPowerState(InvertedDigitalOut),
 
     /// The current active state of the Maxon board power output.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x350)]
     #[pss(label = "Maxon Power", name = "maxon_board_power")]
     MaxonBoardPowerState(InvertedDigitalOut),
 
     /// The current active state of the FSS heating output.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x351)]
     #[pss(label = "FSS Heating", name = "fss_heating")]
     FssHeatingState(DigitalOut),
 
     /// The current active state of the pressure sensor heating output.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x352)]
     #[pss(label = "Sensor Heat", name = "pres_sensor_heat")]
     PressureSensorHeatingState(DigitalOut),
 
     /// The current active state of the ETH pump power output.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x353)]
     #[pss(label = "ETH Pump Power", name = "eth_pump_power")]
     EthPumpPowerState(DigitalOut),
 
     /// The current active state of the custom output 1.
+    #[can(id = 0x354)]
     #[pss(label = "Custom 1", name = "custom1")]
     Custom1State(DigitalOut),
 
     /// The current active state of the custom output 2.
+    #[can(id = 0x355)]
     #[pss(label = "Custom 2", name = "custom2")]
     Custom2State(DigitalOut),
 
     /// The current active state of the custom output 3.
+    #[can(id = 0x356)]
     #[pss(label = "Custom 3", name = "custom3")]
     Custom3State(DigitalOut),
 
@@ -295,9 +370,8 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20c)]
-    IgniterSparkPlugControl(DigitalOut),
     #[mavlink(id = 0x10_06_08)]
-    IgniterSparkPlugControl(ValveState),
+    IgniterSparkPlugControl(DigitalOut),
 
     /// Controls the H2 purge valve on the RFS from the FC.
     ///
@@ -308,6 +382,7 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20d)]
+    #[mavlink(id = 0x10_06_09)]
     H2IgniterPurgeControl(NormallyClosedValve),
 
     /// Controls the GOX purge valve on the RFS from the FC.
@@ -319,9 +394,8 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20e)]
+    #[mavlink(id = 0x10_06_10)]
     GoxIgniterPurgeControl(NormallyClosedValve),
-    #[mavlink(id = 0x10_06_09)]
-    IgniterPurgeControl(ValveState),
 
     /// Command a manual state transition on the RFSC.
     /// The state machine will perform the state transition and emit a state change event.
