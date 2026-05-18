@@ -151,7 +151,9 @@ impl<'de> serde::Deserialize<'de> for DPRValve {
         D: serde::Deserializer<'de>,
     {
         let x = <Option<f32> as serde::Deserialize>::deserialize(deserializer)?;
-        Ok(x.map_or(DPRValve::Disabled, |setpoint| DPRValve::Enabled { setpoint }))
+        Ok(x.map_or(DPRValve::Disabled, |setpoint| DPRValve::Enabled {
+            setpoint,
+        }))
     }
 }
 
