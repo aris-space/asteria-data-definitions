@@ -127,7 +127,7 @@ impl Settable for NormallyClosedValve {
 #[serde(rename_all = "camelCase")]
 pub struct PressurizationGain(pub f32);
 
-#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(serde::Serialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
@@ -142,6 +142,17 @@ pub enum DPRValve {
     /// Disabled
     #[default]
     Disabled,
+}
+
+#[cfg(feature = "derive_serde")]
+impl<'de> serde::Deserialize<'de> for DPRValve {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let x = <Option<f32> as serde::Deserialize>::deserialize(deserializer)?;
+        Ok(x.map_or(DPRValve::Disabled, |setpoint| DPRValve::Enabled { setpoint }))
+    }
 }
 
 /// Canonical mapping from f32 to [`DPRValve`]
