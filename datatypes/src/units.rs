@@ -26,7 +26,7 @@ macro_rules! unit_newtypes {
         $(
             ///
             /// Is `NAN` by default.
-            #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+            #[gated_derive(serde::Serialize, defmt::Format)]
             #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
             #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
             #[gated_derive(utoipa::ToSchema)]
@@ -41,6 +41,17 @@ macro_rules! unit_newtypes {
             impl Default for $name {
                 fn default() -> Self {
                     Self(<$ty>::NAN)
+                }
+            }
+
+            #[cfg(feature = "derive_serde")]
+            impl<'de> serde::Deserialize<'de> for $name {
+                fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+                where
+                    D: serde::Deserializer<'de>,
+                {
+                    let x = <Option<f32> as serde::Deserialize>::deserialize(deserializer)?;
+                    Ok($name(x.unwrap_or(f32::NAN)))
                 }
             }
         )*

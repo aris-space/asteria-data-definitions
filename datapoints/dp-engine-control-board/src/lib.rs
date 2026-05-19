@@ -9,6 +9,7 @@ use data_core::mavlink;
 use data_core::pss;
 use datatypes::actuator::NormallyClosedValve;
 use datatypes::status::BuildInformationCommon;
+use datatypes::units::{BarG, Celsius};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -98,7 +99,7 @@ pub enum Message {
     #[pss(label = "Oxidizer Main Valve", name = "oss_ml_vlv")]
     OxidizerMainValveState(NormallyClosedValve),
 
-    /// # `EnginePressure`
+    /// # `EngineChamberPressure`
     /// Periodic telemetry message emitted by the Engine Control Board.
     ///
     /// ## Type
@@ -109,8 +110,7 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Reports various Pressures from the Engine.
-    /// This includes the Combustion Chamber Pressure, Injector Fuel Pressure and Injector Oxidizer Pressure.
+    /// Reports the Combustion Chamber Pressure.
     ///
     /// ## Reaction
     /// No action required.
@@ -118,12 +118,60 @@ pub enum Message {
     /// ## Data Origin
     /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
     /// The value will be `NaN` if reading the sensor fails.
-    #[can(id = 0x460)]
+    #[can(id = 0x462)]
     #[mavlink(id = 0x10_08_03)]
-    #[pss(flatten)]
-    EnginePressure(EnginePressure),
+    #[pss(name = "eng_cc_p", label = "Chamber Pressure Sensor")]
+    ChamberPressure(BarG),
 
-    /// # `EngineBayTemperature`
+    /// # `InjectorFuelPressure`
+    /// Periodic telemetry message emitted by the Engine Control Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `EngineControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the Injector Fuel Pressure.
+    ///
+    /// ## Reaction
+    /// No action required.
+    ///
+    /// ## Data Origin
+    /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
+    /// The value will be `NaN` if reading the sensor fails.
+    #[can(id = 0x463)]
+    #[mavlink(id = 0x10_08_06)]
+    #[pss(name = "eng_inj_p", label = "Injector Fuel Pressure Sensor")]
+    InjectorFuelPressure(BarG),
+
+    /// # `InjectorOxidizerPressure`
+    /// Periodic telemetry message emitted by the Engine Control Board.
+    ///
+    /// ## Type
+    /// - `Periodic @ 20 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `EngineControlBoard`
+    /// - **Received by:** `unspecified`
+    ///
+    /// ## Purpose
+    /// Reports the Injector Oxidizer Pressure.
+    ///
+    /// ## Reaction
+    /// No action required.
+    ///
+    /// ## Data Origin
+    /// Data originates from analog Trafag pressure sensors installed on the engine. They range from 0 to 60 barg
+    /// The value will be `NaN` if reading the sensor fails.
+    #[can(id = 0x464)]
+    #[mavlink(id = 0x10_08_07)]
+    #[pss(name = "oss_inj_p", label = "Injector Oxidizer Pressure Sensor")]
+    InjectorOxidizerPressure(BarG),
+
+    /// # `InjectorFuelTemperature`
     /// Periodic telemetry message emitted by the Engine Control Board.
     ///
     /// ## Type
@@ -134,8 +182,7 @@ pub enum Message {
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Reports various Data from Thermocouples in the Engine Bay.
-    /// This includes the OSS Runline Temperature and the OSS Tank Bottom Temperature.
+    /// Reports the Injector Fuel Temperature.
     ///
     /// ## Reaction
     /// No action required.
@@ -145,137 +192,36 @@ pub enum Message {
     /// Thermocouples installed can be either Type K or Type T.
     /// If the value read in firmware is outside the specific temperature range of [-200.0, 200.0] °C,
     /// the value will be set to `NaN`.
-    #[can(id = 0x461)]
+    #[can(id = 0x465)]
     #[mavlink(id = 0x10_08_04)]
-    #[pss(flatten)]
-    EngineBayTemperature(EngineBayTemperature),
+    #[pss(name = "eng_inj_t", label = "Injector Fuel Temperature Sensor")]
+    InjectorFuelTemperature(Celsius),
 
-    /// # `FiringAborted`
-    /// Event message sent by the ECU.
+    /// # `OxidizerTankTemperature`
+    /// Periodic telemetry message emitted by the Engine Control Board.
     ///
     /// ## Type
-    /// - `Event`: sent by the ECU to signalize an abort has occurred during the firing sequence
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `FlightComputer`
-    ///
-    /// ## Purpose
-    /// Signaling Firing aborts
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x121)]
-    FiringAborted,
-
-    /// # `FiringCompleted`
-    /// Event message sent by the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU to signalize the firing sequence has successfully been completed
+    /// - `Periodic @ 10 Hz`
     ///
     /// ## Direction
     /// - **Emitted by:** `EngineControlBoard`
     /// - **Received by:** `unspecified`
     ///
     /// ## Purpose
-    /// Signaling completion of firing sequence
+    /// Reports the Oxidizer Tank Bottom Temperature.
     ///
     /// ## Reaction
+    /// No action required.
     ///
-    #[can(id = 0x123)]
-    FiringCompleted,
-
-    /// # `FiringInitiated`
-    /// Event message sent by the EngineControlBoard.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU to signal firing initiation
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Signal initiation of firing sequence
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x130)]
-    FiringInitiated,
-
-    /// # `IgnitionDetected`
-    /// Event message sent by the EngineControlBoard.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU to signal successful igniter ignition
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Signal successful igniter ignition
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x131)]
-    IgnitionDetected,
-
-    /// # `CombustionDetected`
-    /// Event message sent by the EngineControlBoard.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU to signal successful engine combustion
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Signal successful engine combustion
-    ///
-    /// ## Reaction
-    ///
-    #[can(id = 0x132)]
-    CombustionDetected,
-
-    // ======================== RX ========================
-    /// # `FiringAbortInitiation`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to initialize a firing abort
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `EngineControlBoard`
-    ///datapoints/dp-flight-computer/src
-    /// ## Purpose
-    /// Initiate abortion of firing sequence
-    ///
-    /// ## Reaction
-    /// The ECU should properly abort the firing
-    #[can(id = 0x120)]
-    FiringAbortInitiation,
-
-    /// # `FiringInitiation`
-    /// Event message sent by the FC.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the FC to initiate firing sequence
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `EngineControlBoard`
-    ///
-    /// ## Purpose
-    /// Initiate firing sequence
-    ///
-    /// ## Reaction
-    /// The Engine Control Board shall initiate the firing sequence upon receiving this command
-    #[can(id = 0x122)]
-    FiringInitiation,
+    /// ## Data Origin
+    /// Data originates from high precision ADCs which read the differential thermocouple voltage together with a thermistor from which the temperature is calculated.
+    /// Thermocouples installed can be either Type K or Type T.
+    /// If the value read in firmware is outside the specific temperature range of [-200.0, 200.0] °C,
+    /// the value will be set to `NaN`.
+    #[can(id = 0x466)]
+    #[mavlink(id = 0x10_08_08)]
+    #[pss(name = "oss_tnk_t", label = "Oxidizer Tank Temperature Sensor")]
+    OxidizerTankTemperature(Celsius),
 
     // ======================== RX (cont.) ========================
     // The following 2 sets of messages have the same meaning, but are separate messages
