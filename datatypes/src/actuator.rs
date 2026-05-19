@@ -127,7 +127,7 @@ impl Settable for NormallyClosedValve {
 #[serde(rename_all = "camelCase")]
 pub struct PressurizationGain(pub f32);
 
-#[gated_derive(serde::Serialize, defmt::Format)]
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
