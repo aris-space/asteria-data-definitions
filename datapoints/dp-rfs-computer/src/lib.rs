@@ -7,10 +7,10 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::{actuator::NormallyClosedValve, status::{
+use datatypes::{actuator::{DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve}, sensor::DigitalIn, status::{
     BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
     ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
-}};
+}, units::{BarG, Celsius}};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -351,15 +351,23 @@ pub enum Message {
     #[can(id = 0x363)]
     #[pss(label = "Igniter Armed", name = "igniter_armed")]
     IgniterArmed(DigitalIn),
+
+    /// The pressure from the igniter, from sensor ign_block_p
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x364)]
+    #[pss(label = "Igniter Pressure", name = "pres?ign")]
+    IgniterPressure(BarG),
     
     /// ## Purpose
     /// Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
     /// This includes the ingiter valves and the spark plug.
     /// ## Reaction
     /// Receivers may log the data or use it for diagnostics and system health checks.
-    #[can(id = 0x325)]
-    #[mavlink(id = 0x10_06_03)]
-    ValveStates(RfsComputerValveStates),
+    // #[can(id = 0x325)]
+    // #[mavlink(id = 0x10_06_03)]
+    // ValveStates(ValveStates), not needed right? Single valves messages afaik
 
     /// The current state of the rfs computer state machine.
     #[mavlink(id = 0x10_06_04)]
