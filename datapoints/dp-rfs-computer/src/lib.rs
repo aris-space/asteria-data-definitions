@@ -7,10 +7,13 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::{status::{
-    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-    ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
-}, units::{BarG, Celsius}};
+use datatypes::{
+    status::{
+        BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+        ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
+    },
+    units::{BarG, Celsius},
+};
 use gated_derive::gated_derive;
 
 mod dptypes;
