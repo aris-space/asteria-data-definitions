@@ -359,7 +359,7 @@ pub enum Message {
     #[can(id = 0x364)]
     #[pss(label = "Igniter Pressure", name = "pres?ign")]
     IgniterPressure(BarG),
-    
+
     /// ## Purpose
     /// Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
     /// This includes the ingiter valves and the spark plug.
