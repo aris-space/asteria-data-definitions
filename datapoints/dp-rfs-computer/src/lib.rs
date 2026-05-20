@@ -154,6 +154,38 @@ pub enum Message {
     #[can(id = 0x389)]
     IgniterPressure(BarG),
 
+    /// Pressure of the N2 pre-booster line (`R-P-N-1`).
+    #[can(id = 0x38a)]
+    N2PreBoosterPressure(BarG),
+
+    /// Pressure of the H2 purge line (`R-P-N-2`).
+    #[can(id = 0x38b)]
+    H2PurgePressure(BarG),
+
+    /// Pressure of the N2 post-booster line (`R-P-N-3`).
+    #[can(id = 0x38c)]
+    N2PostBoosterPressure(BarG),
+
+    /// Pressure of the LOX line (`R-P-L-1`).
+    #[can(id = 0x38d)]
+    LoxPressure(BarG),
+
+    /// Pressure of the purge line (`R-P-P-1`).
+    #[can(id = 0x38e)]
+    PurgePressure(BarG),
+
+    /// Pressure of the pneumatic line (`R-P-P-2`).
+    #[can(id = 0x38f)]
+    PneumaticPressure(BarG),
+
+    /// Pressure of the GOX igniter line (`I-P-G-1`).
+    #[can(id = 0x390)]
+    GoxPressure(BarG),
+
+    /// Pressure of the H2 igniter line (`I-P-H-1`).
+    #[can(id = 0x391)]
+    H2Pressure(BarG),
+
     // ======================== RX ========================
     /// # `GoxIgniterValveControl`
     /// Controls the GOX igniter valve on the RFS from the ECU.
