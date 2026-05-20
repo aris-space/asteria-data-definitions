@@ -7,10 +7,10 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::status::{
+use datatypes::{status::{
     BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
     ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
-};
+}, units::{BarG, Celsius}};
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -123,6 +123,36 @@ pub enum Message {
     /// Can be used to calculate the throughput and loss rate.
     #[mavlink(id = 0x10_06_06)]
     DownlinkTelemetryStats(DownlinkTelemetryStats),
+
+    /// # `RfsComputerIgniterTemperature`
+    /// Periodic sensor reading of the igniter temperature emitted by the RFS Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 5 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `some other board` FIX
+    ///
+    /// ## Purpose
+    /// Communicates the current temperature of the igniter.
+    #[can(id = 0x388)]
+    IgniterTemperature(Celsius),
+
+    /// # `RfsComputerIgniterPressure`
+    /// Periodic sensor reading of the igniter pressure emitted by the RFS Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 5 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `some other board` FIX
+    ///
+    /// ## Purpose
+    /// Communicates the current pressure inside the igniter.
+    #[can(id = 0x389)]
+    IgniterPressure(BarG),
 
     // ======================== RX ========================
     /// # `GoxIgniterValveControl`
