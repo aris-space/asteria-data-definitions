@@ -30,8 +30,8 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
-#[cfg_attr(feature = "utoipa", allow(clippy::large_stack_arrays))]
 #[schema(as = RfsComputerMessage)]
+#[cfg_attr(feature = "derive_utoipa", allow(clippy::large_stack_arrays))]
 pub enum Message {
     // ======================== TX ========================
     /// Software build metadata periodically emitted by the RFS Computer.
