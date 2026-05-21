@@ -15,7 +15,7 @@ pub enum ActivePowerSource {
     Battery = 0,
     /// External power is currently active.
     External = 1,
-    /// No valid power source is currently active.
+    /// currently no 24V available.
     #[default]
     None = 2,
 }
