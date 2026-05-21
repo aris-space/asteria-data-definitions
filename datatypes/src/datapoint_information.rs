@@ -1,10 +1,10 @@
 use core::f32;
 
+use crate::status::ValveState;
 use datapoint_information::datapoint::{
     ActuatorKind, ActuatorValue, DatapointKind, DatapointValue, IntoDatapointValue, SensorKind,
     SensorValue,
 };
-use crate::status::ValveState;
 
 use crate::{
     actuator::{
