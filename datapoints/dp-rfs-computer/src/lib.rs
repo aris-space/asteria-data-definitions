@@ -12,7 +12,7 @@ use datatypes::{
     sensor::DigitalIn,
     status::{
         BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-        ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
+        ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
     },
     units::{BarG, Celsius},
 };
@@ -391,6 +391,68 @@ pub enum Message {
     /// Can be used to calculate the throughput and loss rate.
     #[mavlink(id = 0x10_06_06)]
     DownlinkTelemetryStats(DownlinkTelemetryStats),
+
+    /// # `RfsComputerIgniterTemperature`
+    /// Periodic sensor reading of the igniter temperature emitted by the RFS Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 5 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `some other board` FIX
+    ///
+    /// ## Purpose
+    /// Communicates the current temperature of the igniter.
+    #[can(id = 0x388)]
+    IgniterTemperature(Celsius),
+
+    /// # `RfsComputerIgniterPressure`
+    /// Periodic sensor reading of the igniter pressure emitted by the RFS Computer.
+    ///
+    /// ## Type
+    /// - `Periodic @ 5 Hz`
+    ///
+    /// ## Direction
+    /// - **Emitted by:** `RfsComputer`
+    /// - **Received by:** `some other board` FIX
+    ///
+    /// ## Purpose
+    /// Communicates the current pressure inside the igniter.
+    #[can(id = 0x389)]
+    IgniterPressure(BarG),
+
+    /// Pressure of the N2 pre-booster line (`R-P-N-1`).
+    #[can(id = 0x38a)]
+    N2PreBoosterPressure(BarG),
+
+    /// Pressure of the H2 purge line (`R-P-N-2`).
+    #[can(id = 0x38b)]
+    H2PurgePressure(BarG),
+
+    /// Pressure of the N2 post-booster line (`R-P-N-3`).
+    #[can(id = 0x38c)]
+    N2PostBoosterPressure(BarG),
+
+    /// Pressure of the LOX line (`R-P-L-1`).
+    #[can(id = 0x38d)]
+    LoxPressure(BarG),
+
+    /// Pressure of the purge line (`R-P-P-1`).
+    #[can(id = 0x38e)]
+    PurgePressure(BarG),
+
+    /// Pressure of the pneumatic line (`R-P-P-2`).
+    #[can(id = 0x38f)]
+    PneumaticPressure(BarG),
+
+    /// Pressure of the GOX igniter line (`I-P-G-1`).
+    #[can(id = 0x390)]
+    GoxPressure(BarG),
+
+    /// Pressure of the H2 igniter line (`I-P-H-1`).
+    #[can(id = 0x391)]
+    H2Pressure(BarG),
 
     // ======================== RX ========================
     /// Controls the GOX igniter valve on the RFS from the FC.
