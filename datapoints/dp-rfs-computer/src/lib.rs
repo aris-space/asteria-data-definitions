@@ -7,10 +7,15 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::{actuator::{DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve}, sensor::DigitalIn, status::{
-    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-    ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
-}, units::{BarG, Celsius}};
+use datatypes::{
+    actuator::{DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve},
+    sensor::DigitalIn,
+    status::{
+        BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+        ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
+    },
+    units::{BarG, Celsius},
+};
 use gated_derive::gated_derive;
 
 mod dptypes;

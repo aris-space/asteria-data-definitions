@@ -54,7 +54,7 @@ impl From<InvertedDigitalOut> for DatapointValue {
         })
     }
 }
-            
+
 impl IntoDatapointValue for ValveState {
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
         default_enabled: false,
@@ -63,7 +63,6 @@ impl IntoDatapointValue for ValveState {
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, ValveState::Active),
-
         })
     }
 }
