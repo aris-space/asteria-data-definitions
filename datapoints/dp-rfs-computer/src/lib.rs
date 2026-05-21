@@ -365,11 +365,11 @@ pub enum Message {
     #[pss(label = "Igniter Pressure", name = "pres_ign")]
     IgniterPressure(BarG),
 
-    /// ## Purpose
-    /// Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
-    /// This includes the ingiter valves and the spark plug.
-    /// ## Reaction
-    /// Receivers may log the data or use it for diagnostics and system health checks.
+    // ## Purpose
+    // Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
+    // This includes the ingiter valves and the spark plug.
+    // ## Reaction
+    // Receivers may log the data or use it for diagnostics and system health checks.
     // #[can(id = 0x325)]
     // #[mavlink(id = 0x10_06_03)]
     // ValveStates(ValveStates), not needed right? Single valves messages afaik
