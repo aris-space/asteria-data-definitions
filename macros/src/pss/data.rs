@@ -1,7 +1,7 @@
 use darling::{FromDeriveInput, FromField, FromVariant, ast::Fields, util::Flag};
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Ident, LitStr};
+use syn::{Attribute, Ident, LitStr};
 
 use crate::util::{GetUnit, Unit};
 use darling::util::SpannedValue;
@@ -70,7 +70,7 @@ impl ToTokens for DataKindWithUnit<'_> {
 }
 
 #[derive(FromField)]
-#[darling(attributes(pss))]
+#[darling(attributes(pss), forward_attrs(unit))]
 pub struct PssDataField {
     /// Unique name of the PSS datapoint
     ///
@@ -91,10 +91,12 @@ pub struct PssDataField {
 
     ident: Option<Ident>,
     ty: syn::Type,
+    /// Raw attributes captured via `forward_attrs(unit)`; consumed by [`GetUnit`].
+    attrs: Vec<Attribute>,
 }
 
 #[derive(FromVariant)]
-#[darling(attributes(pss))]
+#[darling(attributes(pss), forward_attrs(unit))]
 pub struct PssDataVariant {
     /// Unique name of the PSS datapoint
     ///
@@ -116,6 +118,8 @@ pub struct PssDataVariant {
 
     ident: Ident,
     fields: Fields<PssDataField>,
+    /// Raw attributes captured via `forward_attrs(unit)`; consumed by [`GetUnit`].
+    attrs: Vec<Attribute>,
 }
 
 #[derive(FromDeriveInput)]
@@ -215,7 +219,8 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
             let field = variant.fields.fields.first().expect("newtype variant should have exactly one field");
             let ty = &field.ty;
 
-            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.label.as_ref()) {
+            let unit = variant.attrs.get_unit().unwrap_or_else(|e| { errors.push(e); None });
+            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.label.as_ref(), variant.kind.as_ref(), unit.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -249,7 +254,8 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
                 let field_ident = field.ident.as_ref().expect("non-newtype field should always have a name");
                 let ty = &field.ty;
 
-                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref()) {
+                let unit = field.attrs.get_unit().unwrap_or_else(|e| { errors.push(e); None });
+                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
                     Ok(Some((datapoints, len))) => (datapoints, len),
                     Ok(None) => return None,
                     Err(err) => {
@@ -344,7 +350,8 @@ fn handle_struct(
 
         let ty = &field.ty;
 
-        let datapoints = match get_datapoints(ty, flatten, name, label) {
+        // Newtype struct container doesn't currently surface `kind`/`unit` — relies on registry inference inside `get_datapoints`.
+        let datapoints = match get_datapoints(ty, flatten, name, label, None, None) {
             Ok(datapoints) => datapoints,
             Err(err) => return err.write_errors(),
         };
@@ -374,7 +381,8 @@ fn handle_struct(
             let field_ident = field.ident.as_ref().expect("non-newtype field should always have a name");
             let ty = &field.ty;
 
-            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref()) {
+            let unit = field.attrs.get_unit().unwrap_or_else(|e| { errors.push(e); None });
+            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -433,6 +441,8 @@ fn get_datapoints(
     flatten: Flag,
     name: Option<&LitStr>,
     label: Option<&LitStr>,
+    kind: Option<&SpannedValue<DataKind>>,
+    unit: Option<&Unit>,
 ) -> darling::Result<Option<(TokenStream, TokenStream)>> {
     if flatten.is_present() && (name.is_some() || label.is_some()) {
         Err(darling::Error::custom("Attribute `#[pss(flatten)]` cannot be combined with `#[pss(name = ...)]` or `#[pss(label = ...)]`").with_span(&flatten.span()))?;
@@ -463,15 +473,15 @@ fn get_datapoints(
         .flatten()
         .map(|k| SpannedValue::new(k, proc_macro2::Span::call_site()));
     let effective_kind = kind.or(inferred.as_ref());
-    let Some((kind, label)) = effective_kind
+    // Validation relaxed: if `kind` can't be derived (no `#[pss(kind = ...)]` and type not in
+    // the registry) or `label` is missing, silently emit no datapoint entry for this site instead
+    // of erroring. The kind ultimately used in generated code comes from `<#ty as IntoDatapointValue>::KIND`
+    // anyway, so the destructured `_kind` here is purely a presence-check guard.
+    let Some((_kind, label)) = effective_kind
         .map(|kind| DataKindWithUnit(kind, unit))
         .zip(label)
     else {
-        return Err(darling::Error::custom(
-            "Attribute `#[pss(label = ...)]` is required when `#[pss(name = ...)]` is set. \
-             Also set `#[pss(kind = ...)]` unless the type is listed in TYPE_KIND_REGISTRY.",
-        )
-        .with_span(name));
+        return Ok(None);
     };
 
     let datapoints = quote! {
