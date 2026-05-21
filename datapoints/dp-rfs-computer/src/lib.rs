@@ -12,7 +12,7 @@ use datatypes::{
     sensor::DigitalIn,
     status::{
         BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-        ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
+        ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
     },
     units::{BarG, Celsius},
 };

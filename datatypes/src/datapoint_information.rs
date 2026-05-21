@@ -2,7 +2,7 @@ use core::f32;
 
 use datapoint_information::datapoint::{
     ActuatorKind, ActuatorValue, DatapointKind, DatapointValue, IntoDatapointValue, SensorKind,
-    SensorValue,
+    SensorValue, ValveState,
 };
 
 use crate::{
@@ -11,7 +11,6 @@ use crate::{
         ThrottleableValve,
     },
     sensor::DigitalIn,
-    status::SensorStatus,
     units::{BarG, Celsius},
 };
 
@@ -42,7 +41,7 @@ impl IntoDatapointValue for NormallyOpenValve {
 impl From<DigitalOut> for DatapointValue {
     fn from(value: DigitalOut) -> Self {
         Self::Actuator(ActuatorValue::Digital {
-            active: matches!(value, DigitalOut::On),
+            enabled: matches!(value, DigitalOut::On),
         })
     }
 }
@@ -50,7 +49,7 @@ impl From<DigitalOut> for DatapointValue {
 impl From<InvertedDigitalOut> for DatapointValue {
     fn from(value: InvertedDigitalOut) -> Self {
         Self::Actuator(ActuatorValue::Digital {
-            active: matches!(value, InvertedDigitalOut::On),
+            enabled: matches!(value, InvertedDigitalOut::On),
         })
     }
 }
