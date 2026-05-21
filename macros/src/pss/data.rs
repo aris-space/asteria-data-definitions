@@ -1,76 +1,10 @@
 use darling::{FromDeriveInput, FromField, FromVariant, ast::Fields, util::Flag};
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Attribute, Ident, LitStr};
-
-use crate::util::{GetUnit, Unit};
-use darling::util::SpannedValue;
-use darling::{FromMeta, ToTokens};
-
-#[derive(FromMeta, Clone, Copy)]
-#[darling(rename_all = "snake_case")]
-enum DataKind {
-    DigitalActuator,
-    DprActuator,
-    FractionalActuator,
-    AnalogSensor,
-    DigitalSensor,
-}
-
-/// Registry mapping a type's last path segment to its inferred [`DataKind`].
-///
-/// When a field or variant annotated with `#[pss(name = "...")]` uses one of these types,
-/// the `kind` attribute may be omitted and will be inferred automatically from this registry.
-const TYPE_KIND_REGISTRY: &[(&str, DataKind)] = &[
-    ("NormallyClosedValve", DataKind::DigitalActuator),
-    ("NormallyOpenValve", DataKind::DigitalActuator),
-    ("DigitalOut", DataKind::DigitalActuator),
-    ("InvertedDigitalOut", DataKind::DigitalActuator),
-    // `Celsius` is an analog sensor — additionally requires a `#[unit("...")]` attribute
-    ("Celsius", DataKind::AnalogSensor),
-    ("DigitalIn", DataKind::DigitalSensor),
-];
-
-/// Infer a [`DataKind`] from the last path segment of `ty` using [`TYPE_KIND_REGISTRY`].
-fn infer_kind(ty: &syn::Type) -> Option<DataKind> {
-    let syn::Type::Path(type_path) = ty else {
-        return None;
-    };
-    let ident = type_path.path.segments.last()?.ident.to_string();
-    TYPE_KIND_REGISTRY
-        .iter()
-        .find(|(name, _)| *name == ident)
-        .map(|(_, kind)| *kind)
-}
-
-struct DataKindWithUnit<'a>(&'a SpannedValue<DataKind>, Option<&'a Unit>);
-
-impl ToTokens for DataKindWithUnit<'_> {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let data = quote!(::data_core::data::datapoint);
-        let ident = match (self.0.as_ref(), self.1) {
-            (DataKind::DigitalActuator, _) => quote!(Actuator(#data::ActuatorKind::Digital)),
-            (DataKind::DprActuator, _) => quote!(Actuator(#data::ActuatorKind::DPR)),
-            (DataKind::FractionalActuator, _) => quote!(Actuator(#data::ActuatorKind::Fractional)),
-            (DataKind::AnalogSensor, Some(unit)) => {
-                quote!(Sensor(#data::SensorKind::Analog { unit: #unit }))
-            }
-            (DataKind::AnalogSensor, _) => {
-                let err = darling::Error::custom(
-                    "Analog sensor requires an `#[unit(\"...\")]` attribute",
-                )
-                .with_span(&self.0.span());
-                tokens.extend(err.write_errors());
-                return;
-            }
-            (DataKind::DigitalSensor, _) => quote!(Sensor(#data::SensorKind::Digital)),
-        };
-        tokens.extend(quote!(#data::DatapointKind::#ident));
-    }
-}
+use syn::{Ident, LitStr};
 
 #[derive(FromField)]
-#[darling(attributes(pss), forward_attrs(unit))]
+#[darling(attributes(pss))]
 pub struct PssDataField {
     /// Unique name of the PSS datapoint
     ///
@@ -80,23 +14,15 @@ pub struct PssDataField {
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
     label: Option<LitStr>,
-    /// Type of the PSS datapoint
-    ///
-    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set,
-    /// unless the type is listed in [`TYPE_KIND_REGISTRY`] (e.g. `NormallyClosedValve`,
-    /// `NormallyOpenValve`, `DigitalOut`, `InvertedDigitalOut`), in which case it is inferred.
-    kind: Option<SpannedValue<DataKind>>,
     /// Boolean flag whether this field should be flattened
     flatten: Flag,
 
     ident: Option<Ident>,
     ty: syn::Type,
-    /// Raw attributes captured via `forward_attrs(unit)`; consumed by [`GetUnit`].
-    attrs: Vec<Attribute>,
 }
 
 #[derive(FromVariant)]
-#[darling(attributes(pss), forward_attrs(unit))]
+#[darling(attributes(pss))]
 pub struct PssDataVariant {
     /// Unique name of the PSS datapoint
     ///
@@ -106,20 +32,11 @@ pub struct PssDataVariant {
     ///
     /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set
     label: Option<LitStr>,
-    /// Type of the PSS datapoint
-    ///
-    /// **Note**: This field is required once a `#[pss(name = ...)]` attribute is set,
-    /// unless the type is listed in [`TYPE_KIND_REGISTRY`] (e.g. `NormallyClosedValve`,
-    /// `NormallyOpenValve`, `DigitalOut`, `InvertedDigitalOut`), in which case it is inferred.
-    kind: Option<SpannedValue<DataKind>>,
-
     /// Boolean flag whether this variant should be flattened
     flatten: Flag,
 
     ident: Ident,
     fields: Fields<PssDataField>,
-    /// Raw attributes captured via `forward_attrs(unit)`; consumed by [`GetUnit`].
-    attrs: Vec<Attribute>,
 }
 
 #[derive(FromDeriveInput)]
@@ -219,8 +136,7 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
             let field = variant.fields.fields.first().expect("newtype variant should have exactly one field");
             let ty = &field.ty;
 
-            let unit = variant.attrs.get_unit().unwrap_or_else(|e| { errors.push(e); None });
-            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.label.as_ref(), variant.kind.as_ref(), unit.as_ref()) {
+            let (datapoints, len) = match get_datapoints(ty, variant.flatten, variant.name.as_ref(), variant.label.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -254,8 +170,7 @@ fn handle_enum(ident: &Ident, variants: &[PssDataVariant]) -> TokenStream {
                 let field_ident = field.ident.as_ref().expect("non-newtype field should always have a name");
                 let ty = &field.ty;
 
-                let unit = field.attrs.get_unit().unwrap_or_else(|e| { errors.push(e); None });
-                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
+                let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref()) {
                     Ok(Some((datapoints, len))) => (datapoints, len),
                     Ok(None) => return None,
                     Err(err) => {
@@ -350,8 +265,7 @@ fn handle_struct(
 
         let ty = &field.ty;
 
-        // Newtype struct container doesn't currently surface `kind`/`unit` — relies on registry inference inside `get_datapoints`.
-        let datapoints = match get_datapoints(ty, flatten, name, label, None, None) {
+        let datapoints = match get_datapoints(ty, flatten, name, label) {
             Ok(datapoints) => datapoints,
             Err(err) => return err.write_errors(),
         };
@@ -381,8 +295,7 @@ fn handle_struct(
             let field_ident = field.ident.as_ref().expect("non-newtype field should always have a name");
             let ty = &field.ty;
 
-            let unit = field.attrs.get_unit().unwrap_or_else(|e| { errors.push(e); None });
-            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref(), field.kind.as_ref(), unit.as_ref()) {
+            let (datapoints, len) = match get_datapoints(ty, field.flatten, field.name.as_ref(), field.label.as_ref()) {
                 Ok(Some((datapoints, len))) => (datapoints, len),
                 Ok(None) => return None,
                 Err(err) => {
@@ -441,8 +354,6 @@ fn get_datapoints(
     flatten: Flag,
     name: Option<&LitStr>,
     label: Option<&LitStr>,
-    kind: Option<&SpannedValue<DataKind>>,
-    unit: Option<&Unit>,
 ) -> darling::Result<Option<(TokenStream, TokenStream)>> {
     if flatten.is_present() && (name.is_some() || label.is_some()) {
         Err(darling::Error::custom("Attribute `#[pss(flatten)]` cannot be combined with `#[pss(name = ...)]` or `#[pss(label = ...)]`").with_span(&flatten.span()))?;
@@ -466,22 +377,11 @@ fn get_datapoints(
         let datapoints_len = quote!(#datapoints.len());
         return Ok(Some((datapoints, datapoints_len)));
     };
-
-    let inferred: Option<SpannedValue<DataKind>> = kind
-        .is_none()
-        .then(|| infer_kind(ty))
-        .flatten()
-        .map(|k| SpannedValue::new(k, proc_macro2::Span::call_site()));
-    let effective_kind = kind.or(inferred.as_ref());
-    // Validation relaxed: if `kind` can't be derived (no `#[pss(kind = ...)]` and type not in
-    // the registry) or `label` is missing, silently emit no datapoint entry for this site instead
-    // of erroring. The kind ultimately used in generated code comes from `<#ty as IntoDatapointValue>::KIND`
-    // anyway, so the destructured `_kind` here is purely a presence-check guard.
-    let Some((_kind, label)) = effective_kind
-        .map(|kind| DataKindWithUnit(kind, unit))
-        .zip(label)
-    else {
-        return Ok(None);
+    let Some(label) = label else {
+        return Err(darling::Error::custom(
+            "Attribute `#[pss(label = ...)]` is required when `#[pss(name = ...)]` is set",
+        )
+        .with_span(name));
     };
 
     let datapoints = quote! {
