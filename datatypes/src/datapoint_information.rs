@@ -2,8 +2,9 @@ use core::f32;
 
 use datapoint_information::datapoint::{
     ActuatorKind, ActuatorValue, DatapointKind, DatapointValue, IntoDatapointValue, SensorKind,
-    SensorValue, ValveState,
+    SensorValue,
 };
+use crate::status::ValveState;
 
 use crate::{
     actuator::{
@@ -22,6 +23,47 @@ impl IntoDatapointValue for NormallyClosedValve {
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, NormallyClosedValve::Open),
+        })
+    }
+}
+
+impl IntoDatapointValue for DigitalIn {
+    // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Digital {
+            enabled: matches!(self, DigitalIn::On),
+        })
+    }
+}
+
+impl IntoDatapointValue for DigitalOut {
+    // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Digital {
+            enabled: matches!(self, DigitalOut::Off),
+        })
+    }
+}
+
+impl IntoDatapointValue for InvertedDigitalOut {
+    // `InvertedDigitalOut::default()` is `On`, which maps to `enabled: true`.
+    // The inversion semantic (Off = energized) lives in `Energizable`, not in this reporting layer;
+    // this impl matches the convention of `From<InvertedDigitalOut> for DatapointValue` below.
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+        default_enabled: true,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, InvertedDigitalOut::On),
         })
     }
 }
