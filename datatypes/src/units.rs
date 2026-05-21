@@ -61,8 +61,8 @@ macro_rules! unit_newtypes {
                 }
             }
 
-            impl std::fmt::Display for $name {
-                fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            impl core::fmt::Display for $name {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
                     if self.as_f32().is_finite() {
                         write!(f, "{:.2} barg", self.as_f32())
                     } else {

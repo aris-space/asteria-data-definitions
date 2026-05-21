@@ -362,7 +362,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x364)]
-    #[pss(label = "Igniter Pressure", name = "pres?ign")]
+    #[pss(label = "Igniter Pressure", name = "pres_ign")]
     IgniterPressure(BarG),
 
     /// ## Purpose
@@ -391,36 +391,6 @@ pub enum Message {
     /// Can be used to calculate the throughput and loss rate.
     #[mavlink(id = 0x10_06_06)]
     DownlinkTelemetryStats(DownlinkTelemetryStats),
-
-    /// # `RfsComputerIgniterTemperature`
-    /// Periodic sensor reading of the igniter temperature emitted by the RFS Computer.
-    ///
-    /// ## Type
-    /// - `Periodic @ 5 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `some other board` FIX
-    ///
-    /// ## Purpose
-    /// Communicates the current temperature of the igniter.
-    #[can(id = 0x388)]
-    IgniterTemperature(Celsius),
-
-    /// # `RfsComputerIgniterPressure`
-    /// Periodic sensor reading of the igniter pressure emitted by the RFS Computer.
-    ///
-    /// ## Type
-    /// - `Periodic @ 5 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `some other board` FIX
-    ///
-    /// ## Purpose
-    /// Communicates the current pressure inside the igniter.
-    #[can(id = 0x389)]
-    IgniterPressure(BarG),
 
     /// Pressure of the N2 pre-booster line (`R-P-N-1`).
     #[can(id = 0x38a)]
