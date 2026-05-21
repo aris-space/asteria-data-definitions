@@ -1,6 +1,6 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{SensorStatus, StatusCommonMessage};
+use datatypes::status::{DprGainInfo, DprLoopInfo, SensorStatus, StatusCommonMessage};
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -18,4 +18,10 @@ pub struct FuelControlBoardStatus {
     /// State of the Keller BUS used to read pressure, indicates whether a single sensor is online or not.
     #[mavlink(refine)]
     pub pressure_bus: SensorStatus,
+    /// State of the DPR Control Loop
+    #[mavlink(flatten)]
+    pub dpr_loop_info: DprLoopInfo,
+    /// State of the DPR Control Gain
+    #[mavlink(flatten)]
+    pub dpr_gain_info: DprGainInfo,
 }

@@ -132,7 +132,7 @@ pub struct PressurizationGain(pub f32);
 #[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-#[serde(try_from = "f32", into = "f32")]
+#[serde(try_from = "Option<f32>", into = "f32")]
 pub enum DPRValve {
     /// Enabled with pressure setpoint in Barg. 0-60.
     Enabled {
@@ -142,6 +142,16 @@ pub enum DPRValve {
     /// Disabled
     #[default]
     Disabled,
+}
+
+/// JSON serialized `f32::NAN` are `null`s, so we want to be able
+/// to deserialize `null` to [`DPRValve::Disabled`].
+impl TryFrom<Option<f32>> for DPRValve {
+    type Error = OutOfRange;
+
+    fn try_from(value: Option<f32>) -> Result<Self, Self::Error> {
+        value.map_or(Ok(DPRValve::Disabled), DPRValve::try_from)
+    }
 }
 
 /// Canonical mapping from f32 to [`DPRValve`]
