@@ -30,6 +30,7 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
 #[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
+#[cfg_attr(feature = "utoipa", allow(clippy::large_stack_arrays))]
 #[schema(as = RfsComputerMessage)]
 pub enum Message {
     // ======================== TX ========================
@@ -373,7 +374,6 @@ pub enum Message {
     // #[can(id = 0x325)]
     // #[mavlink(id = 0x10_06_03)]
     // ValveStates(ValveStates), not needed right? Single valves messages afaik
-
     /// The current state of the rfs computer state machine.
     #[mavlink(id = 0x10_06_04)]
     StateMachineState(StateMachineState),
