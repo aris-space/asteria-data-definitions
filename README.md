@@ -1,4 +1,4 @@
-# Data-Defintions
+# Data-Definitions
 
 This repository contains the message definitions that are used by the [firmware](http://github.com/aris-space/asteria-firmware/),
 the [remote computers](http://github.com/aris-space/asteria-remote-computers/), and [Mission Control](http://github.com/aris-space/asteria-mission-control/).
@@ -34,7 +34,7 @@ The user layer then chooses the datapoints they need and can aggregate them into
 
 ### CAN
 
-CAN FD support is used between the avionics firmware and the remote computers. For this the datatypes derive [`bincode 2`](https://docs.rs/bincode/2.0.1/bincode/) encoding and decoding using a fixed size, little-endian integer encoding. This means bascially the entire set of rust types is supported, but they aren't necessarily fixed size.
+CAN FD support is used between the avionics firmware and the remote computers. For this the datatypes derive [`bincode 2`](https://docs.rs/bincode/2.0.1/bincode/) encoding and decoding using a fixed size, little-endian integer encoding. This means basically the entire set of rust types is supported, but they aren't necessarily fixed size.
 
 The _datapoint layer_ then defines the CAN IDs, which are carried over from HERMES. They use standard ids only and follow a pattern ordered by priority.
 
@@ -47,7 +47,7 @@ The _datapoint layer_ then defines the CAN IDs, which are carried over from HERM
 | `0x600–0x6FF` | 256 | **Build Info / Debug Metadata** | Low         | Periodic    | Firmware version and diagnostics.            |
 | `0x700–0x7FF` | 256 | **Reserved / Unused**           | Very Low    | —           | Reserved for future extensions or testing.   |
 
-The CAN layer importantly supports _sparse_ encoding/decoding in the user layer, where a subset of the datapoints is chosen. These datapoints and then inherited and the subsystem only recognizes these messages.
+The CAN layer importantly supports _sparse_ encoding/decoding in the user layer, where a subset of the datapoints is chosen. These datapoints are then inherited and the subsystem only recognizes these messages.
 This helps in the firmware to keep a slim code base, and give static safety to the hardware filter for received messages, as it is derived from the subset directly.
 
 ### MAVLink
@@ -83,9 +83,9 @@ It is planned to further test the decoding/encoding using a fuzzer and also comp
 
 The old HERMES system works mostly fine, but had some limitations:
 
-- messages where types directly
+- messages where types were directly coupled
 - couldn't separate the different data owners
-- cargo features where awkward to use
+- cargo features were awkward to use
 
 `mavspec` also provides derive macros to generate Ad-Hoc MAVLink dialects, but you cannot export them and they don't follow our design philosophy.
 

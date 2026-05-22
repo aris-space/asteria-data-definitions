@@ -4,7 +4,7 @@ The crates in this folder define the messages sorted by which component they bel
 
 ## Versioning
 
-Each crate follows a practical [SemVer](https://semver.org/) versioning scheme `major.minor.patch`, with rules for binary compatiblity:
+Each crate follows a practical [SemVer](https://semver.org/) versioning scheme `major.minor.patch`, with rules for binary compatibility:
 
 - **Patch `0.x.(y+1)`:**
 
@@ -30,7 +30,7 @@ Please ensure that any breaking changes are kept to a minimum and avoided where 
 To add a new message to the system, follow these steps:
 
 1. Pick the right datapoint crate (or create a new one):
-   The question essentiall is: which component could you remove such that having this message becomes useless.
+   The question essentially is: which component could you remove such that having this message becomes useless.
    If the answer is none: then it is a `systems-management` messages, otherwise it should likely belong to your piece of hardware.
 
 1. Choose or add a data type:
@@ -45,4 +45,4 @@ To add a new message to the system, follow these steps:
 
 1. Document your message properly.
    In particular, for CAN messages, state who the unique sender is!
-   If there are multiple, duplicate the message with the same type, but differnt IDs.
+   If there are multiple, duplicate the message with the same type, but different IDs.
