@@ -68,7 +68,7 @@ pub enum Message {
     /// Periodic status message emitted by the RFS Computer.
     ///
     /// Contains runtime health of the RFS Computer.
-    /// It is also used to only ingite if the RFS is armed and ensure exclusive PSS control.
+    /// It is also used to only ingite if the RFS is armed.
     ///
     /// # CAN
     /// - **Kind**: Status message
