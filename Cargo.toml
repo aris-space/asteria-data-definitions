@@ -2,13 +2,10 @@
 resolver = "3"
 
 members = [
-    "can",
     "can-hal",
-    "can/hermes-can-derive",
     "core",
     "datapoints/*",
     "datatypes",
-    "fuzz",
     "macro-gated-derive",
     "macros",
     "mavlink-hal",

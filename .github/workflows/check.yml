@@ -74,27 +74,9 @@ jobs:
         uses: giraffate/clippy-action@v1
         with:
           clippy_flags: --workspace --all-targets --all-features -- -Dwarnings
-          reporter: 'github-pr-check'
+          reporter: "github-pr-check"
           tool_name: clippy results
           filter_mode: nofilter
-  rust_fuzz:
-    runs-on: [self-hosted, Linux]
-    timeout-minutes: 10
-    name: 🧪 rust-fuzz
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.ASTERIA_CI_TOKEN }}
-          submodules: recursive
-      - name: Install nightly
-        uses: dtolnay/rust-toolchain@nightly
-      - uses: Swatinem/rust-cache@v2
-      - name: Install cargo-fuzz
-        run: cargo install cargo-fuzz
-      - name: Run fuzz target
-        run: >
-          cargo fuzz run roundtrip
-          -- -jobs=2 -max_total_time=60
   doc:
     # run docs generation on nightly rather than stable. This enables features like
     # https://doc.rust-lang.org/beta/unstable-book/language-features/doc-cfg.html which allows an

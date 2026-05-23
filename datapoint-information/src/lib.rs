@@ -1,5 +1,5 @@
-//! This crate defines some introspection types and traits,
-//! such that the mission control can figure out which messages should be controllable.
+//! This crate exposes traits to gain additional metadata about messages,
+//! mostly for sensors and valves to support dynamic UI generation.
 
 pub mod datapoint;
 pub mod macro_util;
