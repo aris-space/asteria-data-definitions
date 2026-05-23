@@ -1,6 +1,5 @@
 use core::f32;
 
-use crate::status::ValveState;
 use datapoint_information::datapoint::{
     ActuatorKind, ActuatorValue, DatapointKind, DatapointValue, IntoDatapointValue, SensorKind,
     SensorValue,
@@ -92,18 +91,6 @@ impl From<InvertedDigitalOut> for DatapointValue {
     fn from(value: InvertedDigitalOut) -> Self {
         Self::Actuator(ActuatorValue::Digital {
             enabled: matches!(value, InvertedDigitalOut::On),
-        })
-    }
-}
-
-impl IntoDatapointValue for ValveState {
-    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
-        default_enabled: false,
-    });
-
-    fn into_value(self) -> DatapointValue {
-        DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, ValveState::Active),
         })
     }
 }
