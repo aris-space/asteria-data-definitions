@@ -38,12 +38,6 @@ macro_rules! unit_newtypes {
             $(#[$meta])*
             pub struct $name(pub $ty);
 
-            impl $name {
-                pub fn as_f32(self) -> f32 {
-                    self.0 as f32
-                }
-            }
-
             impl Default for $name {
                 fn default() -> Self {
                     Self(<$ty>::NAN)
@@ -58,16 +52,6 @@ macro_rules! unit_newtypes {
                 {
                     let x = <Option<f32> as serde::Deserialize>::deserialize(deserializer)?;
                     Ok($name(x.unwrap_or(f32::NAN)))
-                }
-            }
-
-            impl core::fmt::Display for $name {
-                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-                    if self.as_f32().is_finite() {
-                        write!(f, "{:.2} barg", self.as_f32())
-                    } else {
-                        write!(f, "<unknown> barg")
-                    }
                 }
             }
         )*

@@ -155,17 +155,3 @@ impl IntoDatapointValue for Celsius {
         DatapointValue::Sensor(SensorValue::Analog { value: self.0 })
     }
 }
-
-impl From<Celsius> for DatapointValue {
-    fn from(Celsius(value): Celsius) -> Self {
-        Self::Sensor(SensorValue::Analog { value })
-    }
-}
-
-impl From<DigitalIn> for DatapointValue {
-    fn from(value: DigitalIn) -> Self {
-        Self::Sensor(SensorValue::Digital {
-            enabled: matches!(value, DigitalIn::On),
-        })
-    }
-}
