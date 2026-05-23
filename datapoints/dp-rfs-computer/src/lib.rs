@@ -177,37 +177,37 @@ pub enum Message {
 
     /// The current active state of the normally closed pneumatic booster valve.
     #[mavlink(id = 0x10_06_1c)]
-    #[pss(label = "Booster", name = "pnm_bstr_vlv")]
+    #[pss(label = "Booster", name = "n2_bst_vlv")]
     BoosterValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed LOX decoupler extend valve.
     #[mavlink(id = 0x10_06_1d)]
-    #[pss(label = "LOX Dec. Extend", name = "pnm_loxdec_ext")]
+    #[pss(label = "LOX Dec. Extend", name = "lox_dec_ext")]
     LoxDecouplerExtendValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed LOX decoupler retract valve.
     #[mavlink(id = 0x10_06_1e)]
-    #[pss(label = "LOX Dec. Retract", name = "pnm_loxdec_ret")]
+    #[pss(label = "LOX Dec. Retract", name = "lox_dec_ret")]
     LoxDecouplerRetractValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed N2 decoupler extend valve.
     #[mavlink(id = 0x10_06_1f)]
-    #[pss(label = "N2 Dec. Extend", name = "pnm_n2dec_ext")]
+    #[pss(label = "N2 Dec. Extend", name = "n2_dec_ext")]
     N2DecouplerExtendValveState(NormallyClosedValve),
 
     /// The current active state of the normally closed N2 decoupler retract valve.
     #[mavlink(id = 0x10_06_20)]
-    #[pss(label = "N2 Dec. Retract", name = "pnm_n2dec_ret")]
+    #[pss(label = "N2 Dec. Retract", name = "n2_dec_ret")]
     N2DecouplerRetractValveState(NormallyClosedValve),
 
-    /// The current active state of the normally closed N2 release valve.
+    /// The current active state of the normally closed N2 shower valves.
     #[mavlink(id = 0x10_06_21)]
-    #[pss(label = "N2 Release", name = "pnm_n2rls_vlv")]
-    N2ReleaseValveState(NormallyClosedValve),
+    #[pss(label = "N2 Showers", name = "n2_shw_vlv")]
+    N2ShowerValvesState(NormallyClosedValve),
 
-    /// The current active state of the normally closed N2 rocket purge valve.
+    /// The current active state of the normally closed N2 engine purge valve valve.
     #[mavlink(id = 0x10_06_22)]
-    #[pss(label = "N2 Rocket Purge", name = "pnm_rocprg")]
+    #[pss(label = "N2 engine purge", name = "eng_prg_vlv")]
     N2RocketPurgeValveState(NormallyClosedValve),
 
     // -------- Digital power outputs --------
@@ -253,43 +253,43 @@ pub enum Message {
 
     /// The current openness state of the LOX fill valve
     #[mavlink(id = 0x10_06_38)]
-    #[pss(label = "LOx fill valve", name = "lox_fll_vlv")]
+    #[pss(label = "LOx fill", name = "lox_fll_vlv")]
     LoxFillValveState(ThrottleableValve),
 
     // -------- Temperature sensors --------
-    /// The temperature of the LOx line, from sensor `lox_bottle_t`.
+    /// The temperature of the LOx line.
     #[mavlink(id = 0x10_06_40)]
-    #[pss(label = "LOx Temperature", name = "lox_bottle_t")]
+    #[pss(label = "LOx T.", name = "lox_line_t")]
     #[unit("°C")]
     LoxTemperature(Celsius),
 
-    /// The temperature of the igniter, from sensor `ign_block_t`.
+    /// The temperature of the igniter.
     #[mavlink(id = 0x10_06_41)]
-    #[pss(label = "Igniter Temperature", name = "ign_block_t")]
+    #[pss(label = "Igniter T.", name = "ign_cc_t")]
     #[unit("°C")]
     IgniterTemperature(Celsius),
 
     /// The temperature inside the DACS cabinet.
     #[mavlink(id = 0x10_06_42)]
-    #[pss(label = "Cabinet Temperature", name = "rfs_cabinent_t")]
+    #[pss(label = "Cabinet T.", name = "rfs_cabinent_t")]
     #[unit("°C")]
     CabinetTemperature(Celsius),
 
     /// The ambient temperature.
     #[mavlink(id = 0x10_06_43)]
-    #[pss(label = "Ambient Temperature", name = "rfs_ambient_t")]
+    #[pss(label = "Ambient T.", name = "rfs_ambient_t")]
     #[unit("°C")]
     AmbientTemperature(Celsius),
 
     // -------- Digital sensors / arming --------
     /// Whether the LOx decoupler is in its retracted state, from the proximity sensor.
     #[mavlink(id = 0x10_06_50)]
-    #[pss(label = "LOx Decoupler Proximity", name = "pmn_loxdec_prox")]
+    #[pss(label = "LOx Dec. Prox", name = "lox_dec_prox")]
     LoxDecouplerProximity(DigitalIn),
 
     /// Whether the N2 decoupler is in its retracted state, from the proximity sensor.
     #[mavlink(id = 0x10_06_51)]
-    #[pss(label = "N2 Decoupler Proximity", name = "pmn_n2dec_prox")]
+    #[pss(label = "N2 Dec. Prox", name = "n2_dec_prox")]
     N2DecouplerProximity(DigitalIn),
 
     /// Whether the valves are receiving power (arming relay state).
@@ -310,12 +310,12 @@ pub enum Message {
     /// - **Sent by**: RFS Computer
     #[can(id = 0x364)]
     #[mavlink(id = 0x10_06_60)]
-    #[pss(label = "Igniter Pressure", name = "ign_block_p")]
+    #[pss(label = "Igniter Pressure", name = "ign_cc_p")]
     IgniterPressure(BarG),
 
     /// Pressure of the N2 pre-booster line.
     #[mavlink(id = 0x10_06_61)]
-    #[pss(label = "N2 pre booster pressure", name = "n2_bottle_p")]
+    #[pss(label = "N2 pre booster pressure", name = "n2_pre_bst_p")]
     N2PreBoosterPressure(BarG),
 
     /// Pressure of the H2 purge line.
@@ -325,22 +325,22 @@ pub enum Message {
 
     /// Pressure of the N2 post-booster line.
     #[mavlink(id = 0x10_06_63)]
-    #[pss(label = "N2 post booster pressure", name = "n2_fill_p")]
+    #[pss(label = "N2 post booster pressure", name = "n2_post_bst_p")]
     N2PostBoosterPressure(BarG),
 
     /// Pressure of the LOX line.
     #[mavlink(id = 0x10_06_64)]
-    #[pss(label = "LOx pressure", name = "lox_bottle_p")]
+    #[pss(label = "LOx pressure", name = "lox_line_p")]
     LoxPressure(BarG),
 
     /// Pressure of the purge line.
     #[mavlink(id = 0x10_06_65)]
-    #[pss(label = "purge pressure", name = "prg_line_p")]
+    #[pss(label = "purge pressure", name = "n2_prg_p")]
     PurgePressure(BarG),
 
     /// Pressure of the pneumatic line.
     #[mavlink(id = 0x10_06_66)]
-    #[pss(label = "pneumatic pressure", name = "pnm_line_p")]
+    #[pss(label = "pneumatic pressure", name = "n2_pnm_p")]
     PneumaticPressure(BarG),
 
     /// Pressure of the GOX igniter line.
