@@ -44,27 +44,13 @@ pub enum Message {
     #[mavlink(id = 0x10_06_00)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `RfsComputerConfigHash`
     /// First 5 hex characters of the config file Git Object Hash currently
     /// loaded by the Rfs Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 0.2 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Allows Rfs Computer config file tracking.
-    ///
-    /// ## Reaction
-    /// Receivers may log or display the config hash.
-    #[can(id = 0x630)]
+    /// This is used to auto-select the state machine in the mission control
     #[mavlink(id = 0x10_06_01)]
     ConfigHash(ConfigHash),
 
-    /// # `RfsComputerStatus`
     /// Periodic status message emitted by the RFS Computer.
     ///
     /// Contains runtime health of the RFS Computer.
@@ -76,6 +62,24 @@ pub enum Message {
     #[can(id = 0x311)]
     #[mavlink(id = 0x10_06_02)]
     Status(RfsComputerStatus),
+
+    /// The current state of the rfs computer state machine.
+    #[mavlink(id = 0x10_06_04)]
+    StateMachineState(StateMachineState),
+
+    /// Statistics about the health of the telemetry uplink received by the Rfs Computer.
+    ///
+    /// Emitted periodically by the rfs computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_05)]
+    UplinkTelemetryHealth(UplinkTelemetryHealth),
+
+    /// Statistics about the telemetry downlink sent by the Rfs Computer.
+    ///
+    /// Emitted periodically by the Rfs computer.
+    /// Can be used to calculate the throughput and loss rate.
+    #[mavlink(id = 0x10_06_06)]
+    DownlinkTelemetryStats(DownlinkTelemetryStats),
 
     /// The current active state of the normally off spark plug.
     ///
@@ -226,6 +230,14 @@ pub enum Message {
     #[pss(label = "N2 Release", name = "pnm_n2rls_vlv")]
     N2ReleaseValveState(NormallyClosedValve),
 
+    /// The current active state of the normally closed N2 rocket purge valve.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x348)]
+    #[pss(label = "N2 Rocket Purge", name = "pnm_rocprg")]
+    N2RocketPurgeValveState(NormallyClosedValve),
+
     /// The current active state of the rocket power output.
     /// # CAN
     /// - **Kind**: Status message
@@ -291,21 +303,21 @@ pub enum Message {
     Custom3State(DigitalOut),
 
     // ======================== Sensors ========================
-    /// The temperature of the LOx line, from sensor `R-T-L-1`.
+    /// The temperature of the LOx line, from sensor `lox_bottle_t`.
     /// # CAN
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x357)]
-    #[pss(label = "LOx Temperature", name = "r_t_l_1")]
+    #[pss(label = "LOx Temperature", name = "lox_bottle_t")]
     #[unit("°C")]
     LoxTemperature(Celsius),
 
-    /// The temperature of the igniter, from sensor `I-T-I-1`.
+    /// The temperature of the igniter, from sensor `ign_block_t`.
     /// # CAN
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x357)]
-    #[pss(label = "Igniter Temperature", name = "i_t_i_1")]
+    #[pss(label = "Igniter Temperature", name = "ign_block_t")]
     #[unit("°C")]
     IgniterTemperature(Celsius),
 
@@ -314,7 +326,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x358)]
-    #[pss(label = "Cabinet Temperature", name = "cabinet_t")]
+    #[pss(label = "Cabinet Temperature", name = "rfs_cabinent_t")]
     #[unit("°C")]
     CabinetTemperature(Celsius),
 
@@ -323,7 +335,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x359)]
-    #[pss(label = "Ambient Temperature", name = "ambient_t")]
+    #[pss(label = "Ambient Temperature", name = "rfs_ambient_t")]
     #[unit("°C")]
     AmbientTemperature(Celsius),
 
@@ -332,7 +344,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x360)]
-    #[pss(label = "LOx Decoupler Proximity", name = "lox_decoupler_prox")]
+    #[pss(label = "LOx Decoupler Proximity", name = "pmn_loxdec_prox")]
     LoxDecouplerProximity(DigitalIn),
 
     /// Whether the N2 decoupler is in its retracted state, from the proximity sensor.
@@ -340,7 +352,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x361)]
-    #[pss(label = "N2 Decoupler Proximity", name = "n2_decoupler_prox")]
+    #[pss(label = "N2 Decoupler Proximity", name = "pmn_n2dec_prox")]
     N2DecouplerProximity(DigitalIn),
 
     /// Whether the valves are receiving power (arming relay state).
@@ -348,7 +360,7 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x362)]
-    #[pss(label = "Valves Armed", name = "valves_armed")]
+    #[pss(label = "Valves Armed", name = "rfs_main_armed")]
     ValvesArmed(DigitalIn),
 
     /// Whether the spark plug is receiving power (arming relay state).
@@ -356,76 +368,72 @@ pub enum Message {
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x363)]
-    #[pss(label = "Igniter Armed", name = "igniter_armed")]
+    #[pss(label = "Igniter Armed", name = "rfs_ign_armed")]
     IgniterArmed(DigitalIn),
 
-    /// The pressure from the igniter, from sensor ign_block_p
+    /// The pressure from the igniter block
     /// # CAN
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x364)]
-    #[pss(label = "Igniter Pressure", name = "pres_ign")]
+    #[pss(label = "Igniter Pressure", name = "ign_block_p")]
     IgniterPressure(BarG),
 
-    // ## Purpose
-    // Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
-    // This includes the ingiter valves and the spark plug.
-    // ## Reaction
-    // Receivers may log the data or use it for diagnostics and system health checks.
-    // #[can(id = 0x325)]
-    // #[mavlink(id = 0x10_06_03)]
-    // ValveStates(ValveStates), not needed right? Single valves messages afaik
-    /// The current state of the rfs computer state machine.
-    #[mavlink(id = 0x10_06_04)]
-    StateMachineState(StateMachineState),
-
-    /// Statistics about the health of the telemetry uplink received by the Rfs Computer.
-    ///
-    /// Emitted periodically by the rfs computer.
-    /// Can be used to calculate the throughput and loss rate.
-    #[mavlink(id = 0x10_06_05)]
-    UplinkTelemetryHealth(UplinkTelemetryHealth),
-
-    /// Statistics about the telemetry downlink sent by the Rfs Computer.
-    ///
-    /// Emitted periodically by the Rfs computer.
-    /// Can be used to calculate the throughput and loss rate.
-    #[mavlink(id = 0x10_06_06)]
-    DownlinkTelemetryStats(DownlinkTelemetryStats),
-
-    /// Pressure of the N2 pre-booster line (`R-P-N-1`).
+    /// Pressure of the N2 pre-booster line.
     #[can(id = 0x38a)]
+    #[pss(label = "N2 pre booster pressure", name = "n2_bottle_p")]
     N2PreBoosterPressure(BarG),
 
-    /// Pressure of the H2 purge line (`R-P-N-2`).
+    /// Pressure of the H2 purge line.
     #[can(id = 0x38b)]
+    #[pss(label = "H2 purge pressure", name = "h2_prg_p")]
     H2PurgePressure(BarG),
 
-    /// Pressure of the N2 post-booster line (`R-P-N-3`).
+    /// Pressure of the N2 post-booster line.
     #[can(id = 0x38c)]
+    #[pss(label = "N2 post booster pressure", name = "n2_fill_p")]
     N2PostBoosterPressure(BarG),
 
-    /// Pressure of the LOX line (`R-P-L-1`).
+    /// Pressure of the LOX line.
     #[can(id = 0x38d)]
+    #[pss(label = "LOx pressure", name = "lox_bottle_p")]
     LoxPressure(BarG),
 
-    /// Pressure of the purge line (`R-P-P-1`).
+    /// Pressure of the purge line.
     #[can(id = 0x38e)]
+    #[pss(label = "purge pressure", name = "prg_line_p")]
     PurgePressure(BarG),
 
-    /// Pressure of the pneumatic line (`R-P-P-2`).
+    /// Pressure of the pneumatic line.
     #[can(id = 0x38f)]
+    #[pss(label = "pneumatic pressure", name = "pnm_line_p")]
     PneumaticPressure(BarG),
 
-    /// Pressure of the GOX igniter line (`I-P-G-1`).
+    /// Pressure of the GOX igniter line.
     #[can(id = 0x390)]
+    #[pss(label = "GOx pressure", name = "gox_line_p")]
     GoxPressure(BarG),
 
-    /// Pressure of the H2 igniter line (`I-P-H-1`).
+    /// Pressure of the H2 igniter line.
     #[can(id = 0x391)]
+    #[pss(label = "H2 pressure", name = "h2_line_p")]
     H2Pressure(BarG),
 
     // ======================== RX ========================
+    /// Command a manual state transition on the RFSC.
+    /// The state machine will perform the state transition and emit a state change event.
+    #[mavlink(id = 0x20_06_00)]
+    ManualStateTransition(ManualStateTransition),
+
+    /// Command a specific actuator to move to a specific target position.
+    /// The actuator name and the semantics of the value are defined using
+    /// an `#[pss(name = "...", kind  = "...")]` attribute from the [`data_core::pss::Data`]
+    /// macro.
+    ///
+    /// Upon change, an "actuator states" message will be emitted.
+    #[mavlink(id = 0x20_06_01)]
+    ManualActuatorChange(ManualActuatorChange),
+
     /// Controls the GOX igniter valve on the RFS from the FC.
     ///
     /// This is needed during the ignition sequence where the flight computer controls the igniter
@@ -446,7 +454,6 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20b)]
-    #[mavlink(id = 0x10_06_07)]
     H2IgniterValveControl(NormallyClosedValve),
 
     /// Controls the igniter spark plug on the RFS from the FC.
@@ -458,7 +465,6 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20c)]
-    #[mavlink(id = 0x10_06_08)]
     IgniterSparkPlugControl(DigitalOut),
 
     /// Controls the H2 purge valve on the RFS from the FC.
@@ -470,7 +476,6 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20d)]
-    #[mavlink(id = 0x10_06_09)]
     H2IgniterPurgeControl(NormallyClosedValve),
 
     /// Controls the GOX purge valve on the RFS from the FC.
@@ -482,20 +487,5 @@ pub enum Message {
     /// - **Kind**: Event message
     /// - **Sent by**: Flight Computer
     #[can(id = 0x20e)]
-    #[mavlink(id = 0x10_06_10)]
     GoxIgniterPurgeControl(NormallyClosedValve),
-
-    /// Command a manual state transition on the RFSC.
-    /// The state machine will perform the state transition and emit a state change event.
-    #[mavlink(id = 0x20_06_00)]
-    ManualStateTransition(ManualStateTransition),
-
-    /// Command a specific actuator to move to a specific target position.
-    /// The actuator name and the semantics of the value are defined using
-    /// an `#[pss(name = "...", kind  = "...")]` attribute from the [`data_core::pss::Data`]
-    /// macro.
-    ///
-    /// Upon change, an "actuator states" message will be emitted.
-    #[mavlink(id = 0x20_06_01)]
-    ManualActuatorChange(ManualActuatorChange),
 }
