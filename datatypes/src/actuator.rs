@@ -243,6 +243,7 @@ mod dpr_state_mavlink_impl {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Default, Clone, Copy, PartialEq)] // defaults to 0 (closed).
 pub struct ThrottleableValve {
     /// The openness in percent (0 being fully closed, 100 being fully open)

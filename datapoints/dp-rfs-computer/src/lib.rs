@@ -13,7 +13,9 @@ use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
 use datatypes::{
-    actuator::{DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve},
+    actuator::{
+        DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve, ThrottleableValve,
+    },
     sensor::DigitalIn,
     status::{
         BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
@@ -248,6 +250,11 @@ pub enum Message {
     #[mavlink(id = 0x10_06_37)]
     #[pss(label = "Custom 3", name = "custom3")]
     Custom3State(DigitalOut),
+
+    /// The current openness state of the LOX fill valve
+    #[mavlink(id = 0x10_06_38)]
+    #[pss(label = "LOx fill valve", name = "lox_fll_vlv")]
+    LoxFillValveState(ThrottleableValve),
 
     // -------- Temperature sensors --------
     /// The temperature of the LOx line, from sensor `lox_bottle_t`.
