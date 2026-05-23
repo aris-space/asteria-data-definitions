@@ -4,7 +4,7 @@
 use data_core::mavlink;
 use gated_derive::gated_derive;
 
-/// The state of a valve that is normally open.
+/// A digital input, mostly for proximity sensors.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
