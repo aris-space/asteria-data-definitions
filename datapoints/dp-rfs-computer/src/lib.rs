@@ -1,4 +1,5 @@
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(feature = "derive_utoipa", allow(clippy::large_stack_arrays))] // allow slightly weird schema encoding
 
 use data_core::Message;
 #[cfg(feature = "can")]
@@ -16,6 +17,7 @@ use datatypes::{
     },
     units::{BarG, Celsius},
 };
+
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -31,7 +33,6 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[gated_derive(pss::Data)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = RfsComputerMessage)]
-#[cfg_attr(feature = "derive_utoipa", allow(clippy::large_stack_arrays))]
 pub enum Message {
     // ======================== TX ========================
     /// Software build metadata periodically emitted by the RFS Computer.
