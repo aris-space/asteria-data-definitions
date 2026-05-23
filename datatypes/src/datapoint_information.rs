@@ -54,8 +54,7 @@ impl IntoDatapointValue for DigitalOut {
 
 impl IntoDatapointValue for InvertedDigitalOut {
     // `InvertedDigitalOut::default()` is `On`, which maps to `enabled: true`.
-    // The inversion semantic (Off = energized) lives in `Energizable`, not in this reporting layer;
-    // this impl matches the convention of `From<InvertedDigitalOut> for DatapointValue` below.
+    // The inversion semantic (Off = energized) lives in `Energizable`, not in this reporting layer.
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
         default_enabled: true,
     });
@@ -75,22 +74,6 @@ impl IntoDatapointValue for NormallyOpenValve {
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, NormallyOpenValve::Open),
-        })
-    }
-}
-
-impl From<DigitalOut> for DatapointValue {
-    fn from(value: DigitalOut) -> Self {
-        Self::Actuator(ActuatorValue::Digital {
-            enabled: matches!(value, DigitalOut::On),
-        })
-    }
-}
-
-impl From<InvertedDigitalOut> for DatapointValue {
-    fn from(value: InvertedDigitalOut) -> Self {
-        Self::Actuator(ActuatorValue::Digital {
-            enabled: matches!(value, InvertedDigitalOut::On),
         })
     }
 }
