@@ -12,8 +12,7 @@ use datatypes::units::RailStatus;
 
 use gated_derive::gated_derive;
 
-mod dptypes;
-pub use dptypes::*;
+pub use datatypes::status::ActivePowerSource;
 
 mod version;
 pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
