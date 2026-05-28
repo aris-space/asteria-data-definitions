@@ -28,12 +28,12 @@ impl IntoDatapointValue for NormallyClosedValve {
 
 impl IntoDatapointValue for DigitalIn {
     // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
-    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
         default_enabled: false,
     });
 
     fn into_value(self) -> DatapointValue {
-        DatapointValue::Sensor(SensorValue::Digital {
+        DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, DigitalIn::On),
         })
     }
@@ -41,12 +41,12 @@ impl IntoDatapointValue for DigitalIn {
 
 impl IntoDatapointValue for DigitalOut {
     // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
-    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
         default_enabled: false,
     });
 
     fn into_value(self) -> DatapointValue {
-        DatapointValue::Sensor(SensorValue::Digital {
+        DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, DigitalOut::Off),
         })
     }
