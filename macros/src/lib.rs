@@ -438,7 +438,7 @@ pub fn derive_mavlink_dialect(input: TokenStream) -> TokenStream {
 ///
 /// The macro also ensures that all datapoint ids are unique.
 ///
-/// **Important**: This macro only works for newtype and named structed as well as newtype, unit and named enums
+/// **Important**: This macro only works for newtype and named structs as well as newtype, unit and named enums
 ///
 #[cfg(feature = "pss")]
 #[proc_macro_derive(PssData, attributes(unit, pss))]

@@ -1,4 +1,9 @@
+//! The RFS datapoints, see also the instrumentation naming excel in sharepoint.
+//!
+//! Only some of them have CAN support, as those are the only ones used by the FC sequences.
+
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(feature = "derive_utoipa", allow(clippy::large_stack_arrays))] // allow slightly weird schema encoding
 
 use data_core::Message;
 #[cfg(feature = "can")]
@@ -7,10 +12,16 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
+use datatypes::actuator::{
+    DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve, ThrottleableValve,
+};
+use datatypes::sensor::DigitalIn;
 use datatypes::status::{
     BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-    ManualStateTransition, StateMachineState, UplinkTelemetryHealth, ValveState,
+    ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
 };
+use datatypes::units::{BarG, Celsius};
+
 use gated_derive::gated_derive;
 
 mod dptypes;
@@ -28,83 +39,35 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[schema(as = RfsComputerMessage)]
 pub enum Message {
     // ======================== TX ========================
-    /// # `RfsComputerBuildInfo`
-    /// Firmware build metadata emitted by the RFS Computer.
+
+    // -------- Status / health --------
+    /// Software build metadata periodically emitted by the RFS Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 0.2 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Allows version tracking and verification of the RFS Computer firmware.
-    ///
-    /// ## Reaction
-    /// Receivers may log or display the firmware version and build metadata.
+    /// # CAN
+    /// - **Kind**: Debug message
+    /// - **Sent by**: RFS Computer
     #[can(id = 0x611)]
     #[mavlink(id = 0x10_06_00)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `RfsComputerConfigHash`
     /// First 5 hex characters of the config file Git Object Hash currently
     /// loaded by the Rfs Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 0.2 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Allows Rfs Computer config file tracking.
-    ///
-    /// ## Reaction
-    /// Receivers may log or display the config hash.
-    #[can(id = 0x630)]
+    /// This is used to auto-select the state machine in the mission control
     #[mavlink(id = 0x10_06_01)]
     ConfigHash(ConfigHash),
 
-    /// # `RfsComputerStatus`
     /// Periodic status message emitted by the RFS Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 1 Hz`
+    /// Contains runtime health of the RFS Computer.
+    /// It is also used to only ignite if the RFS is armed.
     ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Communicates the runtime health and status of the RFS Computer.
-    ///
-    /// ## Reaction
-    /// Receivers may log the data or use it for diagnostics and system health checks.
-    /// It is also used to only ingite if the RFS is armed and ensure exclusive PSS control.
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
     #[can(id = 0x311)]
     #[mavlink(id = 0x10_06_02)]
     Status(RfsComputerStatus),
-
-    /// # `RfsComputerValveStates`
-    /// Periodic status message emitted by the Remote Filling Station Computer.
-    ///
-    /// ## Type
-    /// - `Periodic @ 5 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `RfsComputer`
-    /// - **Received by:** `EngineControlBoard` (mainly)
-    ///
-    /// ## Purpose
-    /// Communicates the actuator state of the actuators in the Remote Filling Station controllable via CAN.
-    /// This includes the ingiter valves and the spark plug.
-    /// ## Reaction
-    /// Receivers may log the data or use it for diagnostics and system health checks.
-    #[can(id = 0x325)]
-    #[mavlink(id = 0x10_06_03)]
-    ValveStates(RfsComputerValveStates),
 
     /// The current state of the rfs computer state machine.
     #[mavlink(id = 0x10_06_04)]
@@ -124,86 +87,271 @@ pub enum Message {
     #[mavlink(id = 0x10_06_06)]
     DownlinkTelemetryStats(DownlinkTelemetryStats),
 
+    // -------- Valve / actuator states --------
+    /// The current active state of the normally off spark plug.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x331)]
+    #[mavlink(id = 0x10_06_10)]
+    #[pss(label = "Spark Plug", name = "ign_spk_plg")]
+    IgniterSparkPlugState(DigitalOut),
+
+    /// The current active state of the normally closed GOX igniter valve.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x332)]
+    #[mavlink(id = 0x10_06_11)]
+    #[pss(label = "GOX Igniter", name = "gox_ign_vlv")]
+    GoxIgniterValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed H2 igniter valve.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x333)]
+    #[mavlink(id = 0x10_06_12)]
+    #[pss(label = "H2 Igniter", name = "h2_ign_vlv")]
+    H2IgniterValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed GOX purge valve.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x334)]
+    #[mavlink(id = 0x10_06_13)]
+    #[pss(label = "GOX Purge", name = "gox_prg_vlv")]
+    GoxPurgeValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed H2 purge valve.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x335)]
+    #[mavlink(id = 0x10_06_14)]
+    #[pss(label = "H2 Purge", name = "h2_prg_vlv")]
+    H2PurgeValveState(NormallyClosedValve),
+
+    /// The current active state of the normally open N2 bleed valve.
+    #[mavlink(id = 0x10_06_15)]
+    #[pss(label = "N2 Bleed", name = "n2_bld_vlv")]
+    N2BleedValveState(NormallyOpenValve),
+
+    /// The current active state of the normally closed LOX purge valve.
+    #[mavlink(id = 0x10_06_16)]
+    #[pss(label = "LOX Purge", name = "lox_prg_vlv")]
+    LoxPurgeValveState(NormallyClosedValve),
+
+    /// The current active state of the normally open GOX bleed valve.
+    #[mavlink(id = 0x10_06_17)]
+    #[pss(label = "GOX Bleed", name = "gox_bld_vlv")]
+    GoxBleedValveState(NormallyOpenValve),
+
+    /// The current active state of the normally closed N2 purge valve.
+    #[mavlink(id = 0x10_06_18)]
+    #[pss(label = "N2 Purge", name = "n2_prg_vlv")]
+    N2PurgeValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed N2 fill valve.
+    #[mavlink(id = 0x10_06_19)]
+    #[pss(label = "N2 Fill", name = "n2_fll_vlv")]
+    N2FillValveState(NormallyClosedValve),
+
+    /// The current active state of the normally open H2 bleed valve.
+    #[mavlink(id = 0x10_06_1a)]
+    #[pss(label = "H2 Bleed", name = "h2_bld_vlv")]
+    H2BleedValveState(NormallyOpenValve),
+
+    /// The current active state of the normally closed LOX bleed valve.
+    #[mavlink(id = 0x10_06_1b)]
+    #[pss(label = "LOX Bleed", name = "lox_bld_vlv")]
+    LoxBleedValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed pneumatic booster valve.
+    #[mavlink(id = 0x10_06_1c)]
+    #[pss(label = "Booster", name = "n2_bst_vlv")]
+    BoosterValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed LOX decoupler extend valve.
+    #[mavlink(id = 0x10_06_1d)]
+    #[pss(label = "LOX Dec. Extend", name = "lox_dec_ext")]
+    LoxDecouplerExtendValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed LOX decoupler retract valve.
+    #[mavlink(id = 0x10_06_1e)]
+    #[pss(label = "LOX Dec. Retract", name = "lox_dec_ret")]
+    LoxDecouplerRetractValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed N2 decoupler extend valve.
+    #[mavlink(id = 0x10_06_1f)]
+    #[pss(label = "N2 Dec. Extend", name = "n2_dec_ext")]
+    N2DecouplerExtendValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed N2 decoupler retract valve.
+    #[mavlink(id = 0x10_06_20)]
+    #[pss(label = "N2 Dec. Retract", name = "n2_dec_ret")]
+    N2DecouplerRetractValveState(NormallyClosedValve),
+
+    /// The current active state of the normally closed N2 shower valves.
+    #[mavlink(id = 0x10_06_21)]
+    #[pss(label = "N2 Showers", name = "n2_shw_vlv")]
+    N2ShowerValvesState(NormallyClosedValve),
+
+    /// The current active state of the normally closed N2 engine purge valve valve.
+    #[mavlink(id = 0x10_06_22)]
+    #[pss(label = "N2 engine purge", name = "eng_prg_vlv")]
+    N2RocketPurgeValveState(NormallyClosedValve),
+
+    // -------- Digital power outputs --------
+    /// The current active state of the rocket power output.
+    #[mavlink(id = 0x10_06_30)]
+    #[pss(label = "Rocket Power", name = "rocket_power")]
+    RocketPowerState(InvertedDigitalOut),
+
+    /// The current active state of the Maxon board power output.
+    #[mavlink(id = 0x10_06_31)]
+    #[pss(label = "Maxon Power", name = "maxon_board_power")]
+    MaxonBoardPowerState(InvertedDigitalOut),
+
+    /// The current active state of the FSS heating output.
+    #[mavlink(id = 0x10_06_32)]
+    #[pss(label = "FSS Heating", name = "fss_heating")]
+    FssHeatingState(DigitalOut),
+
+    /// The current active state of the pressure sensor heating output.
+    #[mavlink(id = 0x10_06_33)]
+    #[pss(label = "Sensor Heat", name = "pres_sensor_heat")]
+    PressureSensorHeatingState(DigitalOut),
+
+    /// The current active state of the ETH pump power output.
+    #[mavlink(id = 0x10_06_34)]
+    #[pss(label = "ETH Pump Power", name = "eth_pump_power")]
+    EthPumpPowerState(DigitalOut),
+
+    /// The current active state of the custom output 1.
+    #[mavlink(id = 0x10_06_35)]
+    #[pss(label = "Custom 1", name = "custom1")]
+    Custom1State(DigitalOut),
+
+    /// The current active state of the custom output 2.
+    #[mavlink(id = 0x10_06_36)]
+    #[pss(label = "Custom 2", name = "custom2")]
+    Custom2State(DigitalOut),
+
+    /// The current active state of the custom output 3.
+    #[mavlink(id = 0x10_06_37)]
+    #[pss(label = "Custom 3", name = "custom3")]
+    Custom3State(DigitalOut),
+
+    /// The current openness state of the LOX fill valve
+    #[mavlink(id = 0x10_06_38)]
+    #[pss(label = "LOx fill", name = "lox_fll_vlv")]
+    LoxFillValveState(ThrottleableValve),
+
+    // -------- Temperature sensors --------
+    /// The temperature of the LOx line.
+    #[mavlink(id = 0x10_06_40)]
+    #[pss(label = "LOx T.", name = "lox_line_t")]
+    #[unit("°C")]
+    LoxTemperature(Celsius),
+
+    /// The temperature of the igniter.
+    #[mavlink(id = 0x10_06_41)]
+    #[pss(label = "Igniter T.", name = "ign_cc_t")]
+    #[unit("°C")]
+    IgniterTemperature(Celsius),
+
+    /// The temperature inside the DACS cabinet.
+    #[mavlink(id = 0x10_06_42)]
+    #[pss(label = "Cabinet T.", name = "rfs_cabinent_t")]
+    #[unit("°C")]
+    CabinetTemperature(Celsius),
+
+    /// The ambient temperature.
+    #[mavlink(id = 0x10_06_43)]
+    #[pss(label = "Ambient T.", name = "rfs_ambient_t")]
+    #[unit("°C")]
+    AmbientTemperature(Celsius),
+
+    // -------- Digital sensors / arming --------
+    /// Whether the LOx decoupler is in its retracted state, from the proximity sensor.
+    #[mavlink(id = 0x10_06_50)]
+    #[pss(label = "LOx Dec. Prox", name = "lox_dec_prox")]
+    LoxDecouplerProximity(DigitalIn),
+
+    /// Whether the N2 decoupler is in its retracted state, from the proximity sensor.
+    #[mavlink(id = 0x10_06_51)]
+    #[pss(label = "N2 Dec. Prox", name = "n2_dec_prox")]
+    N2DecouplerProximity(DigitalIn),
+
+    /// Whether the valves are receiving power (arming relay state).
+    #[mavlink(id = 0x10_06_52)]
+    #[pss(label = "Valves Armed", name = "rfs_main_armed")]
+    ValvesArmed(DigitalIn),
+
+    /// Whether the spark plug is receiving power (arming relay state).
+    #[mavlink(id = 0x10_06_53)]
+    #[pss(label = "Igniter Armed", name = "rfs_ign_armed")]
+    IgniterArmed(DigitalIn),
+
+    // -------- Pressure sensors --------
+    /// The pressure from the igniter block.
+    ///
+    /// # CAN
+    /// - **Kind**: Status message
+    /// - **Sent by**: RFS Computer
+    #[can(id = 0x364)]
+    #[mavlink(id = 0x10_06_60)]
+    #[pss(label = "Igniter Pressure", name = "ign_cc_p")]
+    IgniterPressure(BarG),
+
+    /// Pressure of the N2 pre-booster line.
+    #[mavlink(id = 0x10_06_61)]
+    #[pss(label = "N2 pre booster pressure", name = "n2_pre_bst_p")]
+    N2PreBoosterPressure(BarG),
+
+    /// Pressure of the H2 purge line.
+    #[mavlink(id = 0x10_06_62)]
+    #[pss(label = "H2 purge pressure", name = "h2_prg_p")]
+    H2PurgePressure(BarG),
+
+    /// Pressure of the N2 post-booster line.
+    #[mavlink(id = 0x10_06_63)]
+    #[pss(label = "N2 post booster pressure", name = "n2_post_bst_p")]
+    N2PostBoosterPressure(BarG),
+
+    /// Pressure of the LOX line.
+    #[mavlink(id = 0x10_06_64)]
+    #[pss(label = "LOx pressure", name = "lox_line_p")]
+    LoxPressure(BarG),
+
+    /// Pressure of the purge line.
+    #[mavlink(id = 0x10_06_65)]
+    #[pss(label = "purge pressure", name = "n2_prg_p")]
+    PurgePressure(BarG),
+
+    /// Pressure of the pneumatic line.
+    #[mavlink(id = 0x10_06_66)]
+    #[pss(label = "pneumatic pressure", name = "n2_pnm_p")]
+    PneumaticPressure(BarG),
+
+    /// Pressure of the GOX igniter line.
+    #[mavlink(id = 0x10_06_67)]
+    #[pss(label = "GOx pressure", name = "gox_line_p")]
+    GoxPressure(BarG),
+
+    /// Pressure of the H2 igniter line.
+    #[mavlink(id = 0x10_06_68)]
+    #[pss(label = "H2 pressure", name = "h2_line_p")]
+    H2Pressure(BarG),
+
     // ======================== RX ========================
-    /// # `GoxIgniterValveControl`
-    /// Controls the GOX igniter valve on the RFS from the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the igniter
-    /// and thus needs to open and close valves.
-    ///
-    /// ## Reaction
-    /// The remote filling station shall adjust the GOX igniter valve state accordingly.
-    #[can(id = 0x20a)]
-    GoxIgniterValveControl(ValveState),
-
-    /// # `H2IgniterValveControl`
-    /// Controls the H2 igniter valve on the RFS from the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the igniter
-    /// and thus needs to open and close valves.
-    ///
-    /// ## Reaction
-    /// The remote filling station shall adjust the H2 igniter valve state accordingly.
-    #[can(id = 0x20b)]
-    #[mavlink(id = 0x10_06_07)]
-    H2IgniterValveControl(ValveState),
-
-    /// # `IgniterSparkPlugControl`
-    /// Controls the igniter spark plug on the RFS from the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the igniter
-    /// and thus needs to open and close valves and activate the spark plug.
-    ///
-    /// ## Reaction
-    /// The remote filling station shall adjust spark plug state accordingly.
-    #[can(id = 0x20c)]
-    #[mavlink(id = 0x10_06_08)]
-    IgniterSparkPlugControl(ValveState),
-
-    /// # `IgniterPurgeControl`
-    /// Controls the GOX and H2 purge valves on the RFS from the ECU.
-    ///
-    /// ## Type
-    /// - `Event`: sent by the ECU
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `EngineControlBoard`
-    /// - **Received by:** `RemoteFillingStation`
-    ///
-    /// ## Purpose
-    /// This is needed during the ignition sequence where the engine control board controls the ignition
-    /// and thus needs to open and close valves.
-    ///
-    /// ## Reaction
-    /// The remote filling station shall adjust the GOX and H2 purge valve state accordingly.
-    #[can(id = 0x20d)]
-    #[mavlink(id = 0x10_06_09)]
-    IgniterPurgeControl(ValveState),
-
     /// Command a manual state transition on the RFSC.
     /// The state machine will perform the state transition and emit a state change event.
     #[mavlink(id = 0x20_06_00)]
@@ -217,4 +365,59 @@ pub enum Message {
     /// Upon change, an "actuator states" message will be emitted.
     #[mavlink(id = 0x20_06_01)]
     ManualActuatorChange(ManualActuatorChange),
+
+    /// Controls the GOX igniter valve on the RFS from the FC.
+    ///
+    /// This is needed during the ignition sequence where the flight computer controls the igniter
+    /// and thus needs to open and close valves.
+    ///
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
+    #[can(id = 0x20a)]
+    GoxIgniterValveControl(NormallyClosedValve),
+
+    /// Controls the H2 igniter valve on the RFS from the FC.
+    ///
+    /// This is needed during the ignition sequence where the flight computer controls the igniter
+    /// and thus needs to open and close valves.
+    ///
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
+    #[can(id = 0x20b)]
+    H2IgniterValveControl(NormallyClosedValve),
+
+    /// Controls the igniter spark plug on the RFS from the FC.
+    ///
+    /// This is needed during the ignition sequence where the flight computer controls the igniter
+    /// and thus needs to activate the spark plug.
+    ///
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
+    #[can(id = 0x20c)]
+    IgniterSparkPlugControl(DigitalOut),
+
+    /// Controls the H2 purge valve on the RFS from the FC.
+    ///
+    /// This is needed during the ignition sequence where the flight computer controls the ignition
+    /// and thus needs to purge.
+    ///
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
+    #[can(id = 0x20d)]
+    H2IgniterPurgeControl(NormallyClosedValve),
+
+    /// Controls the GOX purge valve on the RFS from the FC.
+    ///
+    /// This is needed during the ignition sequence where the flight computer controls the ignition
+    /// and thus needs to purge.
+    ///
+    /// # CAN
+    /// - **Kind**: Event message
+    /// - **Sent by**: Flight Computer
+    #[can(id = 0x20e)]
+    GoxIgniterPurgeControl(NormallyClosedValve),
 }

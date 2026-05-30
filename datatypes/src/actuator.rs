@@ -243,6 +243,7 @@ mod dpr_state_mavlink_impl {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
+#[gated_derive(utoipa::ToSchema)]
 #[derive(Debug, Default, Clone, Copy, PartialEq)] // defaults to 0 (closed).
 pub struct ThrottleableValve {
     /// The openness in percent (0 being fully closed, 100 being fully open)
@@ -290,6 +291,76 @@ pub struct CameraPowerStatus {
     pub recording_pwr_enabled: bool,
     /// Whether the livestream camera(s) should be powered on (true=on, false=off).
     pub live_pwr_enabled: bool,
+}
+
+/// The state of a digital out.
+/// This is a [`Settable`] with the value being 0.0 for off and 1.0 for on.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
+#[gated_derive(utoipa::ToSchema)]
+#[repr(u8)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum DigitalOut {
+    #[default]
+    Off = 0,
+    On = 1,
+}
+
+impl Energizable for DigitalOut {
+    fn is_active(&self) -> bool {
+        matches!(self, Self::On)
+    }
+    fn from_active(is_active: bool) -> Self {
+        if is_active { Self::On } else { Self::Off }
+    }
+}
+
+impl Settable for DigitalOut {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
+        *self = match value {
+            0.0 => DigitalOut::Off,
+            1.0 => DigitalOut::On,
+            _ => return Err(OutOfRange),
+        };
+        Ok(())
+    }
+}
+
+/// The state of an inverted digital out.
+/// This is a [`Settable`] with the value being 0.0 for off and 1.0 for on.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
+#[gated_derive(utoipa::ToSchema)]
+#[repr(u8)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum InvertedDigitalOut {
+    Off = 0,
+    #[default]
+    On = 1,
+}
+
+impl Energizable for InvertedDigitalOut {
+    fn is_active(&self) -> bool {
+        matches!(self, Self::Off)
+    }
+    fn from_active(is_active: bool) -> Self {
+        if is_active { Self::Off } else { Self::On }
+    }
+}
+
+impl Settable for InvertedDigitalOut {
+    fn set_value(&mut self, value: f32) -> Result<(), OutOfRange> {
+        *self = match value {
+            0.0 => InvertedDigitalOut::Off,
+            1.0 => InvertedDigitalOut::On,
+            _ => return Err(OutOfRange),
+        };
+        Ok(())
+    }
 }
 
 #[cfg(test)]
@@ -434,6 +505,94 @@ mod tests {
             let inactive_valve = NormallyClosedValve::from_active(false);
             assert!(inactive_valve.is_closed());
             assert!(!inactive_valve.is_active());
+        }
+    }
+
+    mod digital_out {
+        use super::*;
+
+        #[test]
+        fn default_state() {
+            let out = DigitalOut::default();
+            assert!(!out.is_active());
+            assert_eq!(out, DigitalOut::Off);
+        }
+
+        #[test]
+        fn set_value() {
+            let mut out = DigitalOut::default();
+
+            // Test valid values
+            assert!(out.set_value(0.0).is_ok());
+            assert_eq!(out, DigitalOut::Off);
+
+            assert!(out.set_value(1.0).is_ok());
+            assert_eq!(out, DigitalOut::On);
+
+            // Test invalid values, unchanged state
+            assert!(out.set_value(0.5).is_err());
+            assert_eq!(out, DigitalOut::On);
+        }
+
+        #[test]
+        fn energizable() {
+            // Default is not active
+            let out = DigitalOut::default();
+            assert!(!out.is_active());
+
+            // From active
+            let active_out = DigitalOut::from_active(true);
+            assert!(active_out.is_active());
+            assert_eq!(active_out, DigitalOut::On);
+
+            let inactive_out = DigitalOut::from_active(false);
+            assert!(!inactive_out.is_active());
+            assert_eq!(inactive_out, DigitalOut::Off);
+        }
+    }
+
+    mod inverted_digital_out {
+        use super::*;
+
+        #[test]
+        fn default_state() {
+            let out = InvertedDigitalOut::default();
+            assert!(!out.is_active());
+            assert_eq!(out, InvertedDigitalOut::On);
+        }
+
+        #[test]
+        fn set_value() {
+            let mut out = InvertedDigitalOut::default();
+
+            // Test valid values
+            assert!(out.set_value(0.0).is_ok());
+            assert_eq!(out, InvertedDigitalOut::Off);
+            assert!(out.is_active());
+
+            assert!(out.set_value(1.0).is_ok());
+            assert_eq!(out, InvertedDigitalOut::On);
+            assert!(!out.is_active());
+
+            // Test invalid values, unchanged state
+            assert!(out.set_value(0.5).is_err());
+            assert_eq!(out, InvertedDigitalOut::On);
+        }
+
+        #[test]
+        fn energizable() {
+            // Default is not active (inverted)
+            let out = InvertedDigitalOut::default();
+            assert!(!out.is_active());
+
+            // From active
+            let active_out = InvertedDigitalOut::from_active(true);
+            assert!(active_out.is_active());
+            assert_eq!(active_out, InvertedDigitalOut::Off);
+
+            let inactive_out = InvertedDigitalOut::from_active(false);
+            assert!(!inactive_out.is_active());
+            assert_eq!(inactive_out, InvertedDigitalOut::On);
         }
     }
 }
