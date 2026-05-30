@@ -12,17 +12,15 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::{
-    actuator::{
-        DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve, ThrottleableValve,
-    },
-    sensor::DigitalIn,
-    status::{
-        BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-        ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
-    },
-    units::{BarG, Celsius},
+use datatypes::actuator::{
+    DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve, ThrottleableValve,
 };
+use datatypes::sensor::DigitalIn;
+use datatypes::status::{
+    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+    ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
+};
+use datatypes::units::{BarG, Celsius};
 
 use gated_derive::gated_derive;
 
@@ -62,7 +60,7 @@ pub enum Message {
     /// Periodic status message emitted by the RFS Computer.
     ///
     /// Contains runtime health of the RFS Computer.
-    /// It is also used to only ingite if the RFS is armed.
+    /// It is also used to only ignite if the RFS is armed.
     ///
     /// # CAN
     /// - **Kind**: Status message

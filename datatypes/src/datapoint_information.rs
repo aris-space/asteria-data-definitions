@@ -1,18 +1,14 @@
-use core::f32;
-
 use datapoint_information::datapoint::{
     ActuatorKind, ActuatorValue, DatapointKind, DatapointValue, IntoDatapointValue, SensorKind,
     SensorValue,
 };
 
-use crate::{
-    actuator::{
-        DPRValve, DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve,
-        ThrottleableValve,
-    },
-    sensor::DigitalIn,
-    units::{BarG, Celsius},
+use crate::actuator::{
+    DPRValve, DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve,
+    ThrottleableValve,
 };
+use crate::sensor::DigitalIn;
+use crate::units::{BarG, Celsius};
 
 impl IntoDatapointValue for NormallyClosedValve {
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
