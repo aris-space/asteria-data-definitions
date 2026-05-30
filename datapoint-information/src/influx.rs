@@ -1,12 +1,27 @@
 //! InfluxDB [`DataPoint`] construction from typed datapoint messages.
 //!
-//! # Semantics
+//! Used to both log as annotated CSV or directly serialize to line protocol and upload.
 //!
-//! - If the message contains non-empty `get_datapoint_values()`,
-//!   then one [`DataPoint`] per PSS field via the name and kind there.
-//! - Else, the two enum variants become tags, the inner type the measurement,
-//!   and the fields become fields. Direct enums and newtypes have a field called `value`,
-//!   while unit types land it the measurement `event` with a `happened=true` dummy field.
+//! # Structure
+//!
+//! Messages fall into two categories based on whether they carry PSS annotations.
+//!
+//! ## PSS-annotated
+//!
+//! Measurement is determined by kind and unit: `pressure_sensor`,
+//! `temperature_sensor`, `valve_state`, `dpr_valve_state`, `throttable_valve_state`.
+//! The sole tag is `sensor_id` (the PSS name). Fields: `value` (analog),
+//! `open` (digital/DPR), `setpoint` (DPR when open), `openness` (fractional).
+//!
+//! ## Non-PSS structured messages
+//!
+//! The outer enum variant name becomes the `board` tag, the inner variant name
+//! the `message` tag, and the inner type name (snake_case) the measurement.
+//! All struct fields are collected as InfluxDB fields; nested structs are
+//! flattened with dot-joined names (e.g. `common.errors`). Unit variants use
+//! measurement `event` with a synthetic `happened = true` field.
+//!
+//! Both categories leave `timestamp_ns` as `None`; the caller fills it in.
 //!
 
 use std::borrow::Cow;
@@ -88,7 +103,7 @@ impl From<SerializeError<Error>> for Error {
 /// Else, `M` must be a second level message enum (i.e. the one in `messages`).
 /// Board and message names are extracted automatically from the first two nested enum variant names.
 ///
-/// This does not yet contain a timestamp or system tag.
+/// This does not yet contain a timestamp or system tag!
 pub fn to_datapoint<M>(msg: &M) -> Result<DataPoint, Error>
 where
     M: DatapointHolder + for<'a> Facet<'a>,
