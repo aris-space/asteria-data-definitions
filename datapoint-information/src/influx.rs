@@ -127,6 +127,7 @@ impl InfluxSerializer {
             mut fields,
             path,
             pending_key: None,
+            ..
         } = self.state
         else {
             return Err(Error::MalformedMessage("didn't get two level enum"));
@@ -175,6 +176,7 @@ enum SerState {
         /// Field name from the most recent `field_key`; consumed by the next
         /// `scalar`, `begin_struct`, or `begin_enum_variant`.
         pending_key: Option<String>,
+        next_seq_is_unit: bool,
         fields: BTreeMap<Cow<'static, str>, FieldValue>,
     },
 }
@@ -205,6 +207,7 @@ impl FormatSerializer for InfluxSerializer {
                 inner_type,
                 path: vec![], // root level
                 pending_key: None,
+                next_seq_is_unit: false,
                 fields: BTreeMap::new(),
             },
             // Payload enum field: emit variant name as the string value.
@@ -214,6 +217,7 @@ impl FormatSerializer for InfluxSerializer {
                 inner_type,
                 path,
                 mut pending_key,
+                next_seq_is_unit,
                 mut fields,
             } => {
                 let field_name = collecting_field_name(&path, &mut pending_key);
@@ -224,6 +228,7 @@ impl FormatSerializer for InfluxSerializer {
                     inner_type,
                     path,
                     pending_key,
+                    next_seq_is_unit,
                     fields,
                 }
             }
@@ -327,12 +332,47 @@ impl FormatSerializer for InfluxSerializer {
         }
     }
 
+    /// Catch newtypes that are not transparent.
+    fn struct_metadata(&mut self, shape: &facet::Shape) -> Result<(), Self::Error> {
+        let facet::Type::User(facet::UserType::Struct(struct_)) = shape.ty else {
+            return Ok(());
+        };
+        let kind = struct_.kind;
+
+        if kind == StructKind::TupleStruct && struct_.fields.len() == 1 {
+            // is indeed a newtype, so track it.
+            if let SerState::Collecting {
+                next_seq_is_unit, ..
+            } = &mut self.state
+            {
+                *next_seq_is_unit = true;
+            }
+        }
+        Ok(())
+    }
+
     fn begin_seq(&mut self) -> Result<(), Error> {
+        let SerState::Collecting {
+            next_seq_is_unit, ..
+        } = self.state
+        else {
+            return Err(Error::UnsupportedType("sequence in top level"));
+        };
+        if next_seq_is_unit {
+            // Unit tuples get serialized as sequences, so we ignore this
+            return Ok(());
+        }
         Err(Error::UnsupportedType("sequence"))
     }
 
     fn end_seq(&mut self) -> Result<(), Error> {
-        unreachable!("begin_seq always errors")
+        if let SerState::Collecting {
+            next_seq_is_unit, ..
+        } = &mut self.state
+        {
+            *next_seq_is_unit = false;
+        }
+        Ok(())
     }
 }
 

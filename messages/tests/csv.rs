@@ -2,8 +2,8 @@
 
 use datapoint_information::influx;
 use datatypes::actuator::NormallyOpenValve;
-use datatypes::status::StatusCommonMessage;
-use datatypes::units::{Celsius, HPa};
+use datatypes::status::{StatusCommonMessage, UplinkTelemetryHealth};
+use datatypes::units::{Celsius, HPa, InstantUs};
 use dp_flight_computer::FlightComputerStatus;
 use messages::Message;
 
@@ -65,6 +65,22 @@ fn log_fc_status() {
         panic!("must be a string");
     };
     assert_eq!(val.as_ref(), "Safe");
+}
+
+/// It broke before because `InstantUs` was not repr transparent
+#[test]
+fn log_uplink_telemetry_health() {
+    let msg = Message::FlightComputer(dp_flight_computer::Message::UplinkTelemetryHealth(
+        UplinkTelemetryHealth {
+            time_of_last_msg: InstantUs(23232),
+            num_msg_received: 123,
+            num_msg_lost: 12,
+            time_of_last_processed_msg: InstantUs(10200),
+            num_msg_processed: 8,
+        },
+    ));
+    let status = influx::to_datapoint(&msg).expect("must serialize");
+    eprintln!("{status:?}");
 }
 
 #[test]
