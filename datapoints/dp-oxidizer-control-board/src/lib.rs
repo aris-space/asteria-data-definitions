@@ -7,7 +7,7 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve};
+use datatypes::actuator::{DPRValve, NormallyOpenValve};
 use datatypes::status::BuildInformationCommon;
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
