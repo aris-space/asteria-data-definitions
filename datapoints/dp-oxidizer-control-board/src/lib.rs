@@ -7,7 +7,7 @@ use data_core::can;
 use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
-use datatypes::actuator::{DPRValve, NormallyClosedValve};
+use datatypes::actuator::{DPRValve, NormallyOpenValve};
 use datatypes::status::BuildInformationCommon;
 use datatypes::units::BarG;
 use gated_derive::gated_derive;
@@ -138,7 +138,7 @@ pub enum Message {
     #[can(id = 0x328)]
     #[mavlink(id = 0x10_03_04)]
     #[pss(label = "Oxidizer Vent Valve", name = "oss_tnk_vnt")]
-    OxidizerVentValveState(NormallyClosedValve),
+    OxidizerVentValveState(NormallyOpenValve),
 
     // ======================== RX ========================
     // The following 2 sets of messages have the same meaning, but are separate messages
@@ -171,7 +171,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x214)]
-    OxidizerVentValveControlFC(NormallyClosedValve),
+    OxidizerVentValveControlFC(NormallyOpenValve),
 
     /// ## Type
     /// - `Event`: sent by the RFS
@@ -201,7 +201,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x21e)]
-    OxidizerVentValveControlRFS(NormallyClosedValve),
+    OxidizerVentValveControlRFS(NormallyOpenValve),
 
     /// ## Type
     /// - `Event`: sent by the FC
