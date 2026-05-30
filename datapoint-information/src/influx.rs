@@ -49,19 +49,25 @@ pub enum FieldValue {
     String(Cow<'static, str>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     /// Analog sensor unit has no measurement mapping.
+    #[error("unknown sensor unit: {0}")]
     UnknownSensorUnit(String),
     /// A field type has no InfluxDB equivalent (sequences, maps, etc.).
+    #[error("unsupported field type: {0}")]
     UnsupportedType(&'static str),
     /// A `[u8; N]` field is not valid UTF-8.
+    #[error("field is not valid UTF-8")]
     InvalidUtf8,
     /// facet-format reported an error during serialisation.
+    #[error("serialization error: {0}")]
     Serialize(String),
     /// The message did not conform to the expected two-level enum structure.
+    #[error("malformed message: {0}")]
     MalformedMessage(&'static str),
     /// This extractor (intentionally) cannot handle legacy multi-datapoint messages.
+    #[error("message contains too many datapoints")]
     TooManyDatapoints,
 }
 
