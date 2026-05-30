@@ -171,7 +171,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x214)]
-    OxidizerVentValveControlFC(NormallyClosedValve),
+    OxidizerVentValveControlFC(NormallyOpenValve),
 
     /// ## Type
     /// - `Event`: sent by the RFS
@@ -201,7 +201,7 @@ pub enum Message {
     /// ## Reaction
     /// The Oxidizer Control Board shall adjust the Oxidizer Vent Valve state accordingly
     #[can(id = 0x21e)]
-    OxidizerVentValveControlRFS(NormallyClosedValve),
+    OxidizerVentValveControlRFS(NormallyOpenValve),
 
     /// ## Type
     /// - `Event`: sent by the FC
