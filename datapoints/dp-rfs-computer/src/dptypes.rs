@@ -1,6 +1,6 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
-use datatypes::status::{ArmingState, StatusCommonMessage};
+use datatypes::status::{ArmingState, SensorStatus, StatusCommonMessage};
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -16,4 +16,7 @@ pub struct RfsComputerStatus {
     /// This is a software arming state of the RFS state machine that is part of the RFS hardware arming
     #[mavlink(refine)]
     pub is_ignition_armed: ArmingState,
+    /// `Online` if connection exists, `Offline` otherwise.
+    #[mavlink(refine)]
+    pub controllino_connection: SensorStatus,
 }

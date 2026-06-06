@@ -17,7 +17,7 @@ use datatypes::actuator::{
 };
 use datatypes::sensor::DigitalIn;
 use datatypes::status::{
-    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
+    ArmingState, BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
     ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
 };
 use datatypes::units::{BarG, Celsius};
@@ -219,20 +219,10 @@ pub enum Message {
     #[pss(label = "Maxon Power", name = "maxon_board_power")]
     MaxonBoardPowerState(InvertedDigitalOut),
 
-    /// The current active state of the FSS heating output.
+    /// The current active state of the rocket heating output.
     #[mavlink(id = 0x10_06_32)]
-    #[pss(label = "FSS Heating", name = "fss_heating")]
-    FssHeatingState(DigitalOut),
-
-    /// The current active state of the pressure sensor heating output.
-    #[mavlink(id = 0x10_06_33)]
-    #[pss(label = "Sensor Heat", name = "pres_sensor_heat")]
-    PressureSensorHeatingState(DigitalOut),
-
-    /// The current active state of the ETH pump power output.
-    #[mavlink(id = 0x10_06_34)]
-    #[pss(label = "ETH Pump Power", name = "eth_pump_power")]
-    EthPumpPowerState(DigitalOut),
+    #[pss(label = "Heating", name = "rocket_heating")]
+    RocketHeatingState(DigitalOut),
 
     /// The current active state of the custom output 1.
     #[mavlink(id = 0x10_06_35)]
@@ -279,6 +269,12 @@ pub enum Message {
     #[unit("°C")]
     AmbientTemperature(Celsius),
 
+    /// The temperature inside the SMART box.
+    #[mavlink(id = 0x10_06_44)]
+    #[pss(label = "SMART T.", name = "smart_cabinent_t")]
+    #[unit("°C")]
+    SmartBoxTemperature(Celsius),
+
     // -------- Digital sensors / arming --------
     /// Whether the LOx decoupler is in its retracted state, from the proximity sensor.
     #[mavlink(id = 0x10_06_50)]
@@ -299,6 +295,16 @@ pub enum Message {
     #[mavlink(id = 0x10_06_53)]
     #[pss(label = "Igniter Armed", name = "rfs_ign_armed")]
     IgniterArmed(DigitalIn),
+
+    /// Whether the valves of the smart box are receiving power (arming relay state).
+    #[mavlink(id = 0x10_06_54)]
+    #[pss(label = "Valves Armed", name = "smart_valves_armed")]
+    ValvesArmedSmartBox(ArmingState),
+
+    /// Whether the rocket is given power and is connected.
+    #[mavlink(id = 0x10_06_55)]
+    #[pss(label = "Rocket Connected", name = "rocket_con_detect")]
+    RocketConnected(DigitalIn),
 
     // -------- Pressure sensors --------
     /// The pressure from the igniter block.

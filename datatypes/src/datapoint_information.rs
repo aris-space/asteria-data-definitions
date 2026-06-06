@@ -8,6 +8,7 @@ use crate::actuator::{
     ThrottleableValve,
 };
 use crate::sensor::DigitalIn;
+use crate::status::ArmingState;
 use crate::units::{BarG, Celsius};
 
 impl IntoDatapointValue for NormallyClosedValve {
@@ -24,13 +25,26 @@ impl IntoDatapointValue for NormallyClosedValve {
 
 impl IntoDatapointValue for DigitalIn {
     // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
-    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
         default_enabled: false,
     });
 
     fn into_value(self) -> DatapointValue {
-        DatapointValue::Actuator(ActuatorValue::Digital {
+        DatapointValue::Sensor(SensorValue::Digital {
             enabled: matches!(self, DigitalIn::On),
+        })
+    }
+}
+
+/// Using a Arming state as a digital sensor
+impl IntoDatapointValue for ArmingState {
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Digital {
+            enabled: matches!(self, ArmingState::Armed),
         })
     }
 }
