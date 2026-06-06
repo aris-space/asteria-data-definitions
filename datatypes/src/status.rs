@@ -4,7 +4,7 @@
 use data_core::mavlink;
 use gated_derive::gated_derive;
 
-use crate::units::InstantUs;
+use crate::{actuator::Energizable, units::InstantUs};
 
 /// The ID of a board in the rocket.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -42,6 +42,15 @@ pub enum ArmingState {
     /// System is not safe to approach anymore. System can be used to its full capacity
     /// This can mean for example that previously unpowered actuators now have power.
     Armed = 1,
+}
+
+impl Energizable for ArmingState {
+    fn is_active(&self) -> bool {
+        matches!(self, Self::Armed)
+    }
+    fn from_active(is_active: bool) -> Self {
+        if is_active { Self::Armed } else { Self::Safe }
+    }
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
