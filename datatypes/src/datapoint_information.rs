@@ -1,15 +1,14 @@
-use core::f32;
-
 use datapoint_information::datapoint::{
     ActuatorKind, ActuatorValue, DatapointKind, DatapointValue, IntoDatapointValue, SensorKind,
     SensorValue,
 };
 
-use crate::{
-    actuator::{DPRValve, NormallyClosedValve, NormallyOpenValve, ThrottleableValve},
-    status::ValveState,
-    units::{BarG, Celsius},
+use crate::actuator::{
+    DPRValve, DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve,
+    ThrottleableValve,
 };
+use crate::sensor::DigitalIn;
+use crate::units::{BarG, Celsius};
 
 impl IntoDatapointValue for NormallyClosedValve {
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
@@ -23,6 +22,46 @@ impl IntoDatapointValue for NormallyClosedValve {
     }
 }
 
+impl IntoDatapointValue for DigitalIn {
+    // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, DigitalIn::On),
+        })
+    }
+}
+
+impl IntoDatapointValue for DigitalOut {
+    // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, DigitalOut::Off),
+        })
+    }
+}
+
+impl IntoDatapointValue for InvertedDigitalOut {
+    // `InvertedDigitalOut::default()` is `On`, which maps to `enabled: true`.
+    // The inversion semantic (Off = energized) lives in `Energizable`, not in this reporting layer.
+    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
+        default_enabled: true,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, InvertedDigitalOut::On),
+        })
+    }
+}
+
 impl IntoDatapointValue for NormallyOpenValve {
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
         default_enabled: true,
@@ -31,18 +70,6 @@ impl IntoDatapointValue for NormallyOpenValve {
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, NormallyOpenValve::Open),
-        })
-    }
-}
-
-impl IntoDatapointValue for ValveState {
-    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
-        default_enabled: false,
-    });
-
-    fn into_value(self) -> DatapointValue {
-        DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, ValveState::Active),
         })
     }
 }
