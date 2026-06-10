@@ -205,7 +205,7 @@ pub enum Message {
 
     /// The current active state of the normally closed N2 engine purge valve valve.
     #[mavlink(id = 0x10_06_22)]
-    #[pss(label = "N2 engine purge", name = "eng_prg_vlv")]
+    #[pss(label = "N2 Engine Purge", name = "eng_prg_vlv")]
     N2RocketPurgeValveState(NormallyClosedValve),
 
     // -------- Digital power outputs --------
@@ -298,7 +298,7 @@ pub enum Message {
 
     /// Whether the valves of the smart box are receiving power (arming relay state).
     #[mavlink(id = 0x10_06_54)]
-    #[pss(label = "Valves Armed", name = "smart_valves_armed")]
+    #[pss(label = "SMART Armed", name = "smart_valves_armed")]
     ValvesArmedSmartBox(ArmingState),
 
     /// Whether the rocket is given power and is connected.
@@ -314,47 +314,47 @@ pub enum Message {
     /// - **Sent by**: RFS Computer
     #[can(id = 0x364)]
     #[mavlink(id = 0x10_06_60)]
-    #[pss(label = "Igniter Pressure", name = "ign_cc_p")]
+    #[pss(label = "Igniter P.", name = "ign_cc_p")]
     IgniterPressure(BarG),
 
     /// Pressure of the N2 pre-booster line.
     #[mavlink(id = 0x10_06_61)]
-    #[pss(label = "N2 pre booster pressure", name = "n2_pre_bst_p")]
+    #[pss(label = "N2 Pre Booster P.", name = "n2_pre_bst_p")]
     N2PreBoosterPressure(BarG),
 
     /// Pressure of the H2 purge line.
     #[mavlink(id = 0x10_06_62)]
-    #[pss(label = "H2 purge pressure", name = "h2_prg_p")]
+    #[pss(label = "H2 purge P.", name = "h2_prg_p")]
     H2PurgePressure(BarG),
 
     /// Pressure of the N2 post-booster line.
     #[mavlink(id = 0x10_06_63)]
-    #[pss(label = "N2 post booster pressure", name = "n2_post_bst_p")]
+    #[pss(label = "N2 Post Booster P.", name = "n2_post_bst_p")]
     N2PostBoosterPressure(BarG),
 
     /// Pressure of the LOX line.
     #[mavlink(id = 0x10_06_64)]
-    #[pss(label = "LOx pressure", name = "lox_line_p")]
+    #[pss(label = "LOx P.", name = "lox_line_p")]
     LoxPressure(BarG),
 
     /// Pressure of the purge line.
     #[mavlink(id = 0x10_06_65)]
-    #[pss(label = "purge pressure", name = "n2_prg_p")]
+    #[pss(label = "Purge P.", name = "n2_prg_p")]
     PurgePressure(BarG),
 
     /// Pressure of the pneumatic line.
     #[mavlink(id = 0x10_06_66)]
-    #[pss(label = "pneumatic pressure", name = "n2_pnm_p")]
+    #[pss(label = "Pneuma. P.", name = "n2_pnm_p")]
     PneumaticPressure(BarG),
 
     /// Pressure of the GOX igniter line.
     #[mavlink(id = 0x10_06_67)]
-    #[pss(label = "GOx pressure", name = "gox_line_p")]
+    #[pss(label = "GOx P.", name = "gox_line_p")]
     GoxPressure(BarG),
 
     /// Pressure of the H2 igniter line.
     #[mavlink(id = 0x10_06_68)]
-    #[pss(label = "H2 pressure", name = "h2_line_p")]
+    #[pss(label = "H2 P.", name = "h2_line_p")]
     H2Pressure(BarG),
 
     // ======================== RX ========================
