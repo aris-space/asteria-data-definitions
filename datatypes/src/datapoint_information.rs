@@ -4,7 +4,7 @@ use datapoint_information::datapoint::{
 };
 
 use crate::actuator::{
-    DPRValve, DigitalOut, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve,
+    DPRValve, DigitalOut, Energizable, InvertedDigitalOut, NormallyClosedValve, NormallyOpenValve,
     ThrottleableValve,
 };
 use crate::sensor::DigitalIn;
@@ -18,7 +18,7 @@ impl IntoDatapointValue for NormallyClosedValve {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, NormallyClosedValve::Open),
+            enabled: self.is_active(),
         })
     }
 }
@@ -31,7 +31,7 @@ impl IntoDatapointValue for DigitalIn {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Sensor(SensorValue::Digital {
-            enabled: matches!(self, DigitalIn::On),
+            enabled: self.is_active(),
         })
     }
 }
@@ -44,7 +44,7 @@ impl IntoDatapointValue for ArmingState {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Sensor(SensorValue::Digital {
-            enabled: matches!(self, ArmingState::Armed),
+            enabled: self.is_active(),
         })
     }
 }
@@ -57,7 +57,7 @@ impl IntoDatapointValue for DigitalOut {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, DigitalOut::Off),
+            enabled: self.is_active(),
         })
     }
 }
@@ -71,7 +71,7 @@ impl IntoDatapointValue for InvertedDigitalOut {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, InvertedDigitalOut::On),
+            enabled: self.is_active(),
         })
     }
 }
@@ -83,7 +83,7 @@ impl IntoDatapointValue for NormallyOpenValve {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, NormallyOpenValve::Open),
+            enabled: self.is_active(),
         })
     }
 }
