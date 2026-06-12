@@ -111,7 +111,7 @@ impl IntoDatapointValue for ThrottleableValve {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Fractional {
-            percent: f32::from(self.openness_percent),
+            fraction: f32::from(self),
         })
     }
 }

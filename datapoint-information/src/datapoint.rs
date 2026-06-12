@@ -58,7 +58,8 @@ pub enum ActuatorValue {
         setpoint: f32,
     },
     Fractional {
-        percent: f32,
+        /// Openness in range [0, 1].
+        fraction: f32,
     },
 }
 
@@ -68,7 +69,7 @@ impl From<ActuatorValue> for f32 {
             ActuatorValue::Digital { enabled } => enabled.into(),
             ActuatorValue::DPR { enabled: false, .. } => f32::NAN,
             ActuatorValue::DPR { setpoint, .. } => setpoint,
-            ActuatorValue::Fractional { percent } => percent,
+            ActuatorValue::Fractional { fraction } => fraction,
         }
     }
 }
