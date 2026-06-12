@@ -50,11 +50,15 @@ pub struct DatapointInformation {
 #[schema(as = ActuatorValue)]
 pub enum ActuatorValue {
     Digital {
+        /// Whether this actuator is in some logical On state.
+        /// (ie. Open for valves, On for outputs)
         enabled: bool,
     },
     #[serde(rename = "dpr")]
     DPR {
+        /// Whether the DPR is running the control logic
         enabled: bool,
+        /// The setpoint in barg for the control logic
         setpoint: f32,
     },
     Fractional {
