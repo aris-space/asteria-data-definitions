@@ -424,26 +424,30 @@ impl DataPoint {
         info: &'static DatapointInformation,
     ) -> Result<Self, Error> {
         let mut tags = BTreeMap::new();
-        tags.insert("sensor_id", Cow::Borrowed(named.name));
-
         let mut fields: BTreeMap<Cow<'static, str>, FieldValue> = BTreeMap::new();
         match named.value {
             DatapointValue::Sensor(SensorValue::Analog { value }) => {
+                tags.insert("sensor_id", Cow::Borrowed(named.name));
                 fields.insert(Cow::Borrowed("value"), FieldValue::F64(value.into()));
             }
+            DatapointValue::Sensor(SensorValue::Digital { enabled }) => {
+                tags.insert("sensor_id", Cow::Borrowed(named.name));
+                fields.insert(Cow::Borrowed("on"), FieldValue::Bool(enabled));
+            }
+            // probably a valve, but it can also be a digital out :/
             DatapointValue::Actuator(ActuatorValue::Digital { enabled }) => {
+                tags.insert("valve_id", Cow::Borrowed(named.name));
                 fields.insert(Cow::Borrowed("open"), FieldValue::Bool(enabled));
             }
-            DatapointValue::Sensor(SensorValue::Digital { enabled }) => {
-                fields.insert(Cow::Borrowed("enabled"), FieldValue::Bool(enabled));
-            }
             DatapointValue::Actuator(ActuatorValue::DPR { enabled, setpoint }) => {
+                tags.insert("valve_id", Cow::Borrowed(named.name));
                 fields.insert(Cow::Borrowed("open"), FieldValue::Bool(enabled));
                 if enabled {
                     fields.insert(Cow::Borrowed("setpoint"), FieldValue::F64(setpoint.into()));
                 }
             }
             DatapointValue::Actuator(ActuatorValue::Fractional { percent }) => {
+                tags.insert("valve_id", Cow::Borrowed(named.name));
                 fields.insert(Cow::Borrowed("openness"), FieldValue::F64(percent.into()));
             }
         }
