@@ -170,4 +170,4 @@ workspace = true
 
 [[test]]
 name = "csv"
-required-features = ["derive_facet", "pss"]
+required-features = ["derive_facet", "pss", "datapoint-information/csv"]
