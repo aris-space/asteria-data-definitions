@@ -13,11 +13,11 @@ facet-format = { version = "0.47.1", optional = true }
 thiserror = { version = "2.0.18", default-features = false }
 
 [features]
-default = ["csv"]
+default = []
 mission-control = ["derive_utoipa", "derive_serde"]
 derive_utoipa = ["dep:utoipa"]
 derive_serde = ["dep:serde"]
-csv = ["derive_serde", "dep:facet", "dep:facet-reflect", "dep:facet-format"]
+csv = ["dep:facet", "dep:facet-reflect", "dep:facet-format"]
 
 [lints]
 workspace = true
