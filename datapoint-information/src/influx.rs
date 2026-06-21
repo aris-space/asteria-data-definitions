@@ -446,9 +446,9 @@ impl DataPoint {
                     fields.insert(Cow::Borrowed("setpoint"), FieldValue::F64(setpoint.into()));
                 }
             }
-            DatapointValue::Actuator(ActuatorValue::Fractional { percent }) => {
+            DatapointValue::Actuator(ActuatorValue::Fractional { fraction }) => {
                 tags.insert("valve_id", Cow::Borrowed(named.name));
-                fields.insert(Cow::Borrowed("openness"), FieldValue::F64(percent.into()));
+                fields.insert(Cow::Borrowed("openness"), FieldValue::F64(fraction.into()));
             }
         }
 
