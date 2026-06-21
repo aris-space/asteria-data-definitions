@@ -92,15 +92,21 @@ pub struct BuildInformationCommon {
     pub can_semver: [u8; 3],
 }
 
-/// First 5 hex characters of the config file Git Object Hash
+/// Information about the current run.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
 #[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
-pub struct ConfigHash {
-    pub hash: [u8; 5],
+pub struct RunConfig {
+    /// First 5 hex characters of the config file Git Object Hash.
+    pub config_hash: [u8; 5],
+    /// When this run was started.
+    #[mavlink(refine)]
+    pub started: InstantUs,
+    /// A descriptive name, as zero-padded utf-8 that is used to tag log data.
+    pub mission_id: [u8; 25],
 }
 
 /// Shared state machine state used by the FC and RFSC.

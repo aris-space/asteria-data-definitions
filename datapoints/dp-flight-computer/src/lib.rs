@@ -8,8 +8,8 @@ use data_core::mavlink;
 #[cfg(feature = "pss")]
 use data_core::pss;
 use datatypes::status::{
-    BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-    ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
+    BuildInformationCommon, DownlinkTelemetryStats, ManualActuatorChange, ManualStateTransition,
+    RunConfig, StateMachineState, UplinkTelemetryHealth,
 };
 use gated_derive::gated_derive;
 
@@ -29,44 +29,21 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[schema(as = FlightComputerMessage)]
 pub enum Message {
     // ======================== TX ========================
-    /// # `FlightComputerBuildInfo`
-    /// Firmware build metadata emitted by the Flight Computer.
+    /// Software build metadata periodically emitted by the Flight Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 0.2 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Allows version tracking and verification of the Flight Computer firmware.
-    ///
-    /// ## Reaction
-    /// Receivers may log or display the firmware version and build metadata.
+    /// # CAN
+    /// - **Kind**: Debug message
+    /// - **Sent by**: Flight Computer
     #[can(id = 0x610)]
     #[mavlink(id = 0x10_01_00)]
     BuildInfo(BuildInformationCommon),
 
-    /// # `FlightComputerConfigHash`
     /// First 5 hex characters of the config file Git Object Hash currently
-    /// loaded by the Flight Computer.
+    /// loaded by the Rfs Computer.
     ///
-    /// ## Type
-    /// - `Periodic @ 0.2 Hz`
-    ///
-    /// ## Direction
-    /// - **Emitted by:** `FlightComputer`
-    /// - **Received by:** `unspecified`
-    ///
-    /// ## Purpose
-    /// Allows Flight Computer config file tracking.
-    ///
-    /// ## Reaction
-    /// Receivers may log or display the config hash.
-    #[can(id = 0x620)]
+    /// This is used to auto-select the state machine in the mission control
     #[mavlink(id = 0x10_01_03)]
-    ConfigHash(ConfigHash),
+    ConfigHash(RunConfig),
 
     /// # `FlightComputerStatus`
     /// Periodic status message emitted by the Flight Computer.

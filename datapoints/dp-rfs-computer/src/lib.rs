@@ -17,8 +17,8 @@ use datatypes::actuator::{
 };
 use datatypes::sensor::DigitalIn;
 use datatypes::status::{
-    ArmingState, BuildInformationCommon, ConfigHash, DownlinkTelemetryStats, ManualActuatorChange,
-    ManualStateTransition, StateMachineState, UplinkTelemetryHealth,
+    ArmingState, BuildInformationCommon, DownlinkTelemetryStats, ManualActuatorChange,
+    ManualStateTransition, RunConfig, StateMachineState, UplinkTelemetryHealth,
 };
 use datatypes::units::{BarG, Celsius};
 
@@ -56,7 +56,7 @@ pub enum Message {
     ///
     /// This is used to auto-select the state machine in the mission control
     #[mavlink(id = 0x10_06_01)]
-    ConfigHash(ConfigHash),
+    ConfigHash(RunConfig),
 
     /// Periodic status message emitted by the RFS Computer.
     ///
