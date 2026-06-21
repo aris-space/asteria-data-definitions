@@ -37,7 +37,7 @@ use crate::datapoint::{
 };
 
 /// A fully-resolved InfluxDB data point ready for serialisation.
-// (copied from `influxdb2`)
+// (copied from `influxdb2` for pub fields)
 #[derive(Debug, Clone)]
 pub struct DataPoint {
     /// The measurement name (snake case)
@@ -46,7 +46,7 @@ pub struct DataPoint {
     pub tags: BTreeMap<&'static str, Cow<'static, str>>,
     /// All the fields, by their name
     pub fields: BTreeMap<Cow<'static, str>, FieldValue>,
-    /// Timestamp for this timeseries point
+    /// Timestamp for this timeseries point as a UNIX nanosecond timestamp
     pub timestamp_ns: Option<u64>,
 }
 
