@@ -29,7 +29,7 @@ fn log_fuel_vent_valve() {
     let closed = influx::to_datapoint(&msg).expect("must serialize");
     assert_eq!(closed.measurement, "valve_state");
     assert_eq!(
-        closed.tags.get("sensor_id").expect("must have sensor id"),
+        closed.tags.get("valve_id").expect("must have valve id"),
         "fss_tnk_vnt"
     );
     assert!(matches!(
