@@ -275,6 +275,12 @@ pub enum Message {
     #[unit("°C")]
     SmartBoxTemperature(Celsius),
 
+    /// A unused thermocouple on the RFS.
+    #[mavlink(id = 0x10_06_45)]
+    #[pss(label = "Custom T.1", name = "custom_t1")]
+    #[unit("°C")]
+    CustomT1(Celsius),
+
     // -------- Digital sensors / arming --------
     /// Whether the LOx decoupler is in its retracted state, from the proximity sensor.
     #[mavlink(id = 0x10_06_50)]
