@@ -50,15 +50,20 @@ pub struct DatapointInformation {
 #[schema(as = ActuatorValue)]
 pub enum ActuatorValue {
     Digital {
+        /// Whether this actuator is in some logical On state.
+        /// (ie. Open for valves, On for outputs)
         enabled: bool,
     },
     #[serde(rename = "dpr")]
     DPR {
+        /// Whether the DPR is running the control logic
         enabled: bool,
+        /// The setpoint in barg for the control logic
         setpoint: f32,
     },
     Fractional {
-        percent: f32,
+        /// Openness in range [0, 1].
+        fraction: f32,
     },
 }
 
@@ -68,7 +73,7 @@ impl From<ActuatorValue> for f32 {
             ActuatorValue::Digital { enabled } => enabled.into(),
             ActuatorValue::DPR { enabled: false, .. } => f32::NAN,
             ActuatorValue::DPR { setpoint, .. } => setpoint,
-            ActuatorValue::Fractional { percent } => percent,
+            ActuatorValue::Fractional { fraction } => fraction,
         }
     }
 }

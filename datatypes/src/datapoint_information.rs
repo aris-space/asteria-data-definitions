@@ -8,6 +8,7 @@ use crate::actuator::{
     ThrottleableValve,
 };
 use crate::sensor::DigitalIn;
+use crate::status::ArmingState;
 use crate::units::{BarG, Celsius};
 
 impl IntoDatapointValue for NormallyClosedValve {
@@ -22,28 +23,52 @@ impl IntoDatapointValue for NormallyClosedValve {
     }
 }
 
-impl IntoDatapointValue for DigitalIn {
-    // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
+impl IntoDatapointValue for NormallyOpenValve {
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
-        default_enabled: false,
+        default_enabled: true,
     });
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
+            enabled: matches!(self, NormallyOpenValve::Open),
+        })
+    }
+}
+
+impl IntoDatapointValue for DigitalIn {
+    // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Digital {
             enabled: matches!(self, DigitalIn::On),
         })
     }
 }
 
+/// Using a Arming state as a digital sensor
+impl IntoDatapointValue for ArmingState {
+    const KIND: DatapointKind = DatapointKind::Sensor(SensorKind::Digital {
+        default_enabled: false,
+    });
+
+    fn into_value(self) -> DatapointValue {
+        DatapointValue::Sensor(SensorValue::Digital {
+            enabled: matches!(self, ArmingState::Armed),
+        })
+    }
+}
+
 impl IntoDatapointValue for DigitalOut {
-    // `DigitalIn::default()` is `Off`, which maps to `enabled: false`.
     const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
         default_enabled: false,
     });
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, DigitalOut::Off),
+            enabled: matches!(self, DigitalOut::On),
         })
     }
 }
@@ -58,18 +83,6 @@ impl IntoDatapointValue for InvertedDigitalOut {
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Digital {
             enabled: matches!(self, InvertedDigitalOut::On),
-        })
-    }
-}
-
-impl IntoDatapointValue for NormallyOpenValve {
-    const KIND: DatapointKind = DatapointKind::Actuator(ActuatorKind::Digital {
-        default_enabled: true,
-    });
-
-    fn into_value(self) -> DatapointValue {
-        DatapointValue::Actuator(ActuatorValue::Digital {
-            enabled: matches!(self, NormallyOpenValve::Open),
         })
     }
 }
@@ -97,7 +110,7 @@ impl IntoDatapointValue for ThrottleableValve {
 
     fn into_value(self) -> DatapointValue {
         DatapointValue::Actuator(ActuatorValue::Fractional {
-            percent: f32::from(self.openness_percent),
+            fraction: f32::from(self),
         })
     }
 }

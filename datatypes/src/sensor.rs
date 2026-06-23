@@ -4,6 +4,8 @@
 use data_core::mavlink;
 use gated_derive::gated_derive;
 
+use crate::actuator::Energizable;
+
 /// A digital input, mostly for proximity sensors.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
@@ -16,4 +18,13 @@ pub enum DigitalIn {
     #[default]
     Off = 0,
     On = 1,
+}
+
+impl Energizable for DigitalIn {
+    fn is_active(&self) -> bool {
+        matches!(self, Self::On)
+    }
+    fn from_active(is_active: bool) -> Self {
+        if is_active { Self::On } else { Self::Off }
+    }
 }
