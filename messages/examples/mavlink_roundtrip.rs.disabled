@@ -24,7 +24,7 @@ fn main() {
                 continue;
             }
 
-            if let Ok(AnyMessage::PowerBoard(dp_power_board::Message::BoardStatus(msg))) =
+            if let Ok(AnyMessage::Backplane(dp_backplane::Message::BoardStatus(msg))) =
                 frame.decode()
             {
                 println!("STATUS #{}: {msg:?}", frame.sequence());
@@ -43,7 +43,7 @@ fn main() {
 
         for i in 0..10 {
             // Create a message (without the AnyMessage wrapper)
-            let message = dp_power_board::Message::BoardStatus(StatusCommonMessage {
+            let message = dp_backplane::Message::BoardStatus(StatusCommonMessage {
                 errors: 0,
                 micros_since_restart: i * 999,
             });

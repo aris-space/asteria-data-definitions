@@ -1,6 +1,6 @@
 [package]
-name = "dp-power-board"
-version = "0.3.0"
+name = "dp-backplane"
+version = "0.4.0"
 edition = "2024"
 
 [lints]
@@ -13,19 +13,21 @@ gated-derive = { path = "../../macro-gated-derive" }
 
 # for types
 serde = { workspace = true, optional = true }
-utoipa = { workspace = true, optional = true }
+bincode = { workspace = true, optional = true }
 defmt = { workspace = true, optional = true }
+arbitrary = { workspace = true, optional = true }
+utoipa = { workspace = true, optional = true }
 
 [features]
-can = ["derive_can", "data-core/can", "datatypes/derive_bincode"]
+can = ["derive_can", "derive_bincode", "data-core/can", "datatypes/derive_bincode"]
 mavlink = ["derive_mavlink", "data-core/mavlink", "datatypes/derive_mavlink"]
 pss = ["derive_pss", "std", "data-core/pss", "datatypes/pss"]
-std = ["datatypes/std", "data-core/std"]
+std = ["bincode/std", "datatypes/std", "data-core/std"]
 mission-control = ["derive_serde", "derive_utoipa"]
 derive_serde = ["dep:serde", "datatypes/derive_serde"]
 derive_defmt = ["dep:defmt", "datatypes/derive_defmt"]
-derive_bincode = ["datatypes/derive_bincode"]
-derive_arbitrary = ["datatypes/derive_arbitrary"]
+derive_bincode = ["dep:bincode", "datatypes/derive_bincode"]
+derive_arbitrary = ["dep:arbitrary", "datatypes/derive_arbitrary", "std"]
 derive_utoipa = ["dep:utoipa", "datatypes/derive_utoipa", "std"]
 derive_can = []
 derive_mavlink = []

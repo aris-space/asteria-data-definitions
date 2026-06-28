@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 dp-engine-control-board = { version = "0.5.0", path = "../datapoints/dp-engine-control-board" }
 dp-fuel-control-board = { version = "0.5.0", path = "../datapoints/dp-fuel-control-board" }
-dp-power-board = { version = "0.3.0", path = "../datapoints/dp-power-board" }
+dp-backplane = { version = "0.4.0", path = "../datapoints/dp-backplane" }
 dp-rfs-computer = { version = "0.5.0", path = "../datapoints/dp-rfs-computer" }
 dp-system-management = { version = "0.3.0", path = "../datapoints/dp-system-management" }
 dp-flight-computer = { version = "0.3.0", path = "../datapoints/dp-flight-computer" }
@@ -28,7 +28,7 @@ can = [
     "derive_bincode",
     "dp-engine-control-board/can",
     "dp-fuel-control-board/can",
-    "dp-power-board/can",
+    "dp-backplane/can",
     "dp-rfs-computer/can",
     "dp-system-management/can",
     "dp-flight-computer/can",
@@ -43,7 +43,7 @@ pss = [
     "derive_pss",
     "dp-engine-control-board/pss",
     "dp-fuel-control-board/pss",
-    # "dp-power-board/pss",
+    # "dp-backplane/pss",
     "dp-rfs-computer/pss",
     # "dp-system-management/pss",
     # "dp-flight-computer/pss",
@@ -56,7 +56,7 @@ pss = [
 derive_serde = [
     "dp-engine-control-board/derive_serde",
     "dp-fuel-control-board/derive_serde",
-    "dp-power-board/derive_serde",
+    "dp-backplane/derive_serde",
     "dp-rfs-computer/derive_serde",
     "dp-system-management/derive_serde",
     "dp-flight-computer/derive_serde",
@@ -69,7 +69,7 @@ derive_serde = [
 derive_defmt = [
     "dp-engine-control-board/derive_defmt",
     "dp-fuel-control-board/derive_defmt",
-    # "dp-power-board/derive_defmt",
+    # "dp-backplane/derive_defmt",
     "dp-rfs-computer/derive_defmt",
     # "dp-system-management/derive_defmt",
     "dp-flight-computer/derive_defmt",
@@ -81,7 +81,7 @@ derive_defmt = [
 derive_arbitrary = [
     "dp-engine-control-board/derive_arbitrary",
     "dp-fuel-control-board/derive_arbitrary",
-    # "dp-power-board/derive_arbitrary",
+    # "dp-backplane/derive_arbitrary",
     "dp-rfs-computer/derive_arbitrary",
     # "dp-system-management/derive_arbitrary",
     "dp-flight-computer/derive_arbitrary",
@@ -93,7 +93,7 @@ derive_arbitrary = [
 derive_debug = [
     "dp-engine-control-board/derive_debug",
     "dp-fuel-control-board/derive_debug",
-    "dp-power-board/derive_debug",
+    "dp-backplane/derive_debug",
     "dp-rfs-computer/derive_debug",
     "dp-system-management/derive_debug",
     "dp-flight-computer/derive_debug",
@@ -106,7 +106,7 @@ mavlink = [
     "derive_mavlink",
     "dp-engine-control-board/mavlink",
     "dp-fuel-control-board/mavlink",
-    "dp-power-board/mavlink",
+    "dp-backplane/mavlink",
     "dp-rfs-computer/mavlink",
     "dp-system-management/mavlink",
     "dp-flight-computer/mavlink",
@@ -119,7 +119,7 @@ mavlink = [
 mission-control = [
     "dp-engine-control-board/mission-control",
     "dp-fuel-control-board/mission-control",
-    "dp-power-board/mission-control",
+    "dp-backplane/mission-control",
     "dp-rfs-computer/mission-control",
     "dp-system-management/mission-control",
     "dp-flight-computer/mission-control",
@@ -133,7 +133,7 @@ mission-control = [
 derive_utoipa = [
     "dp-engine-control-board/derive_utoipa",
     "dp-fuel-control-board/derive_utoipa",
-    "dp-power-board/derive_utoipa",
+    "dp-backplane/derive_utoipa",
     "dp-rfs-computer/derive_utoipa",
     "dp-system-management/derive_utoipa",
     "dp-flight-computer/derive_utoipa",

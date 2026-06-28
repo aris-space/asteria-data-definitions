@@ -20,7 +20,7 @@ pub enum BoardId {
     SensorCarrier = 2,
     CommunicationBoard = 3,
     EngineControlBoard = 4,
-    PowerBoard = 5,
+    Backplane = 5,
     RecoveryBoard = 6,
     FuelControlBoard = 7,
     OxidizerControlBoard = 8,
@@ -209,6 +209,24 @@ pub enum SensorStatus {
     Online = 1,
 }
 
+/// Enum representing the active power source.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
+#[gated_derive(utoipa::ToSchema)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum ActivePowerSource {
+    /// Battery power is currently active.
+    Battery = 0,
+    /// External power is currently active.
+    External = 1,
+    /// Currently no 24V available.
+    #[default]
+    None = 2,
+}
+
 /// Enum representing the state of a dpr loop.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
@@ -249,7 +267,7 @@ pub struct DprGainInfo {
 #[cfg(feature = "derive_bincode")]
 /// We implement these traits manually, otherwise bincode uses a u32 for the enum ¯\_(ツ)_/¯
 mod encoding_impls {
-    use crate::status::{BoardId, DprLoopInfo, SensorStatus};
+    use crate::status::{ActivePowerSource, BoardId, DprLoopInfo, SensorStatus};
 
     impl ::bincode::Encode for BoardId {
         fn encode<__E: ::bincode::enc::Encoder>(
@@ -271,7 +289,7 @@ mod encoding_impls {
                 2u8 => Ok(Self::SensorCarrier {}),
                 3u8 => Ok(Self::CommunicationBoard {}),
                 4u8 => Ok(Self::EngineControlBoard {}),
-                5u8 => Ok(Self::PowerBoard {}),
+                5u8 => Ok(Self::Backplane {}),
                 6u8 => Ok(Self::RecoveryBoard {}),
                 7u8 => Ok(Self::FuelControlBoard {}),
                 8u8 => Ok(Self::OxidizerControlBoard {}),
@@ -296,7 +314,7 @@ mod encoding_impls {
                 2u8 => Ok(Self::SensorCarrier {}),
                 3u8 => Ok(Self::CommunicationBoard {}),
                 4u8 => Ok(Self::EngineControlBoard {}),
-                5u8 => Ok(Self::PowerBoard {}),
+                5u8 => Ok(Self::Backplane {}),
                 6u8 => Ok(Self::RecoveryBoard {}),
                 7u8 => Ok(Self::FuelControlBoard {}),
                 8u8 => Ok(Self::OxidizerControlBoard {}),
@@ -357,6 +375,66 @@ mod encoding_impls {
                     type_name: "SensorStatus",
                     allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 1 },
                 }),
+            }
+        }
+    }
+
+    impl ::bincode::Encode for ActivePowerSource {
+        fn encode<__E: ::bincode::enc::Encoder>(
+            &self,
+            encoder: &mut __E,
+        ) -> core::result::Result<(), ::bincode::error::EncodeError> {
+            match self {
+                Self::Battery => {
+                    <u8 as ::bincode::Encode>::encode(&(0u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+                Self::External => {
+                    <u8 as ::bincode::Encode>::encode(&(1u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+                Self::None => {
+                    <u8 as ::bincode::Encode>::encode(&(2u8), encoder)?;
+                    core::result::Result::Ok(())
+                }
+            }
+        }
+    }
+    impl<__Context> ::bincode::Decode<__Context> for ActivePowerSource {
+        fn decode<__D: ::bincode::de::Decoder<Context = __Context>>(
+            decoder: &mut __D,
+        ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => core::result::Result::Ok(Self::Battery {}),
+                1u8 => core::result::Result::Ok(Self::External {}),
+                2u8 => core::result::Result::Ok(Self::None {}),
+                variant => {
+                    core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
+                        found: u32::from(variant),
+                        type_name: "ActivePowerSource",
+                        allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 2 },
+                    })
+                }
+            }
+        }
+    }
+    impl<'__de, __Context> ::bincode::BorrowDecode<'__de, __Context> for ActivePowerSource {
+        fn borrow_decode<__D: ::bincode::de::BorrowDecoder<'__de, Context = __Context>>(
+            decoder: &mut __D,
+        ) -> core::result::Result<Self, ::bincode::error::DecodeError> {
+            let variant_index = <u8 as ::bincode::Decode<__D::Context>>::decode(decoder)?;
+            match variant_index {
+                0u8 => core::result::Result::Ok(Self::Battery {}),
+                1u8 => core::result::Result::Ok(Self::External {}),
+                2u8 => core::result::Result::Ok(Self::None {}),
+                variant => {
+                    core::result::Result::Err(::bincode::error::DecodeError::UnexpectedVariant {
+                        found: u32::from(variant),
+                        type_name: "ActivePowerSource",
+                        allowed: &::bincode::error::AllowedEnumVariants::Range { min: 0, max: 2 },
+                    })
+                }
             }
         }
     }
