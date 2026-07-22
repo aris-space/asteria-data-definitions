@@ -15,7 +15,7 @@ fn log_fuel_vent_valve() {
     let open = influx::to_datapoint(&msg).expect("must serialize");
     assert_eq!(open.measurement, "valve_state");
     assert_eq!(
-        open.tags.get("sensor_id").expect("must have sensor id"),
+        open.tags.get("valve_id").expect("must have valve id"),
         "fss_tnk_vnt"
     );
     assert!(matches!(
