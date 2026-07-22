@@ -139,7 +139,7 @@ derive_facet = [
     "dep:facet",
     "dp-engine-control-board/derive_facet",
     "dp-fuel-control-board/derive_facet",
-    "dp-power-board/derive_facet",
+    "dp-backplane/derive_facet",
     "dp-rfs-computer/derive_facet",
     "dp-system-management/derive_facet",
     "dp-flight-computer/derive_facet",
