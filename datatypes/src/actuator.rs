@@ -37,7 +37,7 @@ pub trait Energizable {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(u8)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -78,7 +78,7 @@ impl Settable for NormallyOpenValve {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(u8)]
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -121,7 +121,7 @@ impl Settable for NormallyClosedValve {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 #[serde(rename_all = "camelCase")]
@@ -129,10 +129,11 @@ pub struct PressurizationGain(pub f32);
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 #[serde(try_from = "Option<f32>", into = "f32")]
+#[repr(u8)]
 pub enum DPRValve {
     /// Enabled with pressure setpoint in Barg. 0-60.
     Enabled {
@@ -283,7 +284,7 @@ impl Settable for ThrottleableValve {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct CameraPowerStatus {

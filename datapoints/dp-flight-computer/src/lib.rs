@@ -23,7 +23,8 @@ pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 #[gated_derive(can::Message, Debug, defmt::Format)]
 #[gated_derive(mavlink::Message)]
 #[gated_derive(utoipa::ToSchema, serde::Deserialize, serde::Serialize)]
-#[gated_derive(pss::Data)]
+#[gated_derive(pss::Data, facet::Facet)]
+#[repr(u8)]
 #[serde(tag = "type", content = "content")]
 #[schema(as = FlightComputerMessage)]
 pub enum Message {

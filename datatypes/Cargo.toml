@@ -14,20 +14,28 @@ serde = { workspace = true, optional = true }
 bincode = { workspace = true, optional = true }
 defmt = { workspace = true, optional = true }
 arbitrary = { workspace = true, optional = true }
+facet = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 thiserror = { version = "2.0.17", optional = true }
 watchable = { version = "1.1.2", optional = true }
-facet = "0.46.0"
 
 [features]
 default = []
 std = ["bincode/std"]
-derive_datapoint_information = ["dep:datapoint-information", "data-core/datapoint-information"]
-derive_serde = ["dep:serde", "dep:thiserror", "datapoint-information?/derive_serde"]
+derive_datapoint_information = [
+    "dep:datapoint-information",
+    "data-core/datapoint-information",
+]
+derive_serde = [
+    "dep:serde",
+    "dep:thiserror",
+    "datapoint-information?/derive_serde",
+]
 derive_mavlink = ["data-core/mavlink"]
 derive_defmt = ["dep:defmt"]
 derive_bincode = ["dep:bincode"]
 derive_arbitrary = ["dep:arbitrary", "std"]
+derive_facet = ["dep:facet"]
 derive_utoipa = ["dep:utoipa", "std", "datapoint-information?/derive_utoipa"]
 watchable_settable = ["dep:watchable"]
 pss = ["derive_datapoint_information"]

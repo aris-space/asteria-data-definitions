@@ -101,6 +101,7 @@ const REGISTRY: &[(&str, &[&str])] = &[
     ("mavlink::Enum", &["mavlink"]),
     ("mavlink::Dialect", &["dialect"]),
     ("pss::Data", &["pss", "unit"]),
+    ("facet::Facet", &["facet"]),
 ];
 
 // -----------------------------------------------------------------------------
