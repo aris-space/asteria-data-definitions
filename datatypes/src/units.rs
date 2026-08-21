@@ -24,18 +24,18 @@ macro_rules! unit_newtypes {
         ),* $(,)?
     ) => {
         $(
-            ///
-            /// Is `NAN` by default.
             #[gated_derive(serde::Serialize, defmt::Format)]
             #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
             #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-            #[gated_derive(utoipa::ToSchema)]
+            #[gated_derive(utoipa::ToSchema, facet::Facet)]
             #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
             #[repr(transparent)]
             #[serde(rename_all = "camelCase")]
             // Meta attributes need to come after all gated derives in order to ensure
             // attributes are gated properly
             $(#[$meta])*
+            ///
+            /// Is `NAN` by default.
             pub struct $name(pub $ty);
 
             impl Default for $name {
@@ -89,7 +89,7 @@ unit_newtypes! {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct RailStatus {
@@ -105,7 +105,7 @@ pub struct RailStatus {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
 #[serde(rename_all = "camelCase")]
 #[unit("us")]

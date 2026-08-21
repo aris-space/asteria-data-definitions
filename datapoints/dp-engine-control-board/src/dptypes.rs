@@ -6,7 +6,7 @@ use gated_derive::gated_derive;
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct EngineControlBoardStatus {
@@ -23,7 +23,7 @@ pub struct EngineControlBoardStatus {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Copy, Clone, Debug, PartialEq, Default, Hash)]
 #[serde(rename_all = "camelCase")]
 pub struct ThrustPoint {

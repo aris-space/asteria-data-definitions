@@ -7,12 +7,17 @@ edition = "2024"
 gated-derive = { path = "../macro-gated-derive" }
 serde = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
+facet = { workspace = true, optional = true }
+facet-reflect = { version = "0.46.0", optional = true }
+facet-format = { version = "0.47.1", optional = true }
+thiserror = { version = "2.0.18", default-features = false }
 
 [features]
 default = []
 mission-control = ["derive_utoipa", "derive_serde"]
 derive_utoipa = ["dep:utoipa"]
 derive_serde = ["dep:serde"]
+csv = ["dep:facet", "dep:facet-reflect", "dep:facet-format"]
 
 [lints]
 workspace = true

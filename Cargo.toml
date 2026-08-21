@@ -21,6 +21,7 @@ bincode = { version = "2.0.1", features = [
 ], default-features = false }
 defmt = { version = "1.0.1" }
 arbitrary = { version = "1.4.1", features = ["derive"] }
+facet = "0.46.0"
 utoipa = { version = "5.4.0" }
 
 [workspace.lints.clippy]
@@ -32,4 +33,5 @@ ignored_unit_patterns = "allow"      # Not clearer to me
 must_use_candidate = "allow"         # Not all `new` calls are problematic to not use
 implicit_hasher = "allow"            # We'll only ever use the default hasher
 doc_markdown = "allow"               # Too many false positives for acronymes I can't bother to whitelist
+unsafe_derive_deserialize = "allow"  # Appears when serde and facet are both derived
 

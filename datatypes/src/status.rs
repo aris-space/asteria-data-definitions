@@ -10,7 +10,7 @@ use crate::{actuator::Energizable, units::InstantUs};
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 #[serde(rename_all = "camelCase")]
@@ -30,7 +30,7 @@ pub enum BoardId {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -56,7 +56,7 @@ impl Energizable for ArmingState {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct StatusCommonMessage {
@@ -70,7 +70,7 @@ pub struct StatusCommonMessage {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct BuildInformationCommon {
@@ -96,7 +96,7 @@ pub struct BuildInformationCommon {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ConfigHash {
@@ -106,7 +106,7 @@ pub struct ConfigHash {
 /// Shared state machine state used by the FC and RFSC.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct StateMachineState {
@@ -120,7 +120,7 @@ pub struct StateMachineState {
 /// Shared manual state transition used by the FC and RFSC.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ManualStateTransition {
@@ -133,7 +133,7 @@ pub struct ManualStateTransition {
 /// Shared manual actuator change used by the FC and RFSC.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ManualActuatorChange {
@@ -161,7 +161,7 @@ where
 /// Telemetry health statistics for an uplink.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct UplinkTelemetryHealth {
@@ -183,7 +183,7 @@ pub struct UplinkTelemetryHealth {
 /// Telemetry statistics for a downlink.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DownlinkTelemetryStats {
@@ -197,7 +197,7 @@ pub struct DownlinkTelemetryStats {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -213,7 +213,7 @@ pub enum SensorStatus {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -231,7 +231,7 @@ pub enum ActivePowerSource {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -248,7 +248,7 @@ pub enum DprLoopInfo {
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]
-#[gated_derive(utoipa::ToSchema)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
 #[derive(Copy, Clone, Debug, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct DprGainInfo {
