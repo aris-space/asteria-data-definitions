@@ -44,6 +44,12 @@ macro_rules! unit_newtypes {
                 }
             }
 
+            impl ValueWithUnit<$ty> for $name {
+                fn value(&self) -> $ty {
+                    self.0
+                }
+            }
+
             #[cfg(feature = "derive_serde")]
             impl<'de> serde::Deserialize<'de> for $name {
                 fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
@@ -56,6 +62,13 @@ macro_rules! unit_newtypes {
             }
         )*
     };
+}
+
+/// Trait for generalizing values like [`Celsius`], [`BarG`], etc. such
+/// that their inner value can be retrieved.
+pub trait ValueWithUnit<T> {
+    /// Current value.
+    fn value(&self) -> T;
 }
 
 unit_newtypes! {
