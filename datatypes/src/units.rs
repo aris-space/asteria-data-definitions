@@ -64,6 +64,8 @@ macro_rules! unit_newtypes {
     };
 }
 
+/// Trait for generalizing values like [`Celsius`], [`BarG`], etc. such
+/// that their inner value can be retrieved.
 pub trait ValueWithUnit<T> {
     /// Current value.
     fn value(&self) -> T;
