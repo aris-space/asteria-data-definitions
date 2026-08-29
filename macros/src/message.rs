@@ -1,3 +1,5 @@
+#![allow(clippy::redundant_field_names)] // false positives in darling macro
+
 use darling::{FromDeriveInput, FromVariant, ast::Fields};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
