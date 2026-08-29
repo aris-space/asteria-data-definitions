@@ -1,3 +1,5 @@
+#![allow(clippy::redundant_field_names)] // false positives in darling macro
+
 use darling::{FromDeriveInput, FromVariant, ast::Fields};
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
@@ -40,7 +42,6 @@ fn parse_path_list(meta: &syn::Meta) -> darling::Result<Vec<syn::Path>> {
     ))
 }
 
-#[allow(clippy::redundant_field_names)] // weird macro expansion probably
 #[derive(FromDeriveInput)]
 #[darling(supports(enum_any), attributes(message))]
 pub struct Message {
