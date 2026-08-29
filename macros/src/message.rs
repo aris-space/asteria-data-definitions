@@ -40,6 +40,7 @@ fn parse_path_list(meta: &syn::Meta) -> darling::Result<Vec<syn::Path>> {
     ))
 }
 
+#[allow(clippy::redundant_field_names)] // weird macro expansion probably
 #[derive(FromDeriveInput)]
 #[darling(supports(enum_any), attributes(message))]
 pub struct Message {
