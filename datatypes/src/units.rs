@@ -1,5 +1,6 @@
 //! Physical measurement units and related types.
 
+use core::fmt::Display;
 #[cfg(feature = "derive_mavlink")]
 use data_core::mavlink;
 use gated_derive::gated_derive;
@@ -20,7 +21,7 @@ macro_rules! unit_newtypes {
     (
         $(
             $(#[$meta:meta])*
-            $name:ident($ty:ty)
+            $name:ident($ty:ty as $unit:literal)
         ),* $(,)?
     ) => {
         $(
@@ -31,6 +32,7 @@ macro_rules! unit_newtypes {
             #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
             #[repr(transparent)]
             #[serde(rename_all = "camelCase")]
+            #[unit($unit)]
             // Meta attributes need to come after all gated derives in order to ensure
             // attributes are gated properly
             $(#[$meta])*
@@ -44,7 +46,15 @@ macro_rules! unit_newtypes {
                 }
             }
 
+            impl Display for $name {
+                fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+                    write!(f, "{}{}", self.0, Self::UNIT)
+                }
+            }
+
             impl ValueWithUnit<$ty> for $name {
+                const UNIT: &'static str = $unit;
+
                 fn value(&self) -> $ty {
                     self.0
                 }
@@ -66,23 +76,23 @@ macro_rules! unit_newtypes {
 
 /// Trait for generalizing values like [`Celsius`], [`BarG`], etc. such
 /// that their inner value can be retrieved.
-pub trait ValueWithUnit<T> {
+pub trait ValueWithUnit<T: Display>: Display {
+    /// Unit of the value.
+    const UNIT: &'static str;
+
     /// Current value.
     fn value(&self) -> T;
 }
 
 unit_newtypes! {
     /// A temperature in degrees Celsius.
-    #[unit("°C")]
-    Celsius(f32),
+    Celsius(f32 as "°C"),
 
     /// A pressure in bar relative to atmospheric pressure (`barg`).
-    #[unit("barg")]
-    BarG(f32),
+    BarG(f32 as "barg"),
 
     /// Atmospheric pressure in hPa.
-    #[unit("hPa")]
-    HPa(f32),
+    HPa(f32 as "hPa"),
 }
 
 /// Shared rail status structure for both 5V and 24V power rails.
