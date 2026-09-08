@@ -25,11 +25,20 @@ pub enum RecvError {
     Decode {
         error: mavio::Error,
         sequence: Wrapping<u8>,
+        sending_system_id: u8,
     },
     #[error("Decoding of frame failed: {0}")]
     Framing(#[from] mavio::error::FrameError),
     #[error("Receive of frame from UDP failed: {0}")]
     Recv(#[from] std::io::Error),
+}
+
+/// A message with a deserialized payload and some header information.
+#[derive(Debug)]
+pub struct Message<M> {
+    pub payload: M,
+    pub sequence: Wrapping<u8>,
+    pub sending_system_id: u8,
 }
 
 /// Sends a generic `msg` fully to the given `socket`, using the header value from `endpoint`.
@@ -52,10 +61,10 @@ pub fn send_message<M: mavio::Message>(
 }
 
 /// Reads a single datagram and tries to decode it as a mavlink message.
-/// Also returns the sequence number for loss tracking.
+/// Also returns the sequence number and system ID for loss tracking and filtering.
 pub fn recv_message<M: mavio::Message + mavio::Dialect>(
     socket: &std::net::UdpSocket,
-) -> Result<(M, Wrapping<u8>), RecvError> {
+) -> Result<Message<M>, RecvError> {
     let mut buf = [0; HEADER_MAX_SIZE + PAYLOAD_MAX_SIZE + CHECKSUM_SIZE + SIGNATURE_LENGTH];
     let len = socket.recv(&mut buf)?;
     let buf = &buf[..len];
@@ -63,13 +72,24 @@ pub fn recv_message<M: mavio::Message + mavio::Dialect>(
     // But it is not undefined behaviour if it weren't, it just fails with an error.
     let frame = unsafe { Frame::<V2>::deserialize(buf) }?;
     let sequence = Wrapping(frame.sequence());
+    let sending_system_id = frame.system_id();
 
     // Validate MAVLink frame before decoding
     frame
         .validate_checksum::<M>()
-        .map_err(|error| RecvError::Decode { error, sequence })?;
-    let msg = frame
-        .decode::<M>()
-        .map_err(|error| RecvError::Decode { error, sequence })?;
-    Ok((msg, sequence))
+        .map_err(|error| RecvError::Decode {
+            error,
+            sequence,
+            sending_system_id,
+        })?;
+    let msg = frame.decode::<M>().map_err(|error| RecvError::Decode {
+        error,
+        sequence,
+        sending_system_id,
+    })?;
+    Ok(Message {
+        payload: msg,
+        sequence,
+        sending_system_id,
+    })
 }
