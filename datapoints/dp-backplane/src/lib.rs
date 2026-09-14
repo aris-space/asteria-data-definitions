@@ -17,6 +17,83 @@ pub use datatypes::status::ActivePowerSource;
 mod version;
 pub use version::{VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
 
+trait MessageMarker<V> {
+    type Content: Sized + 'static;
+    const VARIANT: V;
+}
+
+// DERIVED:
+
+// derive FromStr, maybe using facet aliases
+enum MessageVariant {
+    BuildInfo,
+    // alias: `fss_tnk_p1`
+    TankPressure1,
+}
+
+mod messages {
+    use crate::{MessageMarker, MessageVariant};
+    use datatypes::status::BuildInformationCommon;
+
+    enum BuildInfo {}
+    impl MessageMarker<MessageVariant> for BuildInfo {
+        type Content = BuildInformationCommon;
+        const VARIANT: MessageVariant = MessageVariant::BuildInfo;
+    }
+}
+
+trait DataPointDef {
+    type DataPointVariant;
+    fn variant(&self) -> Self::DataPointVariant;
+}
+
+impl DataPointDef for Message {
+    type DataPointVariant = MessageVariant;
+    fn variant(&self) -> MessageVariant {
+        match self {
+            Message::BuildInfo(_) => MessageVariant::BuildInfo,
+            _ => todo!(),
+        }
+    }
+}
+
+// END DERIVED
+
+/// Holds a value for every datapoint in `M`.
+///
+/// `M` is an enum of newtypes with an associated variant unit enum.
+/// This map then stores a inner type for every variant.
+struct Store<M> {
+    // map marker variant -> watchable<dyn Any or Message>
+    // EnumMap from: https://docs.rs/enum-map/3.1.0/enum_map/index.html
+    datapoints: core::marker::PhantomData<M>,
+}
+
+// dummy -> see lib-remote-computers/lib-mission/src/reactive.rs
+trait Watched<T> {}
+
+impl<M: DataPointDef> Store<M> {
+    // for manual stuffs (i.e. if message is known)
+    fn get<V: MessageMarker<M::DataPointVariant>>(&self) -> impl Watched<V::Content> {
+        self.get_value(V::VARIANT)
+            .expect("message marker variant/content is to be trusted")
+    }
+
+    // for automatic stuff (e.g. sequences)
+    fn get_value<T>(&self, variant: M::DataPointVariant) -> Result<impl Watched<T>, ()> {
+        todo!("get message, make mapper to find offset/peek with facet and downcast")
+        // Should be able to do that within a Mapped Watched implementation (feels inefficient though)
+    }
+
+    /// Sets the current value for this message variant.
+    fn set(&self, message: Message) {
+        let key = message.variant();
+        todo!("")
+    }
+}
+
+// TODO: timestamp & default/init
+
 #[derive(Message, Clone)]
 #[gated_derive(can::Message, Debug, defmt::Format)]
 #[gated_derive(mavlink::Message)]
