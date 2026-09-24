@@ -93,6 +93,21 @@ impl<M: DataPointDef> Store<M> {
 }
 
 // TODO: timestamp & default/init
+/*
+    general error handling strats:
+    1. just don't send messages for unconnected sensors
+        + shows nicely in grafana/UI, same path as connection loss
+        - when to clear a previously functioning signal though?
+        - very coarse error information
+    2. have specific error values (e.g. NaN)
+        + always some data, harder to mishandle, doubles as default
+        - influxDB doesn't like NaN specifically
+
+
+    Extra: have external error flags (in board status)
+        + more information
+        - hard to match to sensor
+*/
 
 #[derive(Message, Clone)]
 #[gated_derive(can::Message, Debug, defmt::Format)]
