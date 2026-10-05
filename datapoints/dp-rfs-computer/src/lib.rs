@@ -260,7 +260,7 @@ pub enum Message {
     /// The temperature of the igniter.
     ///
     /// # CAN
-    /// - **Kind**: Status message
+    /// - **Kind**: Sensor message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x365)]
     #[mavlink(id = 0x10_06_41)]
@@ -327,7 +327,7 @@ pub enum Message {
     /// The pressure from the igniter block.
     ///
     /// # CAN
-    /// - **Kind**: Status message
+    /// - **Kind**: Sensor message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x364)]
     #[mavlink(id = 0x10_06_60)]
