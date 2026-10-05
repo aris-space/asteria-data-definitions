@@ -43,6 +43,21 @@ pub enum WatchdogState {
     Expired = 2,
 }
 
+/// The state of a parachute deployment (main or drogue).
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum DeploymentState {
+    #[default]
+    Unarmed = 0,
+    NotYetDeployed = 1,
+    Deployed = 2,
+}
+
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
 #[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet)]

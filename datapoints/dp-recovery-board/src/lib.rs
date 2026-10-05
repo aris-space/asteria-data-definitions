@@ -121,6 +121,22 @@ pub enum Message {
     #[can(id = 0x1FD)]
     DeploymentOccurred,
 
+    /// Informs the FC if the CATS has triggered separation.
+    ///
+    /// # CAN
+    /// - **Kind**: Status event message
+    /// - **Sent by**: Recovery Board
+    #[can(id = 0x2F0)]
+    CATSSeparationState(DeploymentState),
+
+    /// Informs the FC if the CATS has triggered main deployment.
+    ///
+    /// # CAN
+    /// - **Kind**: Status event message
+    /// - **Sent by**: Recovery Board
+    #[can(id = 0x2F1)]
+    CATSDeploymentState(DeploymentState),
+
     // ======================== RX ========================
     /// # `SteeringTargetPositions`
     /// Periodic event message emitted by the Flight Computer.
