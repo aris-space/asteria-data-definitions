@@ -1,6 +1,7 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
 use datatypes::status::{ArmingState, SensorStatus, StatusCommonMessage};
+use datatypes::units::Celsius;
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -18,6 +19,9 @@ pub struct EngineControlBoardStatus {
     /// `Armed` if the engine is armed and the main valves receive power, ie engine arming Pin is pulled
     #[mavlink(flatten)]
     pub armed: ArmingState,
+    /// Approximate temperature of the board.
+    #[mavlink(refine)]
+    pub temperature: Celsius,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]

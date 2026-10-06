@@ -1,6 +1,7 @@
 #[cfg(feature = "mavlink")]
 use data_core::mavlink;
 use datatypes::status::{DprGainInfo, DprLoopInfo, SensorStatus, StatusCommonMessage};
+use datatypes::units::Celsius;
 use gated_derive::gated_derive;
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -24,4 +25,7 @@ pub struct OxidizerControlBoardStatus {
     /// State of the DPR Control Gain
     #[mavlink(flatten)]
     pub dpr_gain_info: DprGainInfo,
+    /// Approximate temperature of the board.
+    #[mavlink(refine)]
+    pub temperature: Celsius,
 }
