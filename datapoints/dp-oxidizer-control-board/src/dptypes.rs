@@ -26,5 +26,6 @@ pub struct OxidizerControlBoardStatus {
     #[mavlink(flatten)]
     pub dpr_gain_info: DprGainInfo,
     /// Approximate temperature of the board.
+    #[mavlink(refine)]
     pub temperature: Celsius,
 }

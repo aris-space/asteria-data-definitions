@@ -20,6 +20,7 @@ pub struct EngineControlBoardStatus {
     #[mavlink(flatten)]
     pub armed: ArmingState,
     /// Approximate temperature of the board.
+    #[mavlink(refine)]
     pub temperature: Celsius,
 }
 
