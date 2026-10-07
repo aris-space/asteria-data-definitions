@@ -25,6 +25,24 @@ pub enum ActuatorStatus {
     PowerOn = 2,
 }
 
+/// Represents the state of one steering motor.
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum SteeringStatus {
+    /// Steering power is off, so the motor cannot be reached.
+    #[default]
+    Unpowered = 0,
+    /// Steering is powered, but the motor did not answer its last status request.
+    Unresponsive = 1,
+    /// The motor answered its last status request.
+    Responsive = 2,
+}
+
 /// Represents the current state of a watchdog timer.
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
 #[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
@@ -41,6 +59,21 @@ pub enum WatchdogState {
     Active = 1,
     /// Watchdog has expired due to lack of steering updates
     Expired = 2,
+}
+
+/// The state of a parachute deployment (main or drogue).
+#[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
+#[gated_derive(bincode::Encode, bincode::Decode, arbitrary::Arbitrary)]
+#[gated_derive(mavlink::Encode, mavlink::Decode, mavlink::FieldSet, mavlink::Enum)]
+#[gated_derive(utoipa::ToSchema, facet::Facet)]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum DeploymentState {
+    #[default]
+    Unarmed = 0,
+    NotYetDeployed = 1,
+    Deployed = 2,
 }
 
 #[gated_derive(serde::Serialize, serde::Deserialize, defmt::Format)]
@@ -97,15 +130,12 @@ pub struct RecoveryBoardStatus {
     /// Detected state of deployment actuator 2.
     #[mavlink(refine)]
     pub depl2_status: ActuatorStatus,
-    /// General steering actuator state as observed from detection circuitry.
+    /// State of the left steering motor.
     #[mavlink(refine)]
-    pub steering_general: ActuatorStatus,
-    /// True if left steering motor has correctly responded to ping.
-    /// Will be false until the steering servos have power
-    pub steering_left_connected: bool,
-    /// True if right steering motor has correctly responded to ping.
-    /// Will be false until the steering servos have power
-    pub steering_right_connected: bool,
+    pub steering_left_status: SteeringStatus,
+    /// State of the right steering motor.
+    #[mavlink(refine)]
+    pub steering_right_status: SteeringStatus,
     /// Current state of the steering watchdog.
     #[mavlink(refine)]
     pub steering_watchdog_status: WatchdogState,
