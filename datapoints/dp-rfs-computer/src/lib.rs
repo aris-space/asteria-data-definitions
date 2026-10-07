@@ -204,14 +204,14 @@ pub enum Message {
     #[pss(label = "N2 Showers", name = "n2_shw_vlv")]
     N2ShowerValvesState(NormallyClosedValve),
 
-    /// The current active state of the normally closed N2 engine purge valve valve.
+    /// The current active state of the normally closed engine purge valve valve.
     ///
     /// # CAN
     /// - **Kind**: Status message
     /// - **Sent by**: RFS Computer
     #[can(id = 0x336)]
     #[mavlink(id = 0x10_06_22)]
-    #[pss(label = "N2 Engine Purge", name = "eng_prg_vlv")]
+    #[pss(label = "Engine Purge", name = "eng_prg_vlv")]
     N2RocketPurgeValveState(NormallyClosedValve),
 
     // -------- Digital power outputs --------
@@ -444,7 +444,7 @@ pub enum Message {
     #[can(id = 0x20e)]
     GoxIgniterPurgeControl(NormallyClosedValve),
 
-    /// Controls the N2 engine purge valve on the RFS from the FC.
+    /// Controls the engine purge valve on the RFS from the FC.
     ///
     /// This is needed during the ignition sequence where the flight computer controls the
     /// ignition and thus needs to purge the engine.
