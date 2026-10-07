@@ -85,33 +85,33 @@ pub struct PositionData {
 #[serde(rename_all = "camelCase")]
 pub struct ImuData {
     // --- Body-fixed NED frame (X: forward, Y: right, Z: down) ---
-    /// Acceleration along body X-axis (forward) in m/s². Range: ±78.48 m/s² (±8g)
+    /// Acceleration along body X-axis (forward) in m/s².
     pub acceleration_x: f32,
-    /// Acceleration along body Y-axis (right) in m/s². Range: ±78.48 m/s² (±8g)
+    /// Acceleration along body Y-axis (right) in m/s².
     pub acceleration_y: f32,
-    /// Acceleration along body Z-axis (down) in m/s². Range: ±78.48 m/s² (±8g)
+    /// Acceleration along body Z-axis (down) in m/s².
     pub acceleration_z: f32,
 
-    /// Angular velocity around body X-axis in °/s. Range: ±2000 °/s
+    /// Angular velocity around body X-axis in °/s.
     pub angular_velocity_x: f32,
-    /// Angular velocity around body Y-axis in °/s. Range: ±2000 °/s
+    /// Angular velocity around body Y-axis in °/s.
     pub angular_velocity_y: f32,
-    /// Angular velocity around body Z-axis in °/s. Range: ±2000 °/s
+    /// Angular velocity around body Z-axis in °/s.
     pub angular_velocity_z: f32,
 
     // --- Inertial NED frame (North, East, Down) ---
-    /// Acceleration along North axis in m/s². Range: ±78.48 m/s² (±8g)
+    /// Acceleration along North axis in m/s².
     pub acceleration_north: f32,
-    /// Acceleration along East axis in m/s². Range: ±78.48 m/s² (±8g)
+    /// Acceleration along East axis in m/s².
     pub acceleration_east: f32,
-    /// Acceleration along Down axis in m/s². Range: ±78.48 m/s² (±8g)
+    /// Acceleration along Down axis in m/s².
     pub acceleration_down: f32,
 
-    /// Angular velocity around North axis in °/s. Range: ±2000 °/s
+    /// Angular velocity around North axis in °/s.
     pub angular_velocity_north: f32,
-    /// Angular velocity around East axis in °/s. Range: ±2000 °/s
+    /// Angular velocity around East axis in °/s.
     pub angular_velocity_east: f32,
-    /// Angular velocity around Down axis in °/s. Range: ±2000 °/s
+    /// Angular velocity around Down axis in °/s.
     pub angular_velocity_down: f32,
 }
 
@@ -123,19 +123,19 @@ pub struct ImuData {
 #[serde(rename_all = "camelCase")]
 pub struct VelocityData {
     // --- Body-fixed frame (X: forward, Y: right, Z: down) ---
-    /// Velocity along body X-axis (forward) in m/s. Range: ±500 m/s
+    /// Velocity along body X-axis (forward) in m/s.
     pub velocity_x: f32,
-    /// Velocity along body Y-axis (right) in m/s. Range: ±500 m/s
+    /// Velocity along body Y-axis (right) in m/s.
     pub velocity_y: f32,
-    /// Velocity along body Z-axis (down) in m/s. Range: ±500 m/s
+    /// Velocity along body Z-axis (down) in m/s.
     pub velocity_z: f32,
 
     // --- Inertial NED frame (North, East, Down) ---
-    /// Velocity along North axis in m/s. Range: ±500 m/s
+    /// Velocity along North axis in m/s.
     pub velocity_north: f32,
-    /// Velocity along East axis in m/s. Range: ±500 m/s
+    /// Velocity along East axis in m/s.
     pub velocity_east: f32,
-    /// Velocity along Down axis in m/s. Range: ±500 m/s
+    /// Velocity along Down axis in m/s.
     pub velocity_down: f32,
 }
 
@@ -197,18 +197,18 @@ pub struct EnvironmentalData {
 #[serde(rename_all = "camelCase")]
 pub struct MagnetometerData {
     // --- Body-fixed NED frame (X: forward, Y: right, Z: down) ---
-    /// Magnetic field along body X-axis (forward) in μT. Range: ±4915.2 μT
+    /// Magnetic field along body X-axis (forward) in μT.
     pub magnetic_field_x: f32,
-    /// Magnetic field along body Y-axis (right) in μT. Range: ±4915.2 μT
+    /// Magnetic field along body Y-axis (right) in μT.
     pub magnetic_field_y: f32,
-    /// Magnetic field along body Z-axis (down) in μT. Range: ±4915.2 μT
+    /// Magnetic field along body Z-axis (down) in μT.
     pub magnetic_field_z: f32,
 
     // --- Inertial NED frame (North, East, Down) ---
-    /// Magnetic field along North axis in μT. Range: ±4915.2 μT
+    /// Magnetic field along North axis in μT.
     pub magnetic_field_north: f32,
-    /// Magnetic field along East axis in μT. Range: ±4915.2 μT
+    /// Magnetic field along East axis in μT.
     pub magnetic_field_east: f32,
-    /// Magnetic field along Down axis in μT. Range: ±4915.2 μT
+    /// Magnetic field along Down axis in μT.
     pub magnetic_field_down: f32,
 }
