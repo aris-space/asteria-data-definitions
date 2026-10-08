@@ -127,6 +127,7 @@ pub enum Message {
     /// - **Kind**: Status event message
     /// - **Sent by**: Recovery Board
     #[can(id = 0x2F0)]
+    #[mavlink(id = 0x10_05_03)]
     CATSSeparationState(DeploymentState),
 
     /// Informs the FC if the CATS has triggered main deployment.
@@ -135,6 +136,7 @@ pub enum Message {
     /// - **Kind**: Status event message
     /// - **Sent by**: Recovery Board
     #[can(id = 0x2F1)]
+    #[mavlink(id = 0x10_05_04)]
     CATSDeploymentState(DeploymentState),
 
     // ======================== RX ========================
